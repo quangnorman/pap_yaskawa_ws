@@ -1,0 +1,35 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from gp7_vision_pipeline/msg/BoxDetection.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module gp7_vision_pipeline {
+  module msg {
+    struct BoxDetection {
+      std_msgs::msg::Header header;
+
+      string class_name;
+
+      float confidence;
+
+      int32 x_min;
+
+      int32 y_min;
+
+      int32 x_max;
+
+      int32 y_max;
+
+      int32 center_x;
+
+      int32 center_y;
+
+      int32 width_px;
+
+      int32 height_px;
+
+      float distance_m;
+    };
+  };
+};

@@ -1,0 +1,73 @@
+[0.013s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/norman/pap_yaskawa_ws/src/gp7_description -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/norman/pap_yaskawa_ws/install/gp7_description
+[0.052s] -- The C compiler identification is GNU 11.4.0
+[0.095s] -- The CXX compiler identification is GNU 11.4.0
+[0.100s] -- Detecting C compiler ABI info
+[0.139s] -- Detecting C compiler ABI info - done
+[0.147s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.147s] -- Detecting C compile features
+[0.148s] -- Detecting C compile features - done
+[0.151s] -- Detecting CXX compiler ABI info
+[0.213s] -- Detecting CXX compiler ABI info - done
+[0.219s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.220s] -- Detecting CXX compile features
+[0.220s] -- Detecting CXX compile features - done
+[0.221s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.327s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.388s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.413s] -- Found ament_lint_auto: 0.12.15 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[0.471s] -- Added test 'lint_cmake' to check CMake code style
+[0.473s] -- Added test 'xmllint' to check XML markup files
+[0.473s] -- Configuring done
+[0.475s] -- Generating done
+[0.476s] -- Build files have been written to: /home/norman/pap_yaskawa_ws/build/gp7_description
+[0.479s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/norman/pap_yaskawa_ws/src/gp7_description -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/norman/pap_yaskawa_ws/install/gp7_description
+[0.481s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/norman/pap_yaskawa_ws/build/gp7_description -- -j20 -l20
+[0.525s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/norman/pap_yaskawa_ws/build/gp7_description -- -j20 -l20
+[0.526s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/norman/pap_yaskawa_ws/build/gp7_description
+[0.530s] -- Install configuration: ""
+[0.531s] -- Execute custom install script
+[0.531s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/arm.xacro
+[0.539s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/common_properties.urdf.xacro
+[0.546s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/gazebo.xacro
+[0.551s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/gp7_yaskawa.real.xacro
+[0.559s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/gp7_yaskawa.ros2_control.xacro
+[0.564s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/gp7_yaskawa.ros2_control_fake.xacro
+[0.570s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/gp7_yaskawa.urdf.xacro
+[0.575s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/urdf/gp7_yaskawa_fake.urdf.xacro
+[0.582s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/base_link.STL
+[0.590s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/link_b.STL
+[0.596s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/link_l.STL
+[0.603s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/link_r.STL
+[0.610s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/link_s.STL
+[0.618s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/link_t.STL
+[0.625s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/meshes/link_u.STL
+[0.633s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/aws_robomaker_residential_CoffeeTable_01/materials/textures/aws_CoffeeTable_01.png
+[0.641s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/aws_robomaker_residential_CoffeeTable_01/meshes/aws_CoffeeTable_01_collision.DAE
+[0.649s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/aws_robomaker_residential_CoffeeTable_01/meshes/aws_CoffeeTable_01_visual.DAE
+[0.658s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/aws_robomaker_residential_CoffeeTable_01/model.config
+[0.664s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/aws_robomaker_residential_CoffeeTable_01/model.sdf
+[0.672s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/conveyor_belt/meshes/conveyor_belt.dae
+[0.677s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/conveyor_belt/meshes/conveyor_belt.stl
+[0.686s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/conveyor_belt/model.config
+[0.693s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/conveyor_belt/model.sdf
+[0.699s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/mini_stacking_box2/meshes/mini_stacking_box2.dae
+[0.706s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/mini_stacking_box2/model.config
+[0.714s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/mini_stacking_box2/model.sdf
+[0.721s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/config/initial_positions.yaml
+[0.727s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/legacy/README.md
+[0.734s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/ament_index/resource_index/package_run_dependencies/gp7_description
+[0.742s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/ament_index/resource_index/parent_prefix_path/gp7_description
+[0.749s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/environment/ament_prefix_path.sh
+[0.758s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/environment/ament_prefix_path.dsv
+[0.765s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/environment/path.sh
+[0.771s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/environment/path.dsv
+[0.777s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/local_setup.bash
+[0.784s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/local_setup.sh
+[0.791s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/local_setup.zsh
+[0.797s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/local_setup.dsv
+[0.804s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/package.dsv
+[0.810s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/ament_index/resource_index/packages/gp7_description
+[0.817s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/cmake/gp7_descriptionConfig.cmake
+[0.823s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/cmake/gp7_descriptionConfig-version.cmake
+[0.831s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/package.xml
+[0.838s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/norman/pap_yaskawa_ws/build/gp7_description

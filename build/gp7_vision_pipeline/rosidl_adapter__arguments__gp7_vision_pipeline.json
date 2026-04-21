@@ -1,0 +1,6 @@
+{
+  "package_name": "gp7_vision_pipeline",
+  "non_idl_tuples": [
+    "/home/norman/pap_yaskawa_ws/src/gp7_vision_pipeline:msg/BoxDetection.msg"
+  ]
+}

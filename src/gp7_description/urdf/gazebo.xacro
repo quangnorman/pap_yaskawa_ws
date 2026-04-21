@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:macro name="gp7_yaskawa_gazebo">
+
+<gazebo reference="base_link">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+<gazebo reference="link_s">
+  <material>Gazebo/White</material>
+</gazebo>
+
+<gazebo reference="link_l">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+<gazebo reference="link_u">
+  <material>Gazebo/White</material>
+</gazebo>
+
+<gazebo reference="link_r">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+<gazebo reference="link_b">
+  <material>Gazebo/White</material>
+</gazebo>
+
+<gazebo reference="link_t">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+</xacro:macro>
+
+</robot>

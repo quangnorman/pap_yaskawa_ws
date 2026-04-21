@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/build/gp7_vision_pipeline/rosidl_generator_py/gp7_vision_pipeline/msg/__init__.py

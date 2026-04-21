@@ -1,0 +1,7 @@
+[INFO] [1774515338.734211517] [tf2_echo]: Waiting for transform base_link ->  tool0: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515340.690696179] [tf2_echo]: Waiting for transform base_link ->  tool0: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515341.690841206] [tf2_echo]: Waiting for transform base_link ->  tool0: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515343.690711146] [tf2_echo]: Waiting for transform base_link ->  tool0: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515344.690778389] [tf2_echo]: Waiting for transform base_link ->  tool0: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515345.690784168] [tf2_echo]: Waiting for transform base_link ->  tool0: Invalid frame ID "base_link" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515346.245072112] [rclcpp]: signal_handler(SIGINT/SIGTERM)

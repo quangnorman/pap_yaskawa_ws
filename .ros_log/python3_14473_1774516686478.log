@@ -1,0 +1,3 @@
+[INFO] [1774516687.036241846] [gp7_cartesian_offset_demo]: Waiting for services: get=/gp7_task_executor/get_current_pose, move=/gp7_task_executor/move_to_pose
+[WARN] [1774516727.136665907] [gp7_cartesian_offset_demo]: Namespaced services not ready, trying fallback: get=/get_current_pose, move=/move_to_pose
+[ERROR] [1774516728.158251910] [gp7_cartesian_offset_demo]: get_current_pose failed: Transform not available within 1.00s for world <- tool0

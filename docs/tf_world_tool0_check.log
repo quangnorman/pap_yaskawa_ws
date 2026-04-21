@@ -1,0 +1,6 @@
+[INFO] [1774515093.458617871] [tf2_echo]: Waiting for transform world ->  tool0: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515095.423809237] [tf2_echo]: Waiting for transform world ->  tool0: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515096.423894766] [tf2_echo]: Waiting for transform world ->  tool0: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515098.423686915] [tf2_echo]: Waiting for transform world ->  tool0: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515099.424730319] [tf2_echo]: Waiting for transform world ->  tool0: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1774515100.981435720] [rclcpp]: signal_handler(SIGINT/SIGTERM)

@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/src/gp7_vision_pipeline/launch/vision_pipeline.launch.py

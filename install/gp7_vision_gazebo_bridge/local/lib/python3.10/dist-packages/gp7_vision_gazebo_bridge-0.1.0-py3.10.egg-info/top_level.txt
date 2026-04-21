@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/build/gp7_vision_gazebo_bridge/ament_cmake_python/gp7_vision_gazebo_bridge/gp7_vision_gazebo_bridge.egg-info/top_level.txt

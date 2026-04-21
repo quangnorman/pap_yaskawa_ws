@@ -1,0 +1,27 @@
+# Default simulated eye-to-hand camera (REP-103: robot +X forward, +Y left, +Z up).
+# Right of robot = negative Y → default position y = -0.7 m from robot base / world origin.
+#
+# These values are mirrored as ``DeclareLaunchArgument`` defaults in
+# ``launch/sim_moveit_vision_rgbd.launch.py``. Change one place and keep the other in sync,
+# or override at launch: ``sim_cam_y:=...`` etc.
+
+sim_vision_camera:
+  pose_in_world:
+    x: 0.0
+    y: -0.7
+    z: 1.0
+  # RPY radians applied by spawn_entity (-R -P -Y) and matching static TF world → camera_link.
+  # Assumption (ground truth mount):
+  # - camera points straight down (optical Z vertical to ground)
+  # - then add +90deg right rotation about the viewing axis
+  rpy_rad:
+    # Computed so that camera_color_optical_frame optical +Z points along -Z_world:
+    #   world→camera_link = (roll=0, pitch=pi/2, yaw=-pi/2).
+    roll: 0.0
+    pitch: 1.5707963267948966
+    yaw: -1.5707963267948966
+  # Fixed joint camera_link → camera_color_optical_frame (typical sensor optical convention).
+  optical_rpy_rad:
+    roll: -1.5707963267948966
+    pitch: 0.0
+    yaw: -1.5707963267948966

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:macro name="gp7_yaskawa_real">
+
+<!-- reserved for real robot hardware plugin -->
+
+</xacro:macro>
+
+</robot>

@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/build/gp7_vision_pipeline/rosidl_typesupport_introspection_c/gp7_vision_pipeline/msg/detail/box_detection__rosidl_typesupport_introspection_c.h

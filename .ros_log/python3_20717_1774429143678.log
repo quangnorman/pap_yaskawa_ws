@@ -1,0 +1,4 @@
+[INFO] [1774429144.021106946] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
+[INFO] [1774429144.045490552] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m
+[INFO] [1774429144.105887445] [spawner_joint_state_broadcaster]: [94mLoaded [1marm_controller[0m
+[INFO] [1774429144.145968770] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1marm_controller[0m

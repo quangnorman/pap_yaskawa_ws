@@ -1,0 +1,9 @@
+{
+  "package_name": "gp7_task_executor_msgs",
+  "non_idl_tuples": [
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToNamedTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToJointTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToPoseTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveSequence.srv"
+  ]
+}

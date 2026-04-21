@@ -1,0 +1,14 @@
+# Arguments forwarded to ``realsense2_camera`` ``rs_launch.py``.
+# Verify names for your installed version:
+#   ros2 launch realsense2_camera rs_launch.py --show-args
+#
+# Aligned depth to color is required for later YOLO ROI + depth extent work.
+
+launch_arguments:
+  enable_color: "true"
+  enable_depth: "true"
+  enable_infra1: "false"
+  enable_infra2: "false"
+  align_depth.enable: "true"
+  # Point cloud (typical topic suffix ``depth/color/points`` under /camera/camera/ — confirm with ros2 topic list)
+  pointcloud.enable: "true"

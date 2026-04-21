@@ -1,0 +1,3 @@
+[INFO] [1774427921.323672968] [gp7_joint_space_demo_loop]: Demo configured: joint_names=['joint_s', 'joint_l', 'joint_u', 'joint_r', 'joint_b', 'joint_t'] tol=0.050 plan_only=False delay=3.00s max_cycles=0
+[INFO] [1774427921.325638763] [gp7_joint_space_demo_loop]: Waiting for move_to_joint_goal service on /gp7_task_executor/move_to_joint_goal
+[WARN] [1774427923.331919799] [gp7_joint_space_demo_loop]: Service /gp7_task_executor/move_to_joint_goal not available; trying fallback /move_to_joint_goal

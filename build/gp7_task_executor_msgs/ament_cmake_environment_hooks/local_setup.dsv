@@ -1,0 +1,4 @@
+source;share/gp7_task_executor_msgs/environment/ament_prefix_path.sh
+source;share/gp7_task_executor_msgs/environment/library_path.sh
+source;share/gp7_task_executor_msgs/environment/path.sh
+source;share/gp7_task_executor_msgs/environment/pythonpath.sh

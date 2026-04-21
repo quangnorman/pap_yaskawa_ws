@@ -1,0 +1,34 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from gp7_task_executor_msgs/srv/MoveToJointTarget.srv
+// generated code does not contain a copyright notice
+
+
+module gp7_task_executor_msgs {
+  module srv {
+    @verbatim (language="comment", text=
+      "MoveToJointTarget Service Definition" "\n"
+      "" "\n"
+      "Commands MoveIt to move to a joint-space goal." "\n"
+      "" "\n"
+      "Request:" "\n"
+      "  - joint_names: Names of the joints to move (must match the MoveIt planning group)." "\n"
+      "  - positions: Target positions for the corresponding joint_names." "\n"
+      "  - execute: If true, plan and execute. If false, plan only." "\n"
+      "" "\n"
+      "Response:" "\n"
+      "  - success: True if planning (and execution if requested) succeeded." "\n"
+      "  - message: Human-readable result/diagnostic message.")
+    struct MoveToJointTarget_Request {
+      sequence<string> joint_names;
+
+      sequence<double> positions;
+
+      boolean execute;
+    };
+    struct MoveToJointTarget_Response {
+      boolean success;
+
+      string message;
+    };
+  };
+};

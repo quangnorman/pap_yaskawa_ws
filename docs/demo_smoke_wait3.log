@@ -1,0 +1,18 @@
+[37;1m2026-03-25 13:38:03.166 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed to create segment 74dc0d7f60f0d487: Permission denied[34;1m -> Function [36mcompute_per_allocation_extra_size[m
+[37;1m2026-03-25 13:38:03.166 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed to create Shared Memory Manager for domain fastrtps: Permission denied[34;1m -> Function [36mcreate[m
+[37;1m2026-03-25 13:38:03.166 [31;1m[[37;1mRTPS_PARTICIPANT[31;1m Error] [37mUnable to Register SHM Transport. SHM Transport is not supported in the current platform.[34;1m -> Function [36mRTPSParticipantImpl[m
+Traceback (most recent call last):
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/lib/gp7_task_executor/demo_joint_space_loop_node", line 8, in <module>
+    main(sys.argv)
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/joint_space_demo_loop_node.py", line 200, in main
+    node = JointSpaceDemoLoop()
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/joint_space_demo_loop_node.py", line 48, in __init__
+    self.declare_parameter("joint_names", [])
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 367, in declare_parameter
+    return self.declare_parameters('', [args], ignore_override)[0]
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 493, in declare_parameters
+    self._set_parameters(
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 738, in _set_parameters
+    raise InvalidParameterTypeException(
+rclpy.exceptions.InvalidParameterTypeException: Trying to set parameter 'joint_names' to '['joint_s', 'joint_l', 'joint_u', 'joint_r', 'joint_b', 'joint_t']' of type 'STRING_ARRAY', expecting type 'BYTE_ARRAY'
+[ros2run]: Process exited with failure 1

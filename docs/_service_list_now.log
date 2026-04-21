@@ -1,0 +1,6 @@
+/robot_state_publisher/describe_parameters
+/robot_state_publisher/get_parameter_types
+/robot_state_publisher/get_parameters
+/robot_state_publisher/list_parameters
+/robot_state_publisher/set_parameters
+/robot_state_publisher/set_parameters_atomically

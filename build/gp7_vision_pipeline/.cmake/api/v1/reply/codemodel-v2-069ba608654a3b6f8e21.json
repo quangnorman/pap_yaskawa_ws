@@ -1,0 +1,258 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-51ebf19b1cc3e30c2121.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						17,
+						18
+					]
+				},
+				{
+					"build" : "gp7_vision_pipeline__py",
+					"jsonFile" : "directory-gp7_vision_pipeline__py-7e73200952e807fb0639.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/norman/pap_yaskawa_ws/build/gp7_vision_pipeline/gp7_vision_pipeline__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "gp7_vision_pipeline__rs",
+					"jsonFile" : "directory-gp7_vision_pipeline__rs-227c8654aef8bb19ac38.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/norman/pap_yaskawa_ws/build/gp7_vision_pipeline/gp7_vision_pipeline__rs",
+					"targetIndexes" : 
+					[
+						16
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "gp7_vision_pipeline",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_gp7_vision_pipeline_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_gp7_vision_pipeline_egg-a30fb5faff115f4a094f.json",
+					"name" : "ament_cmake_python_build_gp7_vision_pipeline_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_symlink_gp7_vision_pipeline::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_symlink_gp7_vision_pipeline-3d0aeabb71337b5717f5.json",
+					"name" : "ament_cmake_python_symlink_gp7_vision_pipeline",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline-f8760b38bdb8be62cc11.json",
+					"name" : "gp7_vision_pipeline",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__cpp-bb4a0aa69200a00f36a6.json",
+					"name" : "gp7_vision_pipeline__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "gp7_vision_pipeline__py::@7b416fdd7c841a3c6d26",
+					"jsonFile" : "target-gp7_vision_pipeline__py-1c2ae27292ed273a3f2f.json",
+					"name" : "gp7_vision_pipeline__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_generator_c-e290a63081346077546a.json",
+					"name" : "gp7_vision_pipeline__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_generator_py-e0e9ed31d1875719fe8f.json",
+					"name" : "gp7_vision_pipeline__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_c-6039fe46acf0287aeb87.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_c__pyext-e0ce33559fa709132831.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_cpp-bf3991cd067fcdcb6772.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_fastrtps_c-9382e151267970d23b00.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_fastrtps_c__pyext-2b3d769a3b704d371afe.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_fastrtps_cpp-d80fe24f99452361579f.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_introspection_c-03e9a08e4336cdeca3bd.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_introspection_c__pyext-6e3e3edda5e5d65c1fe6.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline__rosidl_typesupport_introspection_cpp-ba87a42dedd7e90a33b2.json",
+					"name" : "gp7_vision_pipeline__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "gp7_vision_pipeline__rs::@77f0e98347026298a505",
+					"jsonFile" : "target-gp7_vision_pipeline__rs-a53bcf3e222705398fef.json",
+					"name" : "gp7_vision_pipeline__rs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gp7_vision_pipeline_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gp7_vision_pipeline_uninstall-1a6bd615266e68517f2b.json",
+					"name" : "gp7_vision_pipeline_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-63ee18b30b795fc7478a.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/norman/pap_yaskawa_ws/build/gp7_vision_pipeline",
+		"source" : "/home/norman/pap_yaskawa_ws/src/gp7_vision_pipeline"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

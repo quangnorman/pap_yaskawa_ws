@@ -1,0 +1,9 @@
+# TODO(Milestone-N): Populate for chosen calibration stack (e.g. easy_handeye2 or custom).
+# Expected frames (project policy): world, base_link, tool0, camera_link, camera_color_optical_frame.
+
+handeye_stub:
+  ros__parameters:
+    robot_base_frame: "base_link"
+    robot_effector_frame: "tool0"
+    camera_frame: "camera_link"
+    calibration_type: "eye_in_hand"  # or eye_to_hand — TODO

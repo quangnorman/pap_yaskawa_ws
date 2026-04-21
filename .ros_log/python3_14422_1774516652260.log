@@ -1,0 +1,20 @@
+[INFO] [1774516652.627593420] [gp7_task_executor]: task_executor_node ready. Service: move_to_joint_goal; MoveGroup action: /move_action
+[INFO] [1774516727.142179948] [gp7_task_executor]: get_current_pose request: frame_id=world ee_link=tool0 timeout=1.00s
+[WARN] [1774516728.154760352] [gp7_task_executor]: Transform not available within 1.00s for world <- tool0
+[INFO] [1774518060.256991294] [gp7_task_executor]: get_current_pose request: frame_id=world ee_link=tool0 timeout=1.00s
+[INFO] [1774518060.295758167] [gp7_task_executor]: get_current_pose success: frame_id=world ee_link=tool0
+[INFO] [1774518083.612778156] [gp7_task_executor]: get_current_pose request: frame_id=world ee_link=tool0 timeout=1.00s
+[INFO] [1774518083.667821067] [gp7_task_executor]: get_current_pose success: frame_id=world ee_link=tool0
+[INFO] [1774518261.254855874] [gp7_task_executor]: get_current_pose request: frame_id=world ee_link=tool0 timeout=1.00s
+[INFO] [1774518261.285859439] [gp7_task_executor]: get_current_pose success: frame_id=world ee_link=tool0
+[INFO] [1774518261.347359870] [gp7_task_executor]: Waiting for MoveIt/controller readiness: move_group=/move_action traj=/arm_controller/follow_joint_trajectory require_joint_states=True
+[INFO] [1774518261.395158502] [gp7_task_executor]: move_to_pose: request_frame=world planning_frame=world ee_link=tool0 xyz=(0.715,-0.000,0.812) rpy=(-0.018,-1.571,-3.123)
+[INFO] [1774518264.109200136] [gp7_task_executor]: move_to_pose: request_frame=world planning_frame=world ee_link=tool0 xyz=(0.685,-0.000,0.812) rpy=(-0.018,-1.571,-3.123)
+[INFO] [1774518295.340267073] [gp7_task_executor]: get_current_pose request: frame_id=world ee_link=tool0 timeout=1.00s
+[INFO] [1774518295.383552987] [gp7_task_executor]: get_current_pose success: frame_id=world ee_link=tool0
+[INFO] [1774518295.394297861] [gp7_task_executor]: move_to_pose: request_frame=world planning_frame=world ee_link=tool0 xyz=(0.710,0.010,0.818) rpy=(-0.297,-1.548,-2.821)
+[INFO] [1774518306.617701713] [gp7_task_executor]: move_to_pose: request_frame=world planning_frame=world ee_link=tool0 xyz=(0.680,0.010,0.818) rpy=(-0.297,-1.548,-2.821)
+[INFO] [1774518351.448713628] [gp7_task_executor]: get_current_pose request: frame_id=world ee_link=tool0 timeout=1.00s
+[INFO] [1774518351.481899129] [gp7_task_executor]: get_current_pose success: frame_id=world ee_link=tool0
+[INFO] [1774518351.560174290] [gp7_task_executor]: move_to_pose: request_frame=world planning_frame=world ee_link=tool0 xyz=(0.709,0.002,0.813) rpy=(-0.796,-1.442,-2.254)
+[INFO] [1774518365.775470882] [gp7_task_executor]: move_to_pose: request_frame=world planning_frame=world ee_link=tool0 xyz=(0.679,0.002,0.813) rpy=(-0.796,-1.442,-2.254)

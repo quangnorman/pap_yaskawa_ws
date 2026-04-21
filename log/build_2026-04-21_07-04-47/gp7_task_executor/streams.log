@@ -1,0 +1,57 @@
+[0.012s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_task_executor': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/home/norman/a_ws/install/motoros2_interfaces:/home/norman/a_ws/install/gp7_yaskawa_moveit:/home/norman/a_ws/install/gp7_yaskawa:/home/norman/ros2_ws/install/ros2_linkattacher:/home/norman/ros2_ws/install/ros2_conveyorbelt:/home/norman/ros2_ws/install/myrhb:/home/norman/ros2_ws/install/my_robot_interfaces:/home/norman/ros2_ws/install/my_robot_bringup:/home/norman/ros2_ws/install/my_cpp_pkg:/home/norman/ros2_ws/install/motoros2_client_interface_dependencies:/home/norman/ros2_ws/install/motoros2_interfaces:/home/norman/ros2_ws/install/linkattacher_msgs:/home/norman/ros2_ws/install/industrial_msgs:/home/norman/ros2_ws/install/gp7_yaskawa_moveit:/home/norman/ros2_ws/install/gp7_yaskawa:/home/norman/ros2_ws/install/conveyorbelt_msgs:/home/norman/ros2_ws/install/conveyorbelt_gazebo:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/ros2_ws/install/yaskawa_robot_controller:/home/norman/ros2_ws/install/my_robot_controller:/home/norman/ros2_ws/install/box_measurement:/opt/ros/humble LD_LIBRARY_PATH=/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs/lib:/home/norman/a_ws/install/motoros2_interfaces/lib:/home/norman/ros2_ws/install/ros2_linkattacher/lib:/home/norman/ros2_ws/install/ros2_conveyorbelt/lib:/home/norman/ros2_ws/install/my_robot_interfaces/lib:/home/norman/ros2_ws/install/motoros2_interfaces/lib:/home/norman/ros2_ws/install/linkattacher_msgs/lib:/home/norman/ros2_ws/install/industrial_msgs/lib:/home/norman/ros2_ws/install/conveyorbelt_msgs/lib:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib /usr/bin/cmake --build /home/norman/pap_yaskawa_ws/build/gp7_task_executor -- -j20 -l20
+[0.049s] [35m[1mConsolidate compiler generated dependencies of target task_executor_node[0m
+[0.065s] [ 50%] [32mBuilding CXX object CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o[0m
+[2.857s] [01m[K/home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/task_executor_node.cpp:[m[K In member function ‘[01m[Kvoid TaskExecutorNode::handle_pose_target(std::shared_ptr<gp7_task_executor_msgs::srv::MoveToPoseTarget_Request_<std::allocator<void> > >, std::shared_ptr<gp7_task_executor_msgs::srv::MoveToPoseTarget_Response_<std::allocator<void> > >)[m[K’:
+[2.857s] [01m[K/home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/task_executor_node.cpp:292:82:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Ktf2_ros::Buffer::lookupTransform(const string&, const string&, const TimePoint&, rclcpp::Duration)[m[K’
+[2.857s]   292 | tamped tf_msg = [01;31m[Ktf_buffer_->lookupTransform([m[K
+[2.857s]       |                 [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~^[m[K
+[2.857s] 
+[2.857s]   293 | [01;31m[Kframe, tf2::TimePointZero,[m[K
+[2.857s]       | [01;31m[K~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K                  
+[2.857s] 
+[2.857s]   294 | [01;31m[Konds(1.0))[m[K;
+[2.857s]       | [01;31m[K~~~~~~~~~~[m[K                                  
+[2.857s] 
+[2.857s] In file included from [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.h:35[m[K,
+[2.857s]                  from [01m[K/home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/task_executor_node.cpp:10[m[K:
+[2.857s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:92:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kvirtual geometry_msgs::msg::TransformStamped tf2_ros::Buffer::lookupTransform(const string&, const string&, const TimePoint&, tf2::Duration) const[m[K’
+[2.857s]    92 |   [01;36m[KlookupTransform[m[K(
+[2.857s]       |   [01;36m[K^~~~~~~~~~~~~~~[m[K
+[2.857s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:94:54:[m[K [01;36m[Knote: [m[K  no known conversion for argument 4 from ‘[01m[Krclcpp::Duration[m[K’ to ‘[01m[Ktf2::Duration[m[K’ {aka ‘[01m[Kstd::chrono::duration<long int, std::ratio<1, 1000000000> >[m[K’}
+[2.857s]    94 | oint & time, [01;36m[Kconst tf2::Duration timeout[m[K) const override;
+[2.857s]       |              [01;36m[K~~~~~~~~~~~~~~~~~~~~^~~~~~~[m[K
+[2.857s] 
+[2.857s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:102:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kgeometry_msgs::msg::TransformStamped tf2_ros::Buffer::lookupTransform(const string&, const string&, const rclcpp::Time&, rclcpp::Duration) const[m[K’
+[2.857s]   102 |   [01;36m[KlookupTransform[m[K(
+[2.857s]       |   [01;36m[K^~~~~~~~~~~~~~~[m[K
+[2.858s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:104:26:[m[K [01;36m[Knote: [m[K  no known conversion for argument 3 from ‘[01m[Kconst TimePoint[m[K’ {aka ‘[01m[Kconst std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long int, std::ratio<1, 1000000000> > >[m[K’} to ‘[01m[Kconst rclcpp::Time&[m[K’
+[2.858s]   104 |     [01;36m[Kconst rclcpp::Time & time[m[K,
+[2.858s]       |     [01;36m[K~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
+[2.858s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:124:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kvirtual geometry_msgs::msg::TransformStamped tf2_ros::Buffer::lookupTransform(const string&, const TimePoint&, const string&, const TimePoint&, const string&, tf2::Duration) const[m[K’
+[2.858s]   124 |   [01;36m[KlookupTransform[m[K(
+[2.858s]       |   [01;36m[K^~~~~~~~~~~~~~~[m[K
+[2.858s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:124:3:[m[K [01;36m[Knote: [m[K  candidate expects 6 arguments, 4 provided
+[2.858s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:136:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kgeometry_msgs::msg::TransformStamped tf2_ros::Buffer::lookupTransform(const string&, const rclcpp::Time&, const string&, const rclcpp::Time&, const string&, rclcpp::Duration) const[m[K’
+[2.858s]   136 |   [01;36m[KlookupTransform[m[K(
+[2.858s]       |   [01;36m[K^~~~~~~~~~~~~~~[m[K
+[2.858s] [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:136:3:[m[K [01;36m[Knote: [m[K  candidate expects 6 arguments, 4 provided
+[2.858s] In file included from [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/async_buffer_interface.hpp:39[m[K,
+[2.858s]                  from [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp:43[m[K,
+[2.858s]                  from [01m[K/opt/ros/humble/include/tf2_ros/tf2_ros/buffer.h:35[m[K,
+[2.858s]                  from [01m[K/home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/task_executor_node.cpp:10[m[K:
+[2.858s] [01m[K/opt/ros/humble/include/tf2/tf2/buffer_core.hpp:158:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kvirtual geometry_msgs::msg::TransformStamped tf2::BufferCore::lookupTransform(const string&, const TimePoint&, const string&, const TimePoint&, const string&) const[m[K’
+[2.858s]   158 |   [01;36m[KlookupTransform[m[K(
+[2.858s]       |   [01;36m[K^~~~~~~~~~~~~~~[m[K
+[2.858s] [01m[K/opt/ros/humble/include/tf2/tf2/buffer_core.hpp:158:3:[m[K [01;36m[Knote: [m[K  candidate expects 5 arguments, 4 provided
+[2.858s] [01m[K/opt/ros/humble/include/tf2/tf2/buffer_core.hpp:140:3:[m[K [01;36m[Knote: [m[Kcandidate: ‘[01m[Kvirtual geometry_msgs::msg::TransformStamped tf2::BufferCore::lookupTransform(const string&, const string&, const TimePoint&) const[m[K’
+[2.858s]   140 |   [01;36m[KlookupTransform[m[K(
+[2.858s]       |   [01;36m[K^~~~~~~~~~~~~~~[m[K
+[2.858s] [01m[K/opt/ros/humble/include/tf2/tf2/buffer_core.hpp:140:3:[m[K [01;36m[Knote: [m[K  candidate expects 3 arguments, 4 provided
+[2.858s] [01m[K/home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/task_executor_node.cpp:297:45:[m[K [01;31m[Kerror: [m[K‘[01m[KtimeSourceToRclcppTime[m[K’ is not a member of ‘[01m[Ktf2[m[K’
+[2.858s]   297 | e_stamped_in.header.stamp = tf2::[01;31m[KtimeSourceToRclcppTime[m[K(tf_msg.header.stamp);
+[2.858s]       |                                  [01;31m[K^~~~~~~~~~~~~~~~~~~~~~[m[K
+[2.858s] 
+[4.552s] gmake[2]: *** [CMakeFiles/task_executor_node.dir/build.make:76: CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o] Error 1
+[4.552s] gmake[1]: *** [CMakeFiles/Makefile2:137: CMakeFiles/task_executor_node.dir/all] Error 2
+[4.552s] gmake: *** [Makefile:146: all] Error 2
+[4.554s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_task_executor' returned '2': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/home/norman/a_ws/install/motoros2_interfaces:/home/norman/a_ws/install/gp7_yaskawa_moveit:/home/norman/a_ws/install/gp7_yaskawa:/home/norman/ros2_ws/install/ros2_linkattacher:/home/norman/ros2_ws/install/ros2_conveyorbelt:/home/norman/ros2_ws/install/myrhb:/home/norman/ros2_ws/install/my_robot_interfaces:/home/norman/ros2_ws/install/my_robot_bringup:/home/norman/ros2_ws/install/my_cpp_pkg:/home/norman/ros2_ws/install/motoros2_client_interface_dependencies:/home/norman/ros2_ws/install/motoros2_interfaces:/home/norman/ros2_ws/install/linkattacher_msgs:/home/norman/ros2_ws/install/industrial_msgs:/home/norman/ros2_ws/install/gp7_yaskawa_moveit:/home/norman/ros2_ws/install/gp7_yaskawa:/home/norman/ros2_ws/install/conveyorbelt_msgs:/home/norman/ros2_ws/install/conveyorbelt_gazebo:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/ros2_ws/install/yaskawa_robot_controller:/home/norman/ros2_ws/install/my_robot_controller:/home/norman/ros2_ws/install/box_measurement:/opt/ros/humble LD_LIBRARY_PATH=/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs/lib:/home/norman/a_ws/install/motoros2_interfaces/lib:/home/norman/ros2_ws/install/ros2_linkattacher/lib:/home/norman/ros2_ws/install/ros2_conveyorbelt/lib:/home/norman/ros2_ws/install/my_robot_interfaces/lib:/home/norman/ros2_ws/install/motoros2_interfaces/lib:/home/norman/ros2_ws/install/linkattacher_msgs/lib:/home/norman/ros2_ws/install/industrial_msgs/lib:/home/norman/ros2_ws/install/conveyorbelt_msgs/lib:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib /usr/bin/cmake --build /home/norman/pap_yaskawa_ws/build/gp7_task_executor -- -j20 -l20

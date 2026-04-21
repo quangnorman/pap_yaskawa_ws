@@ -1,0 +1,44 @@
+[INFO] [launch]: All log files can be found below /home/norman/.ros/log/2026-03-26-10-12-07-213040-norman-9274
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer URDF from `/home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config`. -- using config/gp7.urdf[0m
+WARNING:root:[33;21mCannot infer SRDF from `/home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config`. -- using config/gp7.srdf[0m
+[INFO] [robot_state_publisher-1]: process started with pid [9276]
+[INFO] [ros2_control_node-2]: process started with pid [9278]
+[ros2_control_node-2] [WARN] [1774494727.975776820] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.
+[ros2_control_node-2] [INFO] [1774494727.976523427] [resource_manager]: Loading hardware 'FakeSystem' 
+[ros2_control_node-2] [INFO] [1774494727.978236868] [resource_manager]: Initialize hardware 'FakeSystem' 
+[ros2_control_node-2] [INFO] [1774494727.978412476] [resource_manager]: Successful initialization of hardware 'FakeSystem'
+[ros2_control_node-2] [INFO] [1774494727.978502805] [resource_manager]: 'configure' hardware 'FakeSystem' 
+[ros2_control_node-2] [INFO] [1774494727.978524384] [resource_manager]: Successful 'configure' of hardware 'FakeSystem'
+[ros2_control_node-2] [INFO] [1774494727.978540848] [resource_manager]: 'activate' hardware 'FakeSystem' 
+[ros2_control_node-2] [INFO] [1774494727.978554960] [resource_manager]: Successful 'activate' of hardware 'FakeSystem'
+[robot_state_publisher-1] [INFO] [1774494727.983892411] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-1] [INFO] [1774494727.984088159] [robot_state_publisher]: got segment link_b
+[robot_state_publisher-1] [INFO] [1774494727.984104136] [robot_state_publisher]: got segment link_l
+[robot_state_publisher-1] [INFO] [1774494727.984112892] [robot_state_publisher]: got segment link_r
+[robot_state_publisher-1] [INFO] [1774494727.984120202] [robot_state_publisher]: got segment link_s
+[robot_state_publisher-1] [INFO] [1774494727.984127462] [robot_state_publisher]: got segment link_t
+[robot_state_publisher-1] [INFO] [1774494727.984134596] [robot_state_publisher]: got segment link_u
+[robot_state_publisher-1] [INFO] [1774494727.984141666] [robot_state_publisher]: got segment tool0
+[robot_state_publisher-1] [INFO] [1774494727.984149123] [robot_state_publisher]: got segment world
+[ros2_control_node-2] [INFO] [1774494727.990611312] [controller_manager]: update rate is 1000 Hz
+[ros2_control_node-2] [INFO] [1774494727.990805879] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[ros2_control_node-2] [WARN] [1774494727.991242816] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[INFO] [spawner-3]: process started with pid [9328]
+[ros2_control_node-2] [INFO] [1774494734.623796720] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[spawner-3] [INFO] [1774494734.688508907] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
+[ros2_control_node-2] [INFO] [1774494734.693148748] [controller_manager]: Configuring controller 'joint_state_broadcaster'
+[ros2_control_node-2] [INFO] [1774494734.693509054] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[spawner-3] [INFO] [1774494734.718145589] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m
+[ros2_control_node-2] [INFO] [1774494734.722482612] [controller_manager]: Loading controller 'arm_controller'
+[ros2_control_node-2] [WARN] [1774494734.754089361] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[spawner-3] [INFO] [1774494734.756647450] [spawner_joint_state_broadcaster]: [94mLoaded [1marm_controller[0m
+[ros2_control_node-2] [INFO] [1774494734.757401667] [controller_manager]: Configuring controller 'arm_controller'
+[ros2_control_node-2] [INFO] [1774494734.757800469] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ros2_control_node-2] [INFO] [1774494734.757854063] [arm_controller]: Command interfaces are [position] and state interfaces are [position].
+[ros2_control_node-2] [INFO] [1774494734.757896338] [arm_controller]: Using 'splines' interpolation method.
+[ros2_control_node-2] [INFO] [1774494734.759793432] [arm_controller]: Controller state will be published at 50.00 Hz.
+[ros2_control_node-2] [INFO] [1774494734.765132185] [arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[spawner-3] [INFO] [1774494734.786474538] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1marm_controller[0m
+[INFO] [spawner-3]: process has finished cleanly [pid 9328]
+[INFO] [move_group-4]: process started with pid [9378]

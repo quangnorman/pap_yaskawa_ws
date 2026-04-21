@@ -1,0 +1,8 @@
+setup.py
+gp7_vision_gazebo_bridge/__init__.py
+gp7_vision_gazebo_bridge/box_spawn_bridge_node.py
+gp7_vision_gazebo_bridge/box_test_publisher_node.py
+gp7_vision_gazebo_bridge.egg-info/PKG-INFO
+gp7_vision_gazebo_bridge.egg-info/SOURCES.txt
+gp7_vision_gazebo_bridge.egg-info/dependency_links.txt
+gp7_vision_gazebo_bridge.egg-info/top_level.txt

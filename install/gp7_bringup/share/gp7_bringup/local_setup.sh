@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/build/gp7_bringup/ament_cmake_environment_hooks/local_setup.sh

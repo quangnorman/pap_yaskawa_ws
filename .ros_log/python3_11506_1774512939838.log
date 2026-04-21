@@ -1,0 +1,1 @@
+[INFO] [1774512940.075534352] [gp7_cartesian_offset_demo]: Waiting for services: get=/gp7_task_executor/get_current_pose, move=/gp7_task_executor/move_to_pose

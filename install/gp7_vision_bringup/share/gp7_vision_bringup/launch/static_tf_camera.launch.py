@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/src/gp7_vision_bringup/launch/static_tf_camera.launch.py

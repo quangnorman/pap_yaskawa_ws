@@ -1,0 +1,43 @@
+[WARN] [1774429770.353668806] [controller_manager]: [Deprecated] Passing the robot description parameter directly to the control_manager node is deprecated. Use '~/robot_description' topic from 'robot_state_publisher' instead.
+[INFO] [1774429770.354307029] [resource_manager]: Loading hardware 'FakeSystem' 
+[INFO] [1774429770.356107873] [resource_manager]: Initialize hardware 'FakeSystem' 
+[INFO] [1774429770.356307477] [resource_manager]: Successful initialization of hardware 'FakeSystem'
+[INFO] [1774429770.356485165] [resource_manager]: 'configure' hardware 'FakeSystem' 
+[INFO] [1774429770.356518411] [resource_manager]: Successful 'configure' of hardware 'FakeSystem'
+[INFO] [1774429770.356537283] [resource_manager]: 'activate' hardware 'FakeSystem' 
+[INFO] [1774429770.356552704] [resource_manager]: Successful 'activate' of hardware 'FakeSystem'
+[INFO] [1774429770.374234875] [controller_manager]: update rate is 1000 Hz
+[INFO] [1774429770.374306706] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[WARN] [1774429770.374614426] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[INFO] [1774429777.057807453] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[INFO] [1774429777.150534457] [controller_manager]: Configuring controller 'joint_state_broadcaster'
+[INFO] [1774429777.150843006] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[INFO] [1774429777.266567929] [controller_manager]: Loading controller 'arm_controller'
+[WARN] [1774429777.350821646] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[INFO] [1774429777.357931628] [controller_manager]: Configuring controller 'arm_controller'
+[INFO] [1774429777.358252387] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[INFO] [1774429777.358300603] [arm_controller]: Command interfaces are [position] and state interfaces are [position].
+[INFO] [1774429777.358344641] [arm_controller]: Using 'splines' interpolation method.
+[INFO] [1774429777.361105484] [arm_controller]: Controller state will be published at 50.00 Hz.
+[INFO] [1774429777.369135780] [arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[INFO] [1774429825.326436263] [arm_controller]: Received new action goal
+[INFO] [1774429825.326580991] [arm_controller]: Accepted new action goal
+[INFO] [1774429828.233439619] [arm_controller]: Goal reached, success!
+[INFO] [1774429834.679659066] [arm_controller]: Received new action goal
+[INFO] [1774429834.679754551] [arm_controller]: Accepted new action goal
+[INFO] [1774429837.704228504] [arm_controller]: Goal reached, success!
+[INFO] [1774429839.814869439] [arm_controller]: Received new action goal
+[INFO] [1774429839.814953265] [arm_controller]: Accepted new action goal
+[INFO] [1774429843.354229150] [arm_controller]: Goal reached, success!
+[INFO] [1774430498.060051758] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [1774430498.060266235] [controller_manager]: Shutdown request received....
+[INFO] [1774430498.060453486] [controller_manager]: Shutting down all controllers in the controller manager.
+[INFO] [1774430498.060564801] [controller_manager]: Deactivating controller 'joint_state_broadcaster'
+[INFO] [1774430498.060752186] [controller_manager]: Shutting down controller 'joint_state_broadcaster'
+[INFO] [1774430498.060854347] [controller_manager]: Deactivating controller 'arm_controller'
+[INFO] [1774430498.060919547] [controller_manager]: Shutting down controller 'arm_controller'
+[INFO] [1774430498.060981763] [resource_manager]: 'deactivate' hardware 'FakeSystem' 
+[INFO] [1774430498.061034269] [resource_manager]: Successful 'deactivate' of hardware 'FakeSystem'
+[INFO] [1774430498.061055159] [resource_manager]: 'shutdown' hardware 'FakeSystem' 
+[INFO] [1774430498.061158737] [resource_manager]: Successful 'shutdown' of hardware 'FakeSystem'
+[INFO] [1774430498.061178824] [controller_manager]: Shutting down the controller manager.

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/lib/gp7_task_executor/demo_joint_space_loop_node", line 8, in <module>
+    main(sys.argv)
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/joint_space_demo_loop_node.py", line 199, in main
+    rclpy.init(args=argv)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 88, in init
+    context.init(args, domain_id=domain_id)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 79, in init
+    _rclpy.rclpy_logging_configure(self.__context)
+RuntimeError: Failed opening file /home/norman/.ros/log/python3_11629_1774420615544.log for writing: Permission denied
+[ros2run]: Process exited with failure 1

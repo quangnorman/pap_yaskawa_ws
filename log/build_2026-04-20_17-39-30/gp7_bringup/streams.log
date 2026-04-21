@@ -1,0 +1,67 @@
+[0.007s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_bringup': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/opt/ros/humble /usr/bin/cmake /home/norman/pap_yaskawa_ws/src/gp7_bringup -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/norman/pap_yaskawa_ws/install/gp7_bringup
+[0.053s] -- The C compiler identification is GNU 11.4.0
+[0.097s] -- The CXX compiler identification is GNU 11.4.0
+[0.102s] -- Detecting C compiler ABI info
+[0.161s] -- Detecting C compiler ABI info - done
+[0.166s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.166s] -- Detecting C compile features
+[0.167s] -- Detecting C compile features - done
+[0.169s] -- Detecting CXX compiler ABI info
+[0.234s] -- Detecting CXX compiler ABI info - done
+[0.239s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.240s] -- Detecting CXX compile features
+[0.240s] -- Detecting CXX compile features - done
+[0.241s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.357s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.404s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.426s] -- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+[0.459s] -- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.462s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.468s] -- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.477s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.488s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.523s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.525s] -- Found rmw_fastrtps_cpp: 6.2.10 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.601s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.635s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.679s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.687s] -- Looking for pthread.h
+[0.764s] -- Looking for pthread.h - found
+[0.764s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.843s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.844s] -- Found Threads: TRUE  
+[0.894s] -- Found geometry_msgs: 4.9.1 (/opt/ros/humble/share/geometry_msgs/cmake)
+[0.907s] -- Found std_srvs: 4.9.1 (/opt/ros/humble/share/std_srvs/cmake)
+[0.916s] -- Found ament_lint_auto: 0.12.15 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[1.019s] -- Added test 'flake8' to check Python code syntax and style conventions
+[1.019s] -- Added test 'lint_cmake' to check CMake code style
+[1.020s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[1.021s] -- Added test 'xmllint' to check XML markup files
+[1.024s] -- Configuring done
+[1.029s] -- Generating done
+[1.032s] -- Build files have been written to: /home/norman/pap_yaskawa_ws/build/gp7_bringup
+[1.042s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_bringup' returned '0': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/opt/ros/humble /usr/bin/cmake /home/norman/pap_yaskawa_ws/src/gp7_bringup -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/norman/pap_yaskawa_ws/install/gp7_bringup
+[1.043s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_bringup': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/opt/ros/humble /usr/bin/cmake --build /home/norman/pap_yaskawa_ws/build/gp7_bringup -- -j20 -l20
+[1.078s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_bringup' returned '0': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/opt/ros/humble /usr/bin/cmake --build /home/norman/pap_yaskawa_ws/build/gp7_bringup -- -j20 -l20
+[1.080s] Invoking command in '/home/norman/pap_yaskawa_ws/build/gp7_bringup': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/opt/ros/humble /usr/bin/cmake --install /home/norman/pap_yaskawa_ws/build/gp7_bringup
+[1.086s] -- Install configuration: ""
+[1.087s] -- Execute custom install script
+[1.087s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/config/gp7_controller.yaml
+[1.098s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/display.launch.py
+[1.109s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/rviz/rviz.rviz
+[1.120s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/ament_index/resource_index/package_run_dependencies/gp7_bringup
+[1.129s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/ament_index/resource_index/parent_prefix_path/gp7_bringup
+[1.141s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/environment/ament_prefix_path.sh
+[1.152s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/environment/ament_prefix_path.dsv
+[1.163s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/environment/path.sh
+[1.173s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/environment/path.dsv
+[1.185s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/local_setup.bash
+[1.195s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/local_setup.sh
+[1.205s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/local_setup.zsh
+[1.216s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/local_setup.dsv
+[1.226s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/package.dsv
+[1.237s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/ament_index/resource_index/packages/gp7_bringup
+[1.245s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/cmake/gp7_bringupConfig.cmake
+[1.256s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/cmake/gp7_bringupConfig-version.cmake
+[1.266s] -- Symlinking: /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/package.xml
+[1.277s] Invoked command in '/home/norman/pap_yaskawa_ws/build/gp7_bringup' returned '0': CMAKE_PREFIX_PATH=/home/norman/pap_yaskawa_ws/install/gp7_description:/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic:/home/norman/pap_yaskawa_ws/install/gp7_vision_bringup:/home/norman/pap_yaskawa_ws/install/gp7_vision_pipeline:/home/norman/pap_yaskawa_ws/install/gp7_vision_gazebo_bridge:/home/norman/pap_yaskawa_ws/install/gp7_moveit_config:/home/norman/pap_yaskawa_ws/install/gp7_handeye_calibration:/home/norman/pap_yaskawa_ws/install/gp7_bringup:/home/norman/pap_yaskawa_ws/install/gp7_task_executor:/home/norman/pap_yaskawa_ws/install/gp7_task_executor_msgs:/opt/ros/humble /usr/bin/cmake --install /home/norman/pap_yaskawa_ws/build/gp7_bringup

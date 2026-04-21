@@ -1,0 +1,11 @@
+build/
+install/
+log/
+*.bag
+*.db3
+*.pth
+*.pt
+*.onnx
+checkpoints/
+outputs/
+data/

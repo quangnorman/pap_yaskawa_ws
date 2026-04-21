@@ -1,0 +1,35 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from gp7_task_executor_msgs/srv/MoveToPoseTarget.srv
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Pose.idl"
+
+module gp7_task_executor_msgs {
+  module srv {
+    @verbatim (language="comment", text=
+      "MoveToPoseTarget Service Definition" "\n"
+      "" "\n"
+      "Commands MoveIt to move to a pose goal." "\n"
+      "" "\n"
+      "Request:" "\n"
+      "  - pose: Target pose (position and orientation) for the end-effector." "\n"
+      "  - frame_id: Reference frame for the pose." "\n"
+      "  - execute: If true, plan and execute. If false, plan only." "\n"
+      "" "\n"
+      "Response:" "\n"
+      "  - success: True if planning (and execution if requested) succeeded." "\n"
+      "  - message: Human-readable result/diagnostic message.")
+    struct MoveToPoseTarget_Request {
+      geometry_msgs::msg::Pose pose;
+
+      string frame_id;
+
+      boolean execute;
+    };
+    struct MoveToPoseTarget_Response {
+      boolean success;
+
+      string message;
+    };
+  };
+};

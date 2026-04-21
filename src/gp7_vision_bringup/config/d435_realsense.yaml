@@ -1,0 +1,18 @@
+# Intel RealSense D435 — eye-to-hand, ~0.5 m working distance (design center).
+#
+# Driver args: ``config/d435_realsense_launch_args.yaml``
+# Topic contract template: ``config/d435_topic_contract.yaml`` (**verify names locally**).
+#
+# **Do not trust topic names without** ``ros2 topic list`` on your machine. Common defaults
+# with ``realsense2_camera`` ``rs_launch.py`` look like:
+#   /camera/camera/color/image_raw
+#   /camera/camera/color/camera_info
+#   /camera/camera/aligned_depth_to_color/image_raw   (needs align_depth.enable)
+#   /camera/camera/depth/color/points                 (needs pointcloud.enable)
+#
+# Static mount TF (hardware): ``static_tf_camera.launch.py`` / ``vision_debug.launch.py``
+# defaults — translation (0, -1, 1.5) m in ``base_link``, RPY for **lens down**, tail toward robot.
+# See launch file descriptions for the exact Euler convention.
+#
+# TODO(M3+): serial_no, rgb_camera.profile, depth_module.profile when tuning bandwidth.
+

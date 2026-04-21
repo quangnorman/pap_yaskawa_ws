@@ -1,0 +1,16 @@
+srv/MoveSequence.idl
+srv/MoveSequence.srv
+srv/MoveSequence_Request.msg
+srv/MoveSequence_Response.msg
+srv/MoveToJointTarget.idl
+srv/MoveToJointTarget.srv
+srv/MoveToJointTarget_Request.msg
+srv/MoveToJointTarget_Response.msg
+srv/MoveToNamedTarget.idl
+srv/MoveToNamedTarget.srv
+srv/MoveToNamedTarget_Request.msg
+srv/MoveToNamedTarget_Response.msg
+srv/MoveToPoseTarget.idl
+srv/MoveToPoseTarget.srv
+srv/MoveToPoseTarget_Request.msg
+srv/MoveToPoseTarget_Response.msg

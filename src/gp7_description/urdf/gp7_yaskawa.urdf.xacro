@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="gp7_yaskawa" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find gp7_description)/urdf/common_properties.urdf.xacro"/>
+<xacro:include filename="$(find gp7_description)/urdf/arm.xacro"/>
+<xacro:include filename="$(find gp7_description)/urdf/gazebo.xacro"/>
+<xacro:include filename="$(find gp7_description)/urdf/gp7_yaskawa.ros2_control.xacro"/>
+<xacro:include filename="$(find gp7_description)/urdf/gp7_yaskawa.real.xacro"/>
+
+<xacro:arg name="controller_yaml" default="$(find gp7_bringup)/config/gp7_controller.yaml"/>
+<xacro:arg name="initial_positions_file" default="$(find gp7_description)/config/initial_positions.yaml"/>
+
+<xacro:gp7_yaskawa_arm/>
+
+<xacro:gp7_yaskawa_gazebo/>
+
+<xacro:gp7_yaskawa_ros2_control
+  controller_yaml="$(arg controller_yaml)"
+  initial_positions_file="$(arg initial_positions_file)"/>
+<!--
+<xacro:gp7_yaskawa_real/>
+-->
+</robot>

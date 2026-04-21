@@ -1,0 +1,12 @@
+[37;1m2026-03-25 13:40:01.403 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed to create segment 8a3ffe8069fb34cd: Permission denied[34;1m -> Function [36mcompute_per_allocation_extra_size[m
+[37;1m2026-03-25 13:40:01.403 [31;1m[[37;1mRTPS_TRANSPORT_SHM[31;1m Error] [37mFailed to create Shared Memory Manager for domain fastrtps: Permission denied[34;1m -> Function [36mcreate[m
+[37;1m2026-03-25 13:40:01.403 [31;1m[[37;1mRTPS_PARTICIPANT[31;1m Error] [37mUnable to Register SHM Transport. SHM Transport is not supported in the current platform.[34;1m -> Function [36mRTPSParticipantImpl[m
+Traceback (most recent call last):
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/lib/gp7_task_executor/demo_joint_space_loop_node", line 8, in <module>
+    main(sys.argv)
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/joint_space_demo_loop_node.py", line 213, in main
+    node = JointSpaceDemoLoop()
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/joint_space_demo_loop_node.py", line 92, in __init__
+    self.get_logger().info(
+TypeError: RcutilsLogger.info() takes 2 positional arguments but 7 were given
+[ros2run]: Process exited with failure 1

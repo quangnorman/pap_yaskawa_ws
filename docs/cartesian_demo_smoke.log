@@ -1,0 +1,28 @@
+[INFO] [1774512940.075534352] [gp7_cartesian_offset_demo]: Waiting for services: get=/gp7_task_executor/get_current_pose, move=/gp7_task_executor/move_to_pose
+Traceback (most recent call last):
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/cartesian_offset_demo_node.py", line 201, in main
+    rc = node.run()
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/cartesian_offset_demo_node.py", line 144, in run
+    if not self._wait_services():
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/cartesian_offset_demo_node.py", line 86, in _wait_services
+    ok_get = self._get_client.wait_for_service(timeout_sec=20.0)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/client.py", line 180, in wait_for_service
+    return self.service_is_ready()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/client.py", line 160, in service_is_ready
+    return self.__client.service_server_is_available()
+rclpy._rclpy_pybind11.RCLError: failed to check service availability: rcl node's context is invalid, at ./src/rcl/node.c:428
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/lib/gp7_task_executor/demo_cartesian_offset_once_node", line 8, in <module>
+    main(sys.argv)
+  File "/home/norman/pap_yaskawa_ws/install/gp7_task_executor/local/lib/python3.10/dist-packages/gp7_task_executor/cartesian_offset_demo_node.py", line 206, in main
+    rclpy.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+    return context.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241

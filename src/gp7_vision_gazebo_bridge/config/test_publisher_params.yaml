@@ -1,0 +1,20 @@
+# Scenario A (default): box on table at z=0.4 m surface.
+# Center z = 0.45 m, height 0.10 m → bottom at 0.45 - 0.05 = 0.40 m.
+
+box_test_publisher_node:
+  ros__parameters:
+    pose_topic: "/vision/box_pose"
+    size_topic: "/vision/box_size"
+    frame_id: "world"
+
+    x: 0.0
+    y: -0.7
+    z: 0.45
+    yaw_rad: 0.0
+
+    length_m: 0.10
+    width_m: 0.05
+    height_m: 0.10
+
+    publish_rate_hz: 1.0
+    log_each_publish: false

@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/build/gp7_handeye_calibration/ament_cmake_environment_hooks/local_setup.sh

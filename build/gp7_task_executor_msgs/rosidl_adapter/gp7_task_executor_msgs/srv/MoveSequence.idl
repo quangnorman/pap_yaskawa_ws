@@ -1,0 +1,29 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from gp7_task_executor_msgs/srv/MoveSequence.srv
+// generated code does not contain a copyright notice
+
+
+module gp7_task_executor_msgs {
+  module srv {
+    @verbatim (language="comment", text=
+      "MoveSequence Service Definition" "\n"
+      "" "\n"
+      "Executes a predefined sequence of named joint targets:" "\n"
+      "  origin -> P1 -> P2 -> origin" "\n"
+      "" "\n"
+      "Request:" "\n"
+      "  - execute: If true, plan and execute each waypoint. If false, plan only." "\n"
+      "" "\n"
+      "Response:" "\n"
+      "  - success: True only if all waypoints succeed." "\n"
+      "  - message: Human-readable result/diagnostic message.")
+    struct MoveSequence_Request {
+      boolean execute;
+    };
+    struct MoveSequence_Response {
+      boolean success;
+
+      string message;
+    };
+  };
+};

@@ -1,0 +1,20 @@
+box_spawn_bridge_node:
+  ros__parameters:
+    box_name: "detected_box"
+    pose_topic: "/vision/box_pose"
+    size_topic: "/vision/box_size"
+
+    # Minimum time between delete+respawn cycles (rate-limits repeated service calls).
+    update_min_interval_sec: 0.3
+
+    size_abs_threshold_m: 0.001
+    size_rel_threshold: 0.05
+
+    reference_frame: "world"
+
+    color_r: 0.8
+    color_g: 0.1
+    color_b: 0.1
+    color_a: 1.0
+
+    model_static: true

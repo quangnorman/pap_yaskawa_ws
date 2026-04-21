@@ -1,0 +1,7 @@
+1774429769.3744936 [INFO] [launch]: All log files can be found below /home/norman/pap_yaskawa_ws/.ros_log/2026-03-25-16-09-29-370981-norman-21281
+1774429769.3750505 [INFO] [launch]: Default logging verbosity is set to INFO
+1774429770.1731381 [INFO] [robot_state_publisher-1]: process started with pid [21284]
+1774429770.1737578 [INFO] [ros2_control_node-2]: process started with pid [21286]
+1774429776.1831367 [INFO] [spawner-3]: process started with pid [21314]
+1774429777.6628187 [INFO] [spawner-3]: process has finished cleanly [pid 21314]
+1774429788.2880745 [INFO] [move_group-4]: process started with pid [21337]

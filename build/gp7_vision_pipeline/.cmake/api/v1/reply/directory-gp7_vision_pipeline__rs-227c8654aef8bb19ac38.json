@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "gp7_vision_pipeline__rs",
+		"source" : "/home/norman/pap_yaskawa_ws/build/gp7_vision_pipeline/gp7_vision_pipeline__rs"
+	}
+}

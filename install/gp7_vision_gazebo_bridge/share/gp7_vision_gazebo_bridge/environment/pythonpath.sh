@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/build/gp7_vision_gazebo_bridge/ament_cmake_environment_hooks/pythonpath.sh

@@ -1,0 +1,56 @@
+---
+description: 
+alwaysApply: true
+---
+
+You are working on a robotics project using ROS 2 Humble for a Yaskawa GP7 manipulator.
+
+Project context:
+- Ubuntu 22.04
+- ROS 2 Humble
+- MoveIt 2
+- ros2_control
+- Gazebo Classic (already working and must not break)
+- Ignition Gazebo 6 will be added as a second simulation backend
+
+Current workspace packages:
+- gp7_description
+- gp7_moveit_config
+- gp7_bringup
+- gp7_gazebo_classic
+- gp7_task_executor
+- gp7_task_executor_msgs
+- gp7_vision_pipeline
+- gp7_vision_bringup
+- gp7_vision_gazebo_bridge
+- gp7_handeye_calibration
+
+Architecture principles:
+- Do NOT redesign the whole workspace
+- Reuse existing packages whenever possible
+- Keep Gazebo Classic as stable baseline
+- Add Ignition Gazebo as a separate new package
+- Motion execution must go through MoveIt
+- Do NOT directly stream joint commands
+- Do NOT use queue_traj_point
+- Future real robot execution will use follow_joint_trajectory with MotoROS2
+
+Development roadmap:
+1. Keep simulation stable
+2. Add waypoint execution system
+3. Simulate RL output using fake waypoint list
+4. Visualize path and trajectory
+5. Integrate RL later
+6. Move to real GP7 robot
+
+Coding style:
+- Modular ROS 2 packages
+- Clear separation of concerns
+- Minimal changes to existing code
+- Clean logging and debug-friendly
+- Prefer simple working solution first
+
+Always:
+- Analyze before coding
+- Propose plan before large changes
+- Keep ROS 2 Humble compatibility

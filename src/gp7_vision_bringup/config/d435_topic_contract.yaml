@@ -1,0 +1,21 @@
+# RealSense D435 — topic contract (hardware). **Verify on your machine** after starting the driver:
+#
+#   ros2 launch gp7_vision_bringup realsense_d435.launch.py
+#   ros2 topic list | grep -E '^/camera|^/cam'
+#   bash $(ros2 pkg prefix gp7_vision_bringup)/share/gp7_vision_bringup/scripts/check_realsense_topics.bash
+#
+# Defaults below match common ``realsense2_camera`` ``rs_launch.py`` layout (ROS 2 wrapper
+# uses a nested ``camera`` name, hence ``/camera/camera/...``). If your ``ros2 topic list``
+# shows different namespaces, copy the real strings into ``realsense_depth_debug.yaml`` or
+# pass a custom params file via ``vision_debug.launch.py`` (``depth_debug_params:=...``).
+
+expected_topics:
+  color_image: "/camera/camera/color/image_raw"
+  color_camera_info: "/camera/camera/color/camera_info"
+  aligned_depth_to_color: "/camera/camera/aligned_depth_to_color/image_raw"
+  # With ``pointcloud.enable:=true`` in ``d435_realsense_launch_args.yaml`` (typical name):
+  depth_registered_pointcloud: "/camera/camera/depth/color/points"
+
+notes:
+  - Point cloud topic name varies by wrapper version; also look for ``.../points`` under ``/camera/``.
+  - If ``aligned_depth`` is disabled, depth may appear as ``/camera/camera/depth/image_rect_raw`` etc.

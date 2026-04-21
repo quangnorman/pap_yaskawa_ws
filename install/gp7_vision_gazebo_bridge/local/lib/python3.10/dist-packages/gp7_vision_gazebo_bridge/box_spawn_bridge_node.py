@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/src/gp7_vision_gazebo_bridge/gp7_vision_gazebo_bridge/box_spawn_bridge_node.py

@@ -1,0 +1,1 @@
+/home/norman/pap_yaskawa_ws/src/gp7_vision_bringup/launch/vision_sim_rgbd.launch.py
