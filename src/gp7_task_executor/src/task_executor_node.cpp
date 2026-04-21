@@ -12,6 +12,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "moveit/planning_scene_interface/planning_scene_interface.h"
+#include "yaml-cpp/yaml.h"
 
 #include "gp7_task_executor_msgs/srv/move_to_named_target.hpp"
 #include "gp7_task_executor_msgs/srv/move_to_joint_target.hpp"
@@ -54,29 +55,95 @@ public:
   }
 
   static constexpr double DEG2RAD = M_PI / 180.0;
+  static constexpr size_t EXPECTED_JOINT_COUNT = 6;
 
   void init_named_joint_targets()
   {
-    named_joint_targets_["origin"] = {0.0, 0.0, 0.0, 0.0, -90.0 * DEG2RAD, 0.0};
-    named_joint_targets_["P1"]     = {0.0, 6.05 * DEG2RAD, -26.3 * DEG2RAD, 0.0, -57.65 * DEG2RAD, 0.0};
-    named_joint_targets_["P2"]     = {-24.01 * DEG2RAD, -2.95 * DEG2RAD, -35.58 * DEG2RAD, 0.0, -57.37 * DEG2RAD, 24.01 * DEG2RAD};
-
-    static const std::vector<std::string> joint_order = {
-        "joint_s", "joint_l", "joint_u", "joint_r", "joint_b", "joint_t"};
-
-    RCLCPP_INFO(this->get_logger(), "Predefined joint targets loaded:");
-    for (const auto& [name, values] : named_joint_targets_)
+    if (waypoints_config_path_.empty())
     {
-      std::string msg = "  " + name + ": [";
-      for (size_t i = 0; i < values.size(); ++i)
+      RCLCPP_WARN(this->get_logger(),
+                  "[Waypoints] waypoints_config_path is empty — no joint waypoints loaded.");
+      return;
+    }
+
+    RCLCPP_INFO(this->get_logger(), "[Waypoints] Loading waypoints from: '%s'",
+                waypoints_config_path_.c_str());
+
+    try
+    {
+      YAML::Node root = YAML::LoadFile(waypoints_config_path_);
+      if (!root["waypoints"] || !root["waypoints"].IsMap())
       {
-        msg += std::to_string(values[i]) + " rad";
-        if (i < values.size() - 1) msg += ", ";
+        RCLCPP_ERROR(this->get_logger(),
+                     "[Waypoints] YAML file '%s' is missing or has invalid 'waypoints:' map.",
+                     waypoints_config_path_.c_str());
+        return;
       }
-      msg += "]  (" + joint_order[0];
-      for (size_t i = 1; i < joint_order.size(); ++i) msg += ", " + joint_order[i];
-      msg += ")";
-      RCLCPP_INFO(this->get_logger(), "%s", msg.c_str());
+
+      const YAML::Node& waypoints = root["waypoints"];
+      static const std::vector<std::string> joint_order = {
+          "joint_s", "joint_l", "joint_u", "joint_r", "joint_b", "joint_t"};
+
+      named_joint_targets_.clear();
+
+      for (const auto& wp : waypoints)
+      {
+        const std::string name = wp.first.as<std::string>();
+        const YAML::Node& node = wp.second;
+
+        if (!node["joints"] || !node["joints"].IsSequence())
+        {
+          RCLCPP_ERROR(this->get_logger(),
+                       "[Waypoints] Skipping '%s': 'joints' field is missing or not a sequence.",
+                       name.c_str());
+          continue;
+        }
+
+        const YAML::Node& joints_node = node["joints"];
+        if (joints_node.size() != EXPECTED_JOINT_COUNT)
+        {
+          RCLCPP_ERROR(this->get_logger(),
+                       "[Waypoints] Skipping '%s': expected %lu joints but got %zu.",
+                       name.c_str(), EXPECTED_JOINT_COUNT, joints_node.size());
+          continue;
+        }
+
+        std::vector<double> rad_values;
+        rad_values.reserve(EXPECTED_JOINT_COUNT);
+        for (size_t i = 0; i < EXPECTED_JOINT_COUNT; ++i)
+        {
+          rad_values.push_back(joints_node[i].as<double>() * DEG2RAD);
+        }
+
+        named_joint_targets_[name] = rad_values;
+      }
+
+      RCLCPP_INFO(this->get_logger(), "[Waypoints] Loaded %zu named joint waypoints:", named_joint_targets_.size());
+      for (const auto& [name, values] : named_joint_targets_)
+      {
+        std::string msg = "  " + name + ": [";
+        for (size_t i = 0; i < values.size(); ++i)
+        {
+          msg += std::to_string(values[i]) + " rad";
+          if (i < values.size() - 1) msg += ", ";
+        }
+        msg += "]  (" + joint_order[0];
+        for (size_t i = 1; i < joint_order.size(); ++i) msg += ", " + joint_order[i];
+        msg += ")";
+        RCLCPP_INFO(this->get_logger(), "%s", msg.c_str());
+      }
+    }
+    catch (const YAML::Exception& ex)
+    {
+      RCLCPP_ERROR(this->get_logger(),
+                   "[Waypoints] Failed to parse '%s': %s",
+                   waypoints_config_path_.c_str(), ex.what());
+    }
+    catch (const std::exception& ex)
+    {
+      RCLCPP_ERROR(this->get_logger(),
+                   "[Waypoints] Unexpected error loading '%s': %s",
+                   waypoints_config_path_.c_str(), ex.what());
     }
   }
 
@@ -161,6 +228,7 @@ private:
     this->declare_parameter<std::string>("move_group_name", "arm");
     this->declare_parameter<std::string>("base_frame", "world");
     this->declare_parameter<std::string>("ee_link", "tool0");
+    this->declare_parameter<std::string>("waypoints_config_path", "");
     this->declare_parameter<double>("planning_time", 2.0);
     this->declare_parameter<int>("num_planning_attempts", 5);
     this->declare_parameter<double>("max_velocity_scaling_factor", 0.5);
@@ -169,6 +237,7 @@ private:
     this->get_parameter("move_group_name", move_group_name_);
     this->get_parameter("base_frame", base_frame_);
     this->get_parameter("ee_link", ee_link_);
+    this->get_parameter("waypoints_config_path", waypoints_config_path_);
     this->get_parameter("planning_time", planning_time_);
     this->get_parameter("num_planning_attempts", num_planning_attempts_);
     this->get_parameter("max_velocity_scaling_factor", max_velocity_scaling_factor_);
@@ -294,45 +363,68 @@ private:
     const std::shared_ptr<gp7_task_executor_msgs::srv::MoveSequence::Request> request,
     std::shared_ptr<gp7_task_executor_msgs::srv::MoveSequence::Response> response)
   {
+    const auto& waypoint_names = request->waypoint_names;
     bool execute = request->execute;
 
-    static const std::vector<std::string> sequence = {"origin", "P1", "P2", "origin"};
-
-    RCLCPP_INFO(this->get_logger(), "[MoveSequence] Starting sequence of %lu waypoints, execute=%d",
-                sequence.size(), execute);
-
-    for (size_t i = 0; i < sequence.size(); ++i)
+    if (waypoint_names.empty())
     {
-      const std::string& name = sequence[i];
+      response->success = false;
+      response->message = "Empty sequence: waypoint_names must not be empty";
+      RCLCPP_WARN(this->get_logger(), "[MoveSequence] %s", response->message.c_str());
+      return;
+    }
 
-      if (name == "origin")
-        RCLCPP_INFO(this->get_logger(), "[MoveSequence] Moving to origin");
-      else if (name == "P1")
-        RCLCPP_INFO(this->get_logger(), "[MoveSequence] Moving to P1");
-      else if (name == "P2")
-        RCLCPP_INFO(this->get_logger(), "[MoveSequence] Moving to P2");
+    RCLCPP_INFO(this->get_logger(),
+                "[MoveSequence] Starting sequence of %lu waypoints (execute=%d):",
+                waypoint_names.size(), execute);
+    for (size_t i = 0; i < waypoint_names.size(); ++i)
+    {
+      RCLCPP_INFO(this->get_logger(), "  step %zu: '%s'", i + 1, waypoint_names[i].c_str());
+    }
+
+    for (size_t i = 0; i < waypoint_names.size(); ++i)
+    {
+      const std::string& name = waypoint_names[i];
+
+      if (named_joint_targets_.find(name) == named_joint_targets_.end())
+      {
+        response->success = false;
+        response->message = "Unknown waypoint name '" + name +
+                            "' at step " + std::to_string(i + 1) + " of " +
+                            std::to_string(waypoint_names.size());
+        RCLCPP_ERROR(this->get_logger(), "[MoveSequence] %s", response->message.c_str());
+        return;
+      }
+
+      RCLCPP_INFO(this->get_logger(),
+                  "[MoveSequence] Step %zu/%zu: moving to waypoint '%s'...",
+                  i + 1, waypoint_names.size(), name.c_str());
 
       bool ok = move_to_named_joint_target(name, execute);
       if (!ok)
       {
         response->success = false;
-        response->message = "MoveSequence failed at waypoint '" + name +
-                            "' (step " + std::to_string(i + 1) + " of " +
-                            std::to_string(sequence.size()) + ")";
-        RCLCPP_ERROR(this->get_logger(), "%s", response->message.c_str());
+        response->message = "Failed at step " + std::to_string(i + 1) +
+                            " / waypoint '" + name + "'";
+        RCLCPP_ERROR(this->get_logger(), "[MoveSequence] %s", response->message.c_str());
         return;
       }
 
-      if (i < sequence.size() - 1)
+      if (i < waypoint_names.size() - 1)
       {
-        RCLCPP_INFO(this->get_logger(), "[MoveSequence] Waypoint '%s' reached, pausing 0.5s before next move.", name.c_str());
+        RCLCPP_INFO(this->get_logger(),
+                    "[MoveSequence] Step %zu/%zu: waypoint '%s' reached, pausing 0.5s before next move.",
+                    i + 1, waypoint_names.size(), name.c_str());
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
       }
     }
 
-    RCLCPP_INFO(this->get_logger(), "[MoveSequence] All %lu waypoints completed successfully.", sequence.size());
+    RCLCPP_INFO(this->get_logger(),
+                "[MoveSequence] All %lu waypoints completed successfully.",
+                waypoint_names.size());
     response->success = true;
-    response->message = "MoveSequence completed successfully (" + std::to_string(sequence.size()) + " waypoints)";
+    response->message = "MoveSequence completed successfully (" +
+                        std::to_string(waypoint_names.size()) + " waypoints)";
   }
 
   void handle_joint_target(
@@ -562,6 +654,7 @@ private:
   std::string move_group_name_;
   std::string base_frame_;
   std::string ee_link_;
+  std::string waypoints_config_path_;
   double planning_time_;
   int num_planning_attempts_;
   double max_velocity_scaling_factor_;

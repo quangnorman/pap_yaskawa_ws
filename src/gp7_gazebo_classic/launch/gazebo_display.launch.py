@@ -30,8 +30,9 @@ def generate_launch_description() -> LaunchDescription:
     # Keep display launch lightweight/stable: use Gazebo's default empty world.
     # world_test1 includes optional custom plugins that can fail on machines
     # where those plugin libraries are not present, preventing controller bringup.
-    world_file = "/usr/share/gazebo-11/worlds/empty.world"
+    # world_file = "/usr/share/gazebo-11/worlds/empty.world"
 
+    world_file = os.path.join(gazebo_classic_share, "worlds", "table.world")
 
     x_arg = DeclareLaunchArgument('x', default_value='0', description='X position')
     y_arg = DeclareLaunchArgument('y', default_value='0', description='Y position')

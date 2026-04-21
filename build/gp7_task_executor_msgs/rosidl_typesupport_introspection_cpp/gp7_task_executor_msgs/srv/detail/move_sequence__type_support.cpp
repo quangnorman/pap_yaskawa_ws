@@ -37,7 +37,69 @@ void MoveSequence_Request_fini_function(void * message_memory)
   typed_message->~MoveSequence_Request();
 }
 
-static const ::rosidl_typesupport_introspection_cpp::MessageMember MoveSequence_Request_message_member_array[1] = {
+size_t size_function__MoveSequence_Request__waypoint_names(const void * untyped_member)
+{
+  const auto * member = reinterpret_cast<const std::vector<std::string> *>(untyped_member);
+  return member->size();
+}
+
+const void * get_const_function__MoveSequence_Request__waypoint_names(const void * untyped_member, size_t index)
+{
+  const auto & member =
+    *reinterpret_cast<const std::vector<std::string> *>(untyped_member);
+  return &member[index];
+}
+
+void * get_function__MoveSequence_Request__waypoint_names(void * untyped_member, size_t index)
+{
+  auto & member =
+    *reinterpret_cast<std::vector<std::string> *>(untyped_member);
+  return &member[index];
+}
+
+void fetch_function__MoveSequence_Request__waypoint_names(
+  const void * untyped_member, size_t index, void * untyped_value)
+{
+  const auto & item = *reinterpret_cast<const std::string *>(
+    get_const_function__MoveSequence_Request__waypoint_names(untyped_member, index));
+  auto & value = *reinterpret_cast<std::string *>(untyped_value);
+  value = item;
+}
+
+void assign_function__MoveSequence_Request__waypoint_names(
+  void * untyped_member, size_t index, const void * untyped_value)
+{
+  auto & item = *reinterpret_cast<std::string *>(
+    get_function__MoveSequence_Request__waypoint_names(untyped_member, index));
+  const auto & value = *reinterpret_cast<const std::string *>(untyped_value);
+  item = value;
+}
+
+void resize_function__MoveSequence_Request__waypoint_names(void * untyped_member, size_t size)
+{
+  auto * member =
+    reinterpret_cast<std::vector<std::string> *>(untyped_member);
+  member->resize(size);
+}
+
+static const ::rosidl_typesupport_introspection_cpp::MessageMember MoveSequence_Request_message_member_array[2] = {
+  {
+    "waypoint_names",  // name
+    ::rosidl_typesupport_introspection_cpp::ROS_TYPE_STRING,  // type
+    0,  // upper bound of string
+    nullptr,  // members of sub message
+    true,  // is array
+    0,  // array size
+    false,  // is upper bound
+    offsetof(gp7_task_executor_msgs::srv::MoveSequence_Request, waypoint_names),  // bytes offset in struct
+    nullptr,  // default value
+    size_function__MoveSequence_Request__waypoint_names,  // size() function pointer
+    get_const_function__MoveSequence_Request__waypoint_names,  // get_const(index) function pointer
+    get_function__MoveSequence_Request__waypoint_names,  // get(index) function pointer
+    fetch_function__MoveSequence_Request__waypoint_names,  // fetch(index, &value) function pointer
+    assign_function__MoveSequence_Request__waypoint_names,  // assign(index, value) function pointer
+    resize_function__MoveSequence_Request__waypoint_names  // resize(index) function pointer
+  },
   {
     "execute",  // name
     ::rosidl_typesupport_introspection_cpp::ROS_TYPE_BOOLEAN,  // type
@@ -60,7 +122,7 @@ static const ::rosidl_typesupport_introspection_cpp::MessageMember MoveSequence_
 static const ::rosidl_typesupport_introspection_cpp::MessageMembers MoveSequence_Request_message_members = {
   "gp7_task_executor_msgs::srv",  // message namespace
   "MoveSequence_Request",  // message name
-  1,  // number of fields
+  2,  // number of fields
   sizeof(gp7_task_executor_msgs::srv::MoveSequence_Request),
   MoveSequence_Request_message_member_array,  // message members
   MoveSequence_Request_init_function,  // function to initialize message memory (memory has to be allocated)

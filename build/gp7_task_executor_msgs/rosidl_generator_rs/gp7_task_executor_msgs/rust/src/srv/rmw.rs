@@ -520,6 +520,11 @@ pub struct MoveSequence_Request {
 
     // This member is not documented.
     #[allow(missing_docs)]
+    pub waypoint_names: rosidl_runtime_rs::Sequence<rosidl_runtime_rs::String>,
+
+
+    // This member is not documented.
+    #[allow(missing_docs)]
     pub execute: bool,
 
 }

@@ -55,14 +55,17 @@ class MoveSequence_Request(metaclass=Metaclass_MoveSequence_Request):
     """Message class 'MoveSequence_Request'."""
 
     __slots__ = [
+        '_waypoint_names',
         '_execute',
     ]
 
     _fields_and_field_types = {
+        'waypoint_names': 'sequence<string>',
         'execute': 'boolean',
     }
 
     SLOT_TYPES = (
+        rosidl_parser.definition.UnboundedSequence(rosidl_parser.definition.UnboundedString()),  # noqa: E501
         rosidl_parser.definition.BasicType('boolean'),  # noqa: E501
     )
 
@@ -70,6 +73,7 @@ class MoveSequence_Request(metaclass=Metaclass_MoveSequence_Request):
         assert all('_' + key in self.__slots__ for key in kwargs.keys()), \
             'Invalid arguments passed to constructor: %s' % \
             ', '.join(sorted(k for k in kwargs.keys() if '_' + k not in self.__slots__))
+        self.waypoint_names = kwargs.get('waypoint_names', [])
         self.execute = kwargs.get('execute', bool())
 
     def __repr__(self):
@@ -101,6 +105,8 @@ class MoveSequence_Request(metaclass=Metaclass_MoveSequence_Request):
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
+        if self.waypoint_names != other.waypoint_names:
+            return False
         if self.execute != other.execute:
             return False
         return True
@@ -109,6 +115,29 @@ class MoveSequence_Request(metaclass=Metaclass_MoveSequence_Request):
     def get_fields_and_field_types(cls):
         from copy import copy
         return copy(cls._fields_and_field_types)
+
+    @builtins.property
+    def waypoint_names(self):
+        """Message field 'waypoint_names'."""
+        return self._waypoint_names
+
+    @waypoint_names.setter
+    def waypoint_names(self, value):
+        if __debug__:
+            from collections.abc import Sequence
+            from collections.abc import Set
+            from collections import UserList
+            from collections import UserString
+            assert \
+                ((isinstance(value, Sequence) or
+                  isinstance(value, Set) or
+                  isinstance(value, UserList)) and
+                 not isinstance(value, str) and
+                 not isinstance(value, UserString) and
+                 all(isinstance(v, str) for v in value) and
+                 True), \
+                "The 'waypoint_names' field must be a set or sequence and each value of type 'str'"
+        self._waypoint_names = value
 
     @builtins.property
     def execute(self):

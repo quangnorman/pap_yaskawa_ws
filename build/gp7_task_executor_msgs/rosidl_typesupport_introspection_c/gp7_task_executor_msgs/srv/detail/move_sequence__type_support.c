@@ -12,6 +12,10 @@
 #include "gp7_task_executor_msgs/srv/detail/move_sequence__struct.h"
 
 
+// Include directives for member types
+// Member `waypoint_names`
+#include "rosidl_runtime_c/string_functions.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -31,7 +35,79 @@ void gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_intro
   gp7_task_executor_msgs__srv__MoveSequence_Request__fini(message_memory);
 }
 
-static rosidl_typesupport_introspection_c__MessageMember gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__MoveSequence_Request_message_member_array[1] = {
+size_t gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__size_function__MoveSequence_Request__waypoint_names(
+  const void * untyped_member)
+{
+  const rosidl_runtime_c__String__Sequence * member =
+    (const rosidl_runtime_c__String__Sequence *)(untyped_member);
+  return member->size;
+}
+
+const void * gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__get_const_function__MoveSequence_Request__waypoint_names(
+  const void * untyped_member, size_t index)
+{
+  const rosidl_runtime_c__String__Sequence * member =
+    (const rosidl_runtime_c__String__Sequence *)(untyped_member);
+  return &member->data[index];
+}
+
+void * gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__get_function__MoveSequence_Request__waypoint_names(
+  void * untyped_member, size_t index)
+{
+  rosidl_runtime_c__String__Sequence * member =
+    (rosidl_runtime_c__String__Sequence *)(untyped_member);
+  return &member->data[index];
+}
+
+void gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__fetch_function__MoveSequence_Request__waypoint_names(
+  const void * untyped_member, size_t index, void * untyped_value)
+{
+  const rosidl_runtime_c__String * item =
+    ((const rosidl_runtime_c__String *)
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__get_const_function__MoveSequence_Request__waypoint_names(untyped_member, index));
+  rosidl_runtime_c__String * value =
+    (rosidl_runtime_c__String *)(untyped_value);
+  *value = *item;
+}
+
+void gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__assign_function__MoveSequence_Request__waypoint_names(
+  void * untyped_member, size_t index, const void * untyped_value)
+{
+  rosidl_runtime_c__String * item =
+    ((rosidl_runtime_c__String *)
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__get_function__MoveSequence_Request__waypoint_names(untyped_member, index));
+  const rosidl_runtime_c__String * value =
+    (const rosidl_runtime_c__String *)(untyped_value);
+  *item = *value;
+}
+
+bool gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__resize_function__MoveSequence_Request__waypoint_names(
+  void * untyped_member, size_t size)
+{
+  rosidl_runtime_c__String__Sequence * member =
+    (rosidl_runtime_c__String__Sequence *)(untyped_member);
+  rosidl_runtime_c__String__Sequence__fini(member);
+  return rosidl_runtime_c__String__Sequence__init(member, size);
+}
+
+static rosidl_typesupport_introspection_c__MessageMember gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__MoveSequence_Request_message_member_array[2] = {
+  {
+    "waypoint_names",  // name
+    rosidl_typesupport_introspection_c__ROS_TYPE_STRING,  // type
+    0,  // upper bound of string
+    NULL,  // members of sub message
+    true,  // is array
+    0,  // array size
+    false,  // is upper bound
+    offsetof(gp7_task_executor_msgs__srv__MoveSequence_Request, waypoint_names),  // bytes offset in struct
+    NULL,  // default value
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__size_function__MoveSequence_Request__waypoint_names,  // size() function pointer
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__get_const_function__MoveSequence_Request__waypoint_names,  // get_const(index) function pointer
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__get_function__MoveSequence_Request__waypoint_names,  // get(index) function pointer
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__fetch_function__MoveSequence_Request__waypoint_names,  // fetch(index, &value) function pointer
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__assign_function__MoveSequence_Request__waypoint_names,  // assign(index, value) function pointer
+    gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__resize_function__MoveSequence_Request__waypoint_names  // resize(index) function pointer
+  },
   {
     "execute",  // name
     rosidl_typesupport_introspection_c__ROS_TYPE_BOOLEAN,  // type
@@ -54,7 +130,7 @@ static rosidl_typesupport_introspection_c__MessageMember gp7_task_executor_msgs_
 static const rosidl_typesupport_introspection_c__MessageMembers gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__MoveSequence_Request_message_members = {
   "gp7_task_executor_msgs__srv",  // message namespace
   "MoveSequence_Request",  // message name
-  1,  // number of fields
+  2,  // number of fields
   sizeof(gp7_task_executor_msgs__srv__MoveSequence_Request),
   gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__MoveSequence_Request_message_member_array,  // message members
   gp7_task_executor_msgs__srv__MoveSequence_Request__rosidl_typesupport_introspection_c__MoveSequence_Request_init_function,  // function to initialize message memory (memory has to be allocated)
@@ -102,7 +178,8 @@ ROSIDL_TYPESUPPORT_INTERFACE__MESSAGE_SYMBOL_NAME(rosidl_typesupport_introspecti
 
 // Include directives for member types
 // Member `message`
-#include "rosidl_runtime_c/string_functions.h"
+// already included above
+// #include "rosidl_runtime_c/string_functions.h"
 
 #ifdef __cplusplus
 extern "C"

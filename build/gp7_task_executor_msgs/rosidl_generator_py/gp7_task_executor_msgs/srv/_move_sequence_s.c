@@ -16,6 +16,11 @@
 #include "gp7_task_executor_msgs/srv/detail/move_sequence__struct.h"
 #include "gp7_task_executor_msgs/srv/detail/move_sequence__functions.h"
 
+#include "rosidl_runtime_c/primitives_sequence.h"
+#include "rosidl_runtime_c/primitives_sequence_functions.h"
+#include "rosidl_runtime_c/string.h"
+#include "rosidl_runtime_c/string_functions.h"
+
 
 ROSIDL_GENERATOR_C_EXPORT
 bool gp7_task_executor_msgs__srv__move_sequence__request__convert_from_py(PyObject * _pymsg, void * _ros_message)
@@ -50,6 +55,51 @@ bool gp7_task_executor_msgs__srv__move_sequence__request__convert_from_py(PyObje
     assert(strncmp("gp7_task_executor_msgs.srv._move_sequence.MoveSequence_Request", full_classname_dest, 62) == 0);
   }
   gp7_task_executor_msgs__srv__MoveSequence_Request * ros_message = _ros_message;
+  {  // waypoint_names
+    PyObject * field = PyObject_GetAttrString(_pymsg, "waypoint_names");
+    if (!field) {
+      return false;
+    }
+    {
+      PyObject * seq_field = PySequence_Fast(field, "expected a sequence in 'waypoint_names'");
+      if (!seq_field) {
+        Py_DECREF(field);
+        return false;
+      }
+      Py_ssize_t size = PySequence_Size(field);
+      if (-1 == size) {
+        Py_DECREF(seq_field);
+        Py_DECREF(field);
+        return false;
+      }
+      if (!rosidl_runtime_c__String__Sequence__init(&(ros_message->waypoint_names), size)) {
+        PyErr_SetString(PyExc_RuntimeError, "unable to create String__Sequence ros_message");
+        Py_DECREF(seq_field);
+        Py_DECREF(field);
+        return false;
+      }
+      rosidl_runtime_c__String * dest = ros_message->waypoint_names.data;
+      for (Py_ssize_t i = 0; i < size; ++i) {
+        PyObject * item = PySequence_Fast_GET_ITEM(seq_field, i);
+        if (!item) {
+          Py_DECREF(seq_field);
+          Py_DECREF(field);
+          return false;
+        }
+        assert(PyUnicode_Check(item));
+        PyObject * encoded_item = PyUnicode_AsUTF8String(item);
+        if (!encoded_item) {
+          Py_DECREF(seq_field);
+          Py_DECREF(field);
+          return false;
+        }
+        rosidl_runtime_c__String__assign(&dest[i], PyBytes_AS_STRING(encoded_item));
+        Py_DECREF(encoded_item);
+      }
+      Py_DECREF(seq_field);
+    }
+    Py_DECREF(field);
+  }
   {  // execute
     PyObject * field = PyObject_GetAttrString(_pymsg, "execute");
     if (!field) {
@@ -81,6 +131,32 @@ PyObject * gp7_task_executor_msgs__srv__move_sequence__request__convert_to_py(vo
     }
   }
   gp7_task_executor_msgs__srv__MoveSequence_Request * ros_message = (gp7_task_executor_msgs__srv__MoveSequence_Request *)raw_ros_message;
+  {  // waypoint_names
+    PyObject * field = NULL;
+    size_t size = ros_message->waypoint_names.size;
+    rosidl_runtime_c__String * src = ros_message->waypoint_names.data;
+    field = PyList_New(size);
+    if (!field) {
+      return NULL;
+    }
+    for (size_t i = 0; i < size; ++i) {
+      PyObject * decoded_item = PyUnicode_DecodeUTF8(src[i].data, strlen(src[i].data), "replace");
+      if (!decoded_item) {
+        return NULL;
+      }
+      int rc = PyList_SetItem(field, i, decoded_item);
+      (void)rc;
+      assert(rc == 0);
+    }
+    assert(PySequence_Check(field));
+    {
+      int rc = PyObject_SetAttrString(_pymessage, "waypoint_names", field);
+      Py_DECREF(field);
+      if (rc) {
+        return NULL;
+      }
+    }
+  }
   {  // execute
     PyObject * field = NULL;
     field = PyBool_FromLong(ros_message->execute ? 1 : 0);
@@ -111,8 +187,10 @@ PyObject * gp7_task_executor_msgs__srv__move_sequence__request__convert_to_py(vo
 // already included above
 // #include "gp7_task_executor_msgs/srv/detail/move_sequence__functions.h"
 
-#include "rosidl_runtime_c/string.h"
-#include "rosidl_runtime_c/string_functions.h"
+// already included above
+// #include "rosidl_runtime_c/string.h"
+// already included above
+// #include "rosidl_runtime_c/string_functions.h"
 
 
 ROSIDL_GENERATOR_C_EXPORT

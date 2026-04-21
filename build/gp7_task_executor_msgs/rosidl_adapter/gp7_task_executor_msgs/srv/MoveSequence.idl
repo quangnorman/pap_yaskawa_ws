@@ -8,16 +8,19 @@ module gp7_task_executor_msgs {
     @verbatim (language="comment", text=
       "MoveSequence Service Definition" "\n"
       "" "\n"
-      "Executes a predefined sequence of named joint targets:" "\n"
-      "  origin -> P1 -> P2 -> origin" "\n"
+      "Executes a user-defined sequence of named joint waypoints." "\n"
+      "Each waypoint name must exist in the loaded waypoint configuration." "\n"
       "" "\n"
       "Request:" "\n"
+      "  - waypoint_names: Ordered list of waypoint names to visit in sequence." "\n"
       "  - execute: If true, plan and execute each waypoint. If false, plan only." "\n"
       "" "\n"
       "Response:" "\n"
       "  - success: True only if all waypoints succeed." "\n"
       "  - message: Human-readable result/diagnostic message.")
     struct MoveSequence_Request {
+      sequence<string> waypoint_names;
+
       boolean execute;
     };
     struct MoveSequence_Response {

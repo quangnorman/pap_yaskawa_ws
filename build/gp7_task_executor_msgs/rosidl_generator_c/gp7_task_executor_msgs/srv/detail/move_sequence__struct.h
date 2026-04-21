@@ -17,9 +17,14 @@ extern "C"
 
 // Constants defined in the message
 
+// Include directives for member types
+// Member 'waypoint_names'
+#include "rosidl_runtime_c/string.h"
+
 /// Struct defined in srv/MoveSequence in the package gp7_task_executor_msgs.
 typedef struct gp7_task_executor_msgs__srv__MoveSequence_Request
 {
+  rosidl_runtime_c__String__Sequence waypoint_names;
   bool execute;
 } gp7_task_executor_msgs__srv__MoveSequence_Request;
 
@@ -38,7 +43,8 @@ typedef struct gp7_task_executor_msgs__srv__MoveSequence_Request__Sequence
 
 // Include directives for member types
 // Member 'message'
-#include "rosidl_runtime_c/string.h"
+// already included above
+// #include "rosidl_runtime_c/string.h"
 
 /// Struct defined in srv/MoveSequence in the package gp7_task_executor_msgs.
 typedef struct gp7_task_executor_msgs__srv__MoveSequence_Response

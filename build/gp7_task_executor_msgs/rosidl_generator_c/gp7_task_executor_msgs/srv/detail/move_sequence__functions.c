@@ -10,10 +10,19 @@
 
 #include "rcutils/allocator.h"
 
+// Include directives for member types
+// Member `waypoint_names`
+#include "rosidl_runtime_c/string_functions.h"
+
 bool
 gp7_task_executor_msgs__srv__MoveSequence_Request__init(gp7_task_executor_msgs__srv__MoveSequence_Request * msg)
 {
   if (!msg) {
+    return false;
+  }
+  // waypoint_names
+  if (!rosidl_runtime_c__String__Sequence__init(&msg->waypoint_names, 0)) {
+    gp7_task_executor_msgs__srv__MoveSequence_Request__fini(msg);
     return false;
   }
   // execute
@@ -26,6 +35,8 @@ gp7_task_executor_msgs__srv__MoveSequence_Request__fini(gp7_task_executor_msgs__
   if (!msg) {
     return;
   }
+  // waypoint_names
+  rosidl_runtime_c__String__Sequence__fini(&msg->waypoint_names);
   // execute
 }
 
@@ -33,6 +44,12 @@ bool
 gp7_task_executor_msgs__srv__MoveSequence_Request__are_equal(const gp7_task_executor_msgs__srv__MoveSequence_Request * lhs, const gp7_task_executor_msgs__srv__MoveSequence_Request * rhs)
 {
   if (!lhs || !rhs) {
+    return false;
+  }
+  // waypoint_names
+  if (!rosidl_runtime_c__String__Sequence__are_equal(
+      &(lhs->waypoint_names), &(rhs->waypoint_names)))
+  {
     return false;
   }
   // execute
@@ -48,6 +65,12 @@ gp7_task_executor_msgs__srv__MoveSequence_Request__copy(
   gp7_task_executor_msgs__srv__MoveSequence_Request * output)
 {
   if (!input || !output) {
+    return false;
+  }
+  // waypoint_names
+  if (!rosidl_runtime_c__String__Sequence__copy(
+      &(input->waypoint_names), &(output->waypoint_names)))
+  {
     return false;
   }
   // execute
@@ -237,7 +260,8 @@ gp7_task_executor_msgs__srv__MoveSequence_Request__Sequence__copy(
 
 // Include directives for member types
 // Member `message`
-#include "rosidl_runtime_c/string_functions.h"
+// already included above
+// #include "rosidl_runtime_c/string_functions.h"
 
 bool
 gp7_task_executor_msgs__srv__MoveSequence_Response__init(gp7_task_executor_msgs__srv__MoveSequence_Response * msg)

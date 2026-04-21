@@ -24,13 +24,29 @@ namespace builder
 class Init_MoveSequence_Request_execute
 {
 public:
-  Init_MoveSequence_Request_execute()
-  : msg_(::rosidl_runtime_cpp::MessageInitialization::SKIP)
+  explicit Init_MoveSequence_Request_execute(::gp7_task_executor_msgs::srv::MoveSequence_Request & msg)
+  : msg_(msg)
   {}
   ::gp7_task_executor_msgs::srv::MoveSequence_Request execute(::gp7_task_executor_msgs::srv::MoveSequence_Request::_execute_type arg)
   {
     msg_.execute = std::move(arg);
     return std::move(msg_);
+  }
+
+private:
+  ::gp7_task_executor_msgs::srv::MoveSequence_Request msg_;
+};
+
+class Init_MoveSequence_Request_waypoint_names
+{
+public:
+  Init_MoveSequence_Request_waypoint_names()
+  : msg_(::rosidl_runtime_cpp::MessageInitialization::SKIP)
+  {}
+  Init_MoveSequence_Request_execute waypoint_names(::gp7_task_executor_msgs::srv::MoveSequence_Request::_waypoint_names_type arg)
+  {
+    msg_.waypoint_names = std::move(arg);
+    return Init_MoveSequence_Request_execute(msg_);
   }
 
 private:
@@ -48,7 +64,7 @@ template<>
 inline
 auto build<::gp7_task_executor_msgs::srv::MoveSequence_Request>()
 {
-  return gp7_task_executor_msgs::srv::builder::Init_MoveSequence_Request_execute();
+  return gp7_task_executor_msgs::srv::builder::Init_MoveSequence_Request_waypoint_names();
 }
 
 }  // namespace gp7_task_executor_msgs

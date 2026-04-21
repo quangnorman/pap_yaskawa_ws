@@ -17,6 +17,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(gp7_task_executor_msgs REQUIRED)
+find_package(yaml_cpp_vendor REQUIRED)
 
 include_directories(
   include
@@ -32,6 +33,7 @@ ament_target_dependencies(task_executor_node
   moveit_ros_planning_interface
   pluginlib
   gp7_task_executor_msgs
+  yaml_cpp_vendor
 )
 
 install(TARGETS task_executor_node

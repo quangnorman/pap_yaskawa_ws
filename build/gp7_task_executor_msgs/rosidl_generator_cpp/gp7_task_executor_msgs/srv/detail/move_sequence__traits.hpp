@@ -25,6 +25,24 @@ inline void to_flow_style_yaml(
   std::ostream & out)
 {
   out << "{";
+  // member: waypoint_names
+  {
+    if (msg.waypoint_names.size() == 0) {
+      out << "waypoint_names: []";
+    } else {
+      out << "waypoint_names: [";
+      size_t pending_items = msg.waypoint_names.size();
+      for (auto item : msg.waypoint_names) {
+        rosidl_generator_traits::value_to_yaml(item, out);
+        if (--pending_items > 0) {
+          out << ", ";
+        }
+      }
+      out << "]";
+    }
+    out << ", ";
+  }
+
   // member: execute
   {
     out << "execute: ";
@@ -37,6 +55,26 @@ inline void to_block_style_yaml(
   const MoveSequence_Request & msg,
   std::ostream & out, size_t indentation = 0)
 {
+  // member: waypoint_names
+  {
+    if (indentation > 0) {
+      out << std::string(indentation, ' ');
+    }
+    if (msg.waypoint_names.size() == 0) {
+      out << "waypoint_names: []\n";
+    } else {
+      out << "waypoint_names:\n";
+      for (auto item : msg.waypoint_names) {
+        if (indentation > 0) {
+          out << std::string(indentation, ' ');
+        }
+        out << "- ";
+        rosidl_generator_traits::value_to_yaml(item, out);
+        out << "\n";
+      }
+    }
+  }
+
   // member: execute
   {
     if (indentation > 0) {
@@ -94,11 +132,11 @@ inline const char * name<gp7_task_executor_msgs::srv::MoveSequence_Request>()
 
 template<>
 struct has_fixed_size<gp7_task_executor_msgs::srv::MoveSequence_Request>
-  : std::integral_constant<bool, true> {};
+  : std::integral_constant<bool, false> {};
 
 template<>
 struct has_bounded_size<gp7_task_executor_msgs::srv::MoveSequence_Request>
-  : std::integral_constant<bool, true> {};
+  : std::integral_constant<bool, false> {};
 
 template<>
 struct is_message<gp7_task_executor_msgs::srv::MoveSequence_Request>

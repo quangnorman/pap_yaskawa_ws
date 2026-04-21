@@ -66,7 +66,7 @@ def generate_launch_description() -> LaunchDescription:
     gazebo_launch_file = os.path.join(
         get_package_share_directory("gazebo_ros"), "launch", "gazebo.launch.py"
     )
-    default_world = "/usr/share/gazebo-11/worlds/empty.world"
+    world_file = os.path.join(gazebo_classic_share, "worlds", "table.world")
     sim_camera_sdf = os.path.join(
         gazebo_classic_share, "models", "gp7_sim_rgbd_camera", "model.sdf"
     )
@@ -82,9 +82,16 @@ def generate_launch_description() -> LaunchDescription:
     y_arg = DeclareLaunchArgument("y", default_value="0", description="Robot spawn Y (world)")
     z_arg = DeclareLaunchArgument("z", default_value="0", description="Robot spawn Z (world)")
     rviz_arg = DeclareLaunchArgument("rviz", default_value="true", description="Launch RViz")
-    world_arg = DeclareLaunchArgument(
-        "world", default_value=default_world, description="Gazebo world file"
-    )
+    world_arg = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gazebo_launch_file),
+        launch_arguments={
+            'use_sim_time': 'true',
+            'debug': 'false',
+            'gui': 'true',
+            'paused': 'true',
+            'world' : world_file
+        }.items()
+    ) 
 
     sim_cam_x = DeclareLaunchArgument(
         "sim_cam_x",
@@ -491,7 +498,7 @@ def generate_launch_description() -> LaunchDescription:
             optical_pitch,
             optical_yaw,
             launch_vision_arg,
-            gazebo,
+            # gazebo,
             robot_state_publisher,
             delayed_spawn_robot,
             delayed_spawn_box_target,

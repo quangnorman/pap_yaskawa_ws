@@ -6,6 +6,7 @@
 /home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/launch/sim_moveit.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/launch/sim_moveit_vision_rgbd.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/worlds/model.world
+/home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/worlds/table.world
 /home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/worlds/world_test.world
 /home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/worlds/world_test1.world
 /home/norman/pap_yaskawa_ws/install/gp7_gazebo_classic/share/gp7_gazebo_classic/models/gp7_sim_rgbd_camera/model.config

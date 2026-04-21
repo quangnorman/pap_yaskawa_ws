@@ -367,6 +367,11 @@ pub struct MoveSequence_Request {
 
     // This member is not documented.
     #[allow(missing_docs)]
+    pub waypoint_names: Vec<std::string::String>,
+
+
+    // This member is not documented.
+    #[allow(missing_docs)]
     pub execute: bool,
 
 }
@@ -385,9 +390,17 @@ impl rosidl_runtime_rs::Message for MoveSequence_Request {
   fn into_rmw_message(msg_cow: std::borrow::Cow<'_, Self>) -> std::borrow::Cow<'_, Self::RmwMsg> {
     match msg_cow {
       std::borrow::Cow::Owned(msg) => std::borrow::Cow::Owned(Self::RmwMsg {
+        waypoint_names: msg.waypoint_names
+          .into_iter()
+          .map(|elem| elem.as_str().into())
+          .collect(),
         execute: msg.execute,
       }),
       std::borrow::Cow::Borrowed(msg) => std::borrow::Cow::Owned(Self::RmwMsg {
+        waypoint_names: msg.waypoint_names
+          .iter()
+          .map(|elem| elem.as_str().into())
+          .collect(),
       execute: msg.execute,
       })
     }
@@ -395,6 +408,10 @@ impl rosidl_runtime_rs::Message for MoveSequence_Request {
 
   fn from_rmw_message(msg: Self::RmwMsg) -> Self {
     Self {
+      waypoint_names: msg.waypoint_names
+          .into_iter()
+          .map(|elem| elem.to_string())
+          .collect(),
       execute: msg.execute,
     }
   }

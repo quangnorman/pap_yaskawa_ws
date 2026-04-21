@@ -25,6 +25,10 @@
 /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/mini_stacking_box2/meshes/mini_stacking_box2.dae
 /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/mini_stacking_box2/model.config
 /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/mini_stacking_box2/model.sdf
+/home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/table/meshes/table.STL
+/home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/table/meshes/table.dae
+/home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/table/model.config
+/home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/models/table/model.sdf
 /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/config/initial_positions.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_description/share/gp7_description/legacy/README.md
 /home/norman/pap_yaskawa_ws/install/gp7_description/share/ament_index/resource_index/package_run_dependencies/gp7_description

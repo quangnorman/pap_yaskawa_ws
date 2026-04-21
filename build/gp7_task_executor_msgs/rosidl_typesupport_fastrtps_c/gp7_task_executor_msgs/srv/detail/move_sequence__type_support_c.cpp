@@ -34,6 +34,8 @@ extern "C"
 {
 #endif
 
+#include "rosidl_runtime_c/string.h"  // waypoint_names
+#include "rosidl_runtime_c/string_functions.h"  // waypoint_names
 
 // forward declare type support functions
 
@@ -49,6 +51,25 @@ static bool _MoveSequence_Request__cdr_serialize(
     return false;
   }
   const _MoveSequence_Request__ros_msg_type * ros_message = static_cast<const _MoveSequence_Request__ros_msg_type *>(untyped_ros_message);
+  // Field name: waypoint_names
+  {
+    size_t size = ros_message->waypoint_names.size;
+    auto array_ptr = ros_message->waypoint_names.data;
+    cdr << static_cast<uint32_t>(size);
+    for (size_t i = 0; i < size; ++i) {
+      const rosidl_runtime_c__String * str = &array_ptr[i];
+      if (str->capacity == 0 || str->capacity <= str->size) {
+        fprintf(stderr, "string capacity not greater than size\n");
+        return false;
+      }
+      if (str->data[str->size] != '\0') {
+        fprintf(stderr, "string not null-terminated\n");
+        return false;
+      }
+      cdr << str->data;
+    }
+  }
+
   // Field name: execute
   {
     cdr << (ros_message->execute ? true : false);
@@ -66,6 +87,46 @@ static bool _MoveSequence_Request__cdr_deserialize(
     return false;
   }
   _MoveSequence_Request__ros_msg_type * ros_message = static_cast<_MoveSequence_Request__ros_msg_type *>(untyped_ros_message);
+  // Field name: waypoint_names
+  {
+    uint32_t cdrSize;
+    cdr >> cdrSize;
+    size_t size = static_cast<size_t>(cdrSize);
+
+    // Check there are at least 'size' remaining bytes in the CDR stream before resizing
+    auto old_state = cdr.getState();
+    bool correct_size = cdr.jump(size);
+    cdr.setState(old_state);
+    if (!correct_size) {
+      fprintf(stderr, "sequence size exceeds remaining buffer\n");
+      return false;
+    }
+
+    if (ros_message->waypoint_names.data) {
+      rosidl_runtime_c__String__Sequence__fini(&ros_message->waypoint_names);
+    }
+    if (!rosidl_runtime_c__String__Sequence__init(&ros_message->waypoint_names, size)) {
+      fprintf(stderr, "failed to create array for field 'waypoint_names'");
+      return false;
+    }
+    auto array_ptr = ros_message->waypoint_names.data;
+    for (size_t i = 0; i < size; ++i) {
+      std::string tmp;
+      cdr >> tmp;
+      auto & ros_i = array_ptr[i];
+      if (!ros_i.data) {
+        rosidl_runtime_c__String__init(&ros_i);
+      }
+      bool succeeded = rosidl_runtime_c__String__assign(
+        &ros_i,
+        tmp.c_str());
+      if (!succeeded) {
+        fprintf(stderr, "failed to assign string into field 'waypoint_names'\n");
+        return false;
+      }
+    }
+  }
+
   // Field name: execute
   {
     uint8_t tmp;
@@ -90,6 +151,18 @@ size_t get_serialized_size_gp7_task_executor_msgs__srv__MoveSequence_Request(
   (void)padding;
   (void)wchar_size;
 
+  // field.name waypoint_names
+  {
+    size_t array_size = ros_message->waypoint_names.size;
+    auto array_ptr = ros_message->waypoint_names.data;
+    current_alignment += padding +
+      eprosima::fastcdr::Cdr::alignment(current_alignment, padding);
+    for (size_t index = 0; index < array_size; ++index) {
+      current_alignment += padding +
+        eprosima::fastcdr::Cdr::alignment(current_alignment, padding) +
+        (array_ptr[index].size + 1);
+    }
+  }
   // field.name execute
   {
     size_t item_size = sizeof(ros_message->execute);
@@ -125,6 +198,22 @@ size_t max_serialized_size_gp7_task_executor_msgs__srv__MoveSequence_Request(
   full_bounded = true;
   is_plain = true;
 
+  // member: waypoint_names
+  {
+    size_t array_size = 0;
+    full_bounded = false;
+    is_plain = false;
+    current_alignment += padding +
+      eprosima::fastcdr::Cdr::alignment(current_alignment, padding);
+
+    full_bounded = false;
+    is_plain = false;
+    for (size_t index = 0; index < array_size; ++index) {
+      current_alignment += padding +
+        eprosima::fastcdr::Cdr::alignment(current_alignment, padding) +
+        1;
+    }
+  }
   // member: execute
   {
     size_t array_size = 1;
@@ -229,8 +318,10 @@ extern "C"
 {
 #endif
 
-#include "rosidl_runtime_c/string.h"  // message
-#include "rosidl_runtime_c/string_functions.h"  // message
+// already included above
+// #include "rosidl_runtime_c/string.h"  // message
+// already included above
+// #include "rosidl_runtime_c/string_functions.h"  // message
 
 // forward declare type support functions
 

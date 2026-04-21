@@ -43,7 +43,7 @@ def generate_launch_description() -> LaunchDescription:
         get_package_share_directory("gazebo_ros"), "launch", "gazebo.launch.py"
     )
     default_world = "/usr/share/gazebo-11/worlds/empty.world"
-
+    world_file = os.path.join(gazebo_classic_share, "worlds", "table.world")
     # -------------------------------------------------------------------------
     # Launch arguments
     # -------------------------------------------------------------------------
@@ -51,10 +51,20 @@ def generate_launch_description() -> LaunchDescription:
     y_arg = DeclareLaunchArgument("y", default_value="0", description="Y position")
     z_arg = DeclareLaunchArgument("z", default_value="0", description="Z position")
     rviz_arg = DeclareLaunchArgument("rviz", default_value="true", description="Launch RViz")
-    world_arg = DeclareLaunchArgument(
-        "world", default_value=default_world, description="Gazebo world file"
-    )
+    # world_arg = DeclareLaunchArgument(
+    #     "world", default_value=default_world, description="Gazebo world file"
+    # )
 
+    world_arg = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gazebo_launch_file),
+        launch_arguments={
+            'use_sim_time': 'true',
+            'debug': 'false',
+            'gui': 'true',
+            'paused': 'true',
+            'world' : world_file
+        }.items()
+    ) 
     rviz_enabled = LaunchConfiguration("rviz")
     world = LaunchConfiguration("world")
 
@@ -263,7 +273,7 @@ def generate_launch_description() -> LaunchDescription:
             z_arg,
             rviz_arg,
             world_arg,
-            gazebo,
+            # gazebo,
             robot_state_publisher,
             delayed_spawn_robot,
             delayed_controller_loading,

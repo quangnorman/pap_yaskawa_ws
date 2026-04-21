@@ -32,6 +32,10 @@ cdr_serialize(
   const gp7_task_executor_msgs::srv::MoveSequence_Request & ros_message,
   eprosima::fastcdr::Cdr & cdr)
 {
+  // Member: waypoint_names
+  {
+    cdr << ros_message.waypoint_names;
+  }
   // Member: execute
   cdr << (ros_message.execute ? true : false);
   return true;
@@ -43,6 +47,11 @@ cdr_deserialize(
   eprosima::fastcdr::Cdr & cdr,
   gp7_task_executor_msgs::srv::MoveSequence_Request & ros_message)
 {
+  // Member: waypoint_names
+  {
+    cdr >> ros_message.waypoint_names;
+  }
+
   // Member: execute
   {
     uint8_t tmp;
@@ -66,6 +75,18 @@ get_serialized_size(
   (void)padding;
   (void)wchar_size;
 
+  // Member: waypoint_names
+  {
+    size_t array_size = ros_message.waypoint_names.size();
+
+    current_alignment += padding +
+      eprosima::fastcdr::Cdr::alignment(current_alignment, padding);
+    for (size_t index = 0; index < array_size; ++index) {
+      current_alignment += padding +
+        eprosima::fastcdr::Cdr::alignment(current_alignment, padding) +
+        (ros_message.waypoint_names[index].size() + 1);
+    }
+  }
   // Member: execute
   {
     size_t item_size = sizeof(ros_message.execute);
@@ -95,6 +116,23 @@ max_serialized_size_MoveSequence_Request(
   full_bounded = true;
   is_plain = true;
 
+
+  // Member: waypoint_names
+  {
+    size_t array_size = 0;
+    full_bounded = false;
+    is_plain = false;
+    current_alignment += padding +
+      eprosima::fastcdr::Cdr::alignment(current_alignment, padding);
+
+    full_bounded = false;
+    is_plain = false;
+    for (size_t index = 0; index < array_size; ++index) {
+      current_alignment += padding +
+        eprosima::fastcdr::Cdr::alignment(current_alignment, padding) +
+        1;
+    }
+  }
 
   // Member: execute
   {

@@ -54,11 +54,20 @@ struct MoveSequence_Request_
   }
 
   // field types and members
+  using _waypoint_names_type =
+    std::vector<std::basic_string<char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<std::basic_string<char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>>>;
+  _waypoint_names_type waypoint_names;
   using _execute_type =
     bool;
   _execute_type execute;
 
   // setters for named parameter idiom
+  Type & set__waypoint_names(
+    const std::vector<std::basic_string<char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<std::basic_string<char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>>> & _arg)
+  {
+    this->waypoint_names = _arg;
+    return *this;
+  }
   Type & set__execute(
     const bool & _arg)
   {
@@ -108,6 +117,9 @@ struct MoveSequence_Request_
   // comparison operators
   bool operator==(const MoveSequence_Request_ & other) const
   {
+    if (this->waypoint_names != other.waypoint_names) {
+      return false;
+    }
     if (this->execute != other.execute) {
       return false;
     }

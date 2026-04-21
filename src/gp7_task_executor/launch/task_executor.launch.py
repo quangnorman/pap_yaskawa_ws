@@ -4,6 +4,7 @@ This launch file starts the task executor node that provides three services:
 - /move_to_named_target: Move to a named SRDF target (e.g., "home")
 - /move_to_joint_target: Move to a joint-space goal
 - /move_to_pose_target: Move to a pose goal
+- /move_sequence: Execute a sequence of predefined joint waypoints
 
 Assumes MoveIt is already running separately.
 
@@ -14,10 +15,15 @@ Typical usage:
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description() -> LaunchDescription:
+    pkg_share = PathJoinSubstitution([
+        FindPackageShare("gp7_task_executor"),
+    ])
+
     launch_args = [
         DeclareLaunchArgument(
             "move_group_name",
@@ -31,6 +37,10 @@ def generate_launch_description() -> LaunchDescription:
             "ee_link",
             default_value="tool0",
             description="End-effector link name"),
+        DeclareLaunchArgument(
+            "waypoints_config",
+            default_value=[pkg_share, "/config/joint_waypoints.yaml"],
+            description="Path to the YAML file containing joint waypoints"),
         DeclareLaunchArgument(
             "planning_time",
             default_value="2.0",
@@ -58,6 +68,7 @@ def generate_launch_description() -> LaunchDescription:
             "move_group_name": LaunchConfiguration("move_group_name"),
             "base_frame": LaunchConfiguration("base_frame"),
             "ee_link": LaunchConfiguration("ee_link"),
+            "waypoints_config_path": LaunchConfiguration("waypoints_config"),
             "planning_time": LaunchConfiguration("planning_time"),
             "num_planning_attempts": LaunchConfiguration("num_planning_attempts"),
             "max_velocity_scaling_factor": LaunchConfiguration("max_velocity_scaling_factor"),
