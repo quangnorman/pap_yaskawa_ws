@@ -4,6 +4,10 @@
     "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToNamedTarget.srv",
     "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToJointTarget.srv",
     "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToPoseTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToNamedPoseTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToCartesianTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveToNamedCartesianTarget.srv",
+    "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveCartesianSequence.srv",
     "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs:srv/MoveSequence.srv"
   ]
 }

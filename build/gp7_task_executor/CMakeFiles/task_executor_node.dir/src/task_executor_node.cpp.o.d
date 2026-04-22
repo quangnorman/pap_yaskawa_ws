@@ -627,6 +627,13 @@ CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o: \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/quaternion__traits.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose__type_support.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/rosidl_generator_cpp__visibility_control.hpp \
+ /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/pose_stamped.hpp \
+ /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__struct.hpp \
+ /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/header__struct.hpp \
+ /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__builder.hpp \
+ /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__traits.hpp \
+ /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/header__traits.hpp \
+ /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__type_support.hpp \
  /opt/ros/humble/include/tf2_ros/tf2_ros/buffer.h \
  /opt/ros/humble/include/tf2_ros/tf2_ros/buffer.hpp \
  /opt/ros/humble/include/tf2_ros/tf2_ros/async_buffer_interface.hpp \
@@ -644,12 +651,10 @@ CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o: \
  /opt/ros/humble/include/tf2/tf2/LinearMath/QuadWord.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/transform_stamped.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/transform_stamped__struct.hpp \
- /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/header__struct.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/transform__struct.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__struct.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/transform_stamped__builder.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/transform_stamped__traits.hpp \
- /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/header__traits.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/transform__traits.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/vector3__traits.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/transform_stamped__type_support.hpp \
@@ -715,11 +720,6 @@ CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o: \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/point32__builder.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/point32__traits.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/point32__type_support.hpp \
- /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/pose_stamped.hpp \
- /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__struct.hpp \
- /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__builder.hpp \
- /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__traits.hpp \
- /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_stamped__type_support.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/pose_with_covariance.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_with_covariance__struct.hpp \
  /opt/ros/humble/include/geometry_msgs/geometry_msgs/msg/detail/pose_with_covariance__builder.hpp \
@@ -1392,6 +1392,26 @@ CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o: \
  /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_pose_target__builder.hpp \
  /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_pose_target__traits.hpp \
  /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_pose_target__type_support.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/move_to_named_pose_target.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_pose_target__struct.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_pose_target__builder.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_pose_target__traits.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_pose_target__type_support.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/move_to_cartesian_target.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_cartesian_target__struct.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_cartesian_target__builder.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_cartesian_target__traits.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_cartesian_target__type_support.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/move_to_named_cartesian_target.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_cartesian_target__struct.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_cartesian_target__builder.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_cartesian_target__traits.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_to_named_cartesian_target__type_support.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/move_cartesian_sequence.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_cartesian_sequence__struct.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_cartesian_sequence__builder.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_cartesian_sequence__traits.hpp \
+ /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_cartesian_sequence__type_support.hpp \
  /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/move_sequence.hpp \
  /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_sequence__struct.hpp \
  /home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_generator_cpp/gp7_task_executor_msgs/srv/detail/move_sequence__builder.hpp \

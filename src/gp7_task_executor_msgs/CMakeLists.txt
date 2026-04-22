@@ -9,6 +9,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MoveToNamedTarget.srv"
   "srv/MoveToJointTarget.srv"
   "srv/MoveToPoseTarget.srv"
+  "srv/MoveToNamedPoseTarget.srv"
+  "srv/MoveToCartesianTarget.srv"
+  "srv/MoveToNamedCartesianTarget.srv"
+  "srv/MoveCartesianSequence.srv"
   "srv/MoveSequence.srv"
   DEPENDENCIES geometry_msgs
 )

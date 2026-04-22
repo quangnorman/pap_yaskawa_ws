@@ -378,6 +378,18 @@ ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_exec
 # install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToPoseTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToPoseTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToNamedPoseTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToNamedPoseTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToCartesianTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToCartesianTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToNamedCartesianTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveToNamedCartesianTarget.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveCartesianSequence.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveCartesianSequence.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
 # install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveSequence.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_adapter/gp7_task_executor_msgs/srv/MoveSequence.idl" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 
@@ -407,6 +419,42 @@ ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_exec
 
 # install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToPoseTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToPoseTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveToNamedPoseTarget.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveToNamedPoseTarget.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedPoseTarget_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedPoseTarget_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedPoseTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedPoseTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveToCartesianTarget.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveToCartesianTarget.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToCartesianTarget_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToCartesianTarget_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToCartesianTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToCartesianTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveToNamedCartesianTarget.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveToNamedCartesianTarget.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedCartesianTarget_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedCartesianTarget_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedCartesianTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveToNamedCartesianTarget_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveCartesianSequence.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveCartesianSequence.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveCartesianSequence_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveCartesianSequence_Request.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+
+# install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveCartesianSequence_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/build/gp7_task_executor_msgs/rosidl_cmake/srv/MoveCartesianSequence_Response.msg" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 
 # install(FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveSequence.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs" FILES "/home/norman/pap_yaskawa_ws/src/gp7_task_executor_msgs/srv/MoveSequence.srv" "DESTINATION" "share/gp7_task_executor_msgs/srv")

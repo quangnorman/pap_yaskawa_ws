@@ -1,0 +1,31 @@
+# Cartesian points for gp7_task_executor
+# All values are in world frame.
+# Orientation is FIXED: roll=pi, pitch=0, yaw=0 (tool pointing downward).
+# Only xyz position is stored here; orientation is applied internally.
+#
+# Why position-only Cartesian points?
+#   - Tool orientation is always vertical (pi, 0, 0) for stable pick/place
+#   - Simpler DRL action space: RL only needs to output dx, dy, dz
+#   - Avoids orientation singularities during Cartesian interpolation
+#   - Easier to debug and visualize linear motions
+#
+# To add or modify points:
+#   1. Edit the xyz values below.
+#   2. Rebuild the package: colcon build --packages-select gp7_task_executor
+#   3. Restart the node.
+#
+cartesian_points:
+  pose_A:
+    description: "Cartesian point A"
+    frame_id: "world"
+    xyz: [0.5241, 0.0, 0.6522]
+
+  pose_B:
+    description: "Cartesian point B"
+    frame_id: "world"
+    xyz: [0.00254, -0.4966, 0.4939]
+
+  pose_C:
+    description: "Cartesian point C"
+    frame_id: "world"
+    xyz: [0.00224, -0.4946, 0.3827]
