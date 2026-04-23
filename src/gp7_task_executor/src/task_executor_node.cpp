@@ -8,11 +8,16 @@
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "tf2_eigen/tf2_eigen.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "moveit/planning_scene_interface/planning_scene_interface.h"
+#include "moveit/robot_state/robot_state.h"
 #include "yaml-cpp/yaml.h"
 
 #include "gp7_task_executor_msgs/srv/move_to_named_target.hpp"
@@ -36,6 +41,7 @@ public:
     init_parameters();
     init_named_joint_targets();
     init_named_cartesian_points();
+    init_visualization_publishers();
     create_services();
 
     RCLCPP_INFO(this->get_logger(), "Task executor node constructed.");
@@ -60,7 +66,227 @@ public:
     RCLCPP_INFO(this->get_logger(), "MoveGroupInterface ready for group '%s'", move_group_name_.c_str());
   }
 
-  static constexpr double DEG2RAD = M_PI / 180.0;
+  void init_visualization_publishers()
+  {
+    viz_frame_ = base_frame_;
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] Visualization frame: '%s' (falls back to planning frame at runtime if not available).",
+                viz_frame_.c_str());
+
+    pub_tool_path_ = create_publisher<nav_msgs::msg::Path>(
+        "/task_executor/planned_tool_path", 1);
+    pub_waypoint_markers_ = create_publisher<visualization_msgs::msg::MarkerArray>(
+        "/task_executor/planned_waypoints_marker", 1);
+    pub_path_line_marker_ = create_publisher<visualization_msgs::msg::Marker>(
+        "/task_executor/planned_path_line_marker", 1);
+
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] Publishers created: /task_executor/planned_tool_path (nav_msgs/Path), "
+                "/task_executor/planned_waypoints_marker (MarkerArray), "
+                "/task_executor/planned_path_line_marker (Marker)");
+  }
+
+  /**
+   * Converts a RobotTrajectory into TCP/tool0 poses via forward kinematics
+   * and publishes three simultaneous visualizations:
+   *
+   *   1. nav_msgs/Path  — full smooth TCP path (LINE_STRIP) on /planned_tool_path
+   *   2. Marker (SPHERE_LIST) — discrete trajectory waypoints on /planned_waypoints_marker
+   *   3. Marker (SPHERE) — start and goal markers on /planned_waypoints_marker
+   *   4. Marker (LINE_STRIP) — TCP path line on /planned_path_line_marker
+   *
+   * The frame is resolved at publish time: viz_frame_ if available via TF,
+   * otherwise the planning frame.  Uses the MoveGroupInterface RobotState for FK.
+   */
+  void publish_plan_visualization(
+      const moveit_msgs::msg::RobotTrajectory& trajectory,
+      const std::string& service_name)
+  {
+    const std::string planning_frame = move_group_->getPlanningFrame();
+    std::string resolved_frame = viz_frame_;
+
+    try
+    {
+      tf_buffer_->lookupTransform(resolved_frame, planning_frame, rclcpp::Time(0),
+                                  rclcpp::Duration::from_seconds(0.1));
+    }
+    catch (const tf2::TransformException&)
+    {
+      resolved_frame = planning_frame;
+      RCLCPP_WARN(this->get_logger(),
+                   "[Viz] Frame '%s' not available via TF; using planning frame '%s'.",
+                   viz_frame_.c_str(), planning_frame.c_str());
+    }
+
+    const auto& joint_names = trajectory.joint_trajectory.joint_names;
+    const auto& points = trajectory.joint_trajectory.points;
+    if (joint_names.empty() || points.empty())
+    {
+      RCLCPP_WARN(this->get_logger(),
+                   "[Viz] Trajectory is empty — nothing to visualize.");
+      return;
+    }
+
+    const auto& ee_link = move_group_->getEndEffectorLink();
+    const size_t num_points = points.size();
+
+    std::vector<geometry_msgs::msg::PoseStamped> tcp_poses;
+    tcp_poses.reserve(num_points);
+
+    moveit::core::RobotState robot_state(move_group_->getRobotModel());
+    for (size_t i = 0; i < num_points; ++i)
+    {
+      if (points[i].time_from_start.sec == 0 && points[i].time_from_start.nanosec == 0)
+      {
+        continue;
+      }
+
+      robot_state.setJointGroupPositions(move_group_->getName(), points[i].positions);
+
+      Eigen::Isometry3d tcp_eigen = robot_state.getGlobalLinkTransform(ee_link);
+      geometry_msgs::msg::PoseStamped tcp_pose;
+      tcp_pose.header.stamp = get_clock()->now();
+      tcp_pose.header.frame_id = planning_frame;
+      tcp_pose.pose.position.x = static_cast<double>(tcp_eigen.translation().x());
+      tcp_pose.pose.position.y = static_cast<double>(tcp_eigen.translation().y());
+      tcp_pose.pose.position.z = static_cast<double>(tcp_eigen.translation().z());
+      Eigen::Quaterniond quat(tcp_eigen.rotation());
+      tcp_pose.pose.orientation.x = quat.x();
+      tcp_pose.pose.orientation.y = quat.y();
+      tcp_pose.pose.orientation.z = quat.z();
+      tcp_pose.pose.orientation.w = quat.w();
+      tcp_poses.push_back(tcp_pose);
+    }
+
+    const size_t num_tcp = tcp_poses.size();
+
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] === Plan Visualization for '%s' ===", service_name.c_str());
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz]   trajectory points:  %zu  →  unique TCP poses: %zu",
+                num_points, num_tcp);
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz]   EE link:           '%s'", ee_link.c_str());
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz]   visualization frame: '%s'", resolved_frame.c_str());
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz]   start xyz:         (%.4f, %.4f, %.4f)",
+                tcp_poses.front().pose.position.x,
+                tcp_poses.front().pose.position.y,
+                tcp_poses.front().pose.position.z);
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz]   goal xyz:           (%.4f, %.4f, %.4f)",
+                tcp_poses.back().pose.position.x,
+                tcp_poses.back().pose.position.y,
+                tcp_poses.back().pose.position.z);
+
+    // --- 1. nav_msgs/Path ---
+    nav_msgs::msg::Path nav_path;
+    nav_path.header.stamp = get_clock()->now();
+    nav_path.header.frame_id = resolved_frame;
+
+    for (const auto& pose : tcp_poses)
+    {
+      geometry_msgs::msg::PoseStamped p_out = pose;
+      p_out.header.frame_id = resolved_frame;
+      nav_path.poses.push_back(p_out);
+    }
+    pub_tool_path_->publish(nav_path);
+
+    // --- 2. MarkerArray: discrete waypoints (SPHERE_LIST) + start/goal (SPHERE) ---
+    visualization_msgs::msg::MarkerArray marker_array;
+
+    // Waypoint spheres
+    visualization_msgs::msg::Marker waypoint_spheres;
+    waypoint_spheres.header.stamp = get_clock()->now();
+    waypoint_spheres.header.frame_id = resolved_frame;
+    waypoint_spheres.ns = "trajectory_waypoints";
+    waypoint_spheres.id = 0;
+    waypoint_spheres.type = visualization_msgs::msg::Marker::SPHERE_LIST;
+    waypoint_spheres.action = visualization_msgs::msg::Marker::ADD;
+    waypoint_spheres.scale.x = 0.015;
+    waypoint_spheres.scale.y = 0.015;
+    waypoint_spheres.scale.z = 0.015;
+    waypoint_spheres.color.r = 0.0;
+    waypoint_spheres.color.g = 0.8;
+    waypoint_spheres.color.b = 1.0;
+    waypoint_spheres.color.a = 1.0;
+
+    for (const auto& pose : tcp_poses)
+    {
+      waypoint_spheres.points.emplace_back(pose.pose.position);
+    }
+    marker_array.markers.push_back(waypoint_spheres);
+
+    // Start marker (green sphere, larger)
+    if (!tcp_poses.empty())
+    {
+      visualization_msgs::msg::Marker start_marker;
+      start_marker.header.stamp = get_clock()->now();
+      start_marker.header.frame_id = resolved_frame;
+      start_marker.ns = "start_goal";
+      start_marker.id = 1;
+      start_marker.type = visualization_msgs::msg::Marker::SPHERE;
+      start_marker.action = visualization_msgs::msg::Marker::ADD;
+      start_marker.scale.x = 0.04;
+      start_marker.scale.y = 0.04;
+      start_marker.scale.z = 0.04;
+      start_marker.color.r = 0.2;
+      start_marker.color.g = 1.0;
+      start_marker.color.b = 0.2;
+      start_marker.color.a = 1.0;
+      start_marker.pose.position = tcp_poses.front().pose.position;
+      start_marker.pose.orientation.w = 1.0;
+      marker_array.markers.push_back(start_marker);
+
+      // Goal marker (red sphere, larger)
+      visualization_msgs::msg::Marker goal_marker;
+      goal_marker.header.stamp = get_clock()->now();
+      goal_marker.header.frame_id = resolved_frame;
+      goal_marker.ns = "start_goal";
+      goal_marker.id = 2;
+      goal_marker.type = visualization_msgs::msg::Marker::SPHERE;
+      goal_marker.action = visualization_msgs::msg::Marker::ADD;
+      goal_marker.scale.x = 0.04;
+      goal_marker.scale.y = 0.04;
+      goal_marker.scale.z = 0.04;
+      goal_marker.color.r = 1.0;
+      goal_marker.color.g = 0.2;
+      goal_marker.color.b = 0.2;
+      goal_marker.color.a = 1.0;
+      goal_marker.pose.position = tcp_poses.back().pose.position;
+      goal_marker.pose.orientation.w = 1.0;
+      marker_array.markers.push_back(goal_marker);
+    }
+    pub_waypoint_markers_->publish(marker_array);
+
+    // --- 3. LINE_STRIP marker for the TCP path ---
+    visualization_msgs::msg::Marker path_line;
+    path_line.header.stamp = get_clock()->now();
+    path_line.header.frame_id = resolved_frame;
+    path_line.ns = "tcp_path_line";
+    path_line.id = 0;
+    path_line.type = visualization_msgs::msg::Marker::LINE_STRIP;
+    path_line.action = visualization_msgs::msg::Marker::ADD;
+    path_line.scale.x = 0.008;
+    path_line.color.r = 1.0;
+    path_line.color.g = 0.84;
+    path_line.color.b = 0.0;
+    path_line.color.a = 0.9;
+
+    for (const auto& pose : tcp_poses)
+    {
+      path_line.points.emplace_back(pose.pose.position);
+    }
+    pub_path_line_marker_->publish(path_line);
+
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] Published: nav_msgs/Path (%zu poses), MarkerArray (%zu markers), "
+                "LINE_STRIP (%zu points).",
+                nav_path.poses.size(), marker_array.markers.size(), path_line.points.size());
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] =======================================");
+  }
   static constexpr size_t EXPECTED_JOINT_COUNT = 6;
 
   void init_named_joint_targets()
@@ -118,7 +344,7 @@ public:
         rad_values.reserve(EXPECTED_JOINT_COUNT);
         for (size_t i = 0; i < EXPECTED_JOINT_COUNT; ++i)
         {
-          rad_values.push_back(joints_node[i].as<double>() * DEG2RAD);
+          rad_values.push_back(joints_node[i].as<double>() * (M_PI / 180.0));
         }
 
         named_joint_targets_[name] = rad_values;
@@ -350,6 +576,7 @@ public:
 
     RCLCPP_INFO(this->get_logger(), "[JointTarget] plan() succeeded for '%s' (%lu waypoints).",
                 name.c_str(), plan.trajectory_.joint_trajectory.points.size());
+    publish_plan_visualization(plan.trajectory_, "/move_to_named_target (joint)");
 
     if (execute)
     {
@@ -492,6 +719,7 @@ public:
     RCLCPP_INFO(this->get_logger(),
                 "[NamedPoseTarget] plan() succeeded for '%s' (%lu trajectory points).",
                 name.c_str(), plan.trajectory_.joint_trajectory.points.size());
+    publish_plan_visualization(plan.trajectory_, "/move_to_named_pose_target");
 
     if (execute)
     {
@@ -527,7 +755,8 @@ public:
       double eef_step,
       double jump_threshold,
       moveit_msgs::msg::RobotTrajectory& trajectory,
-      double& fraction)
+      double& fraction,
+      const std::string& service_name)
   {
     move_group_->setStartStateToCurrentState();
 
@@ -538,6 +767,10 @@ public:
     RCLCPP_INFO(this->get_logger(),
                 "[Cartesian] computeCartesianPath returned fraction=%.4f (%lu trajectory points).",
                 fraction, trajectory.joint_trajectory.points.size());
+    if (fraction > 0.0)
+    {
+      publish_plan_visualization(trajectory, service_name);
+    }
 
     return fraction >= 0.95;
   }
@@ -573,7 +806,8 @@ public:
   bool compute_named_cartesian_path(
       const std::vector<std::string>& waypoint_names,
       moveit_msgs::msg::RobotTrajectory& trajectory,
-      double& fraction)
+      double& fraction,
+      const std::string& service_name)
   {
     const std::string planning_frame = move_group_->getPlanningFrame();
 
@@ -628,6 +862,10 @@ public:
     RCLCPP_INFO(this->get_logger(),
                 "[Cartesian]   computeCartesianPath fraction=%.6f  trajectory_points=%lu",
                 fraction, trajectory.joint_trajectory.points.size());
+    if (fraction > 0.0)
+    {
+      publish_plan_visualization(trajectory, service_name);
+    }
 
     return fraction >= 0.95;
   }
@@ -761,7 +999,8 @@ private:
                 "/move_cartesian_sequence, /move_sequence");
   }
 
-  bool plan_and_maybe_execute(bool should_execute)
+  bool plan_and_maybe_execute(bool should_execute,
+                               moveit_msgs::msg::RobotTrajectory* out_trajectory = nullptr)
   {
     move_group_->setStartStateToCurrentState();
 
@@ -779,6 +1018,12 @@ private:
 
     RCLCPP_INFO(this->get_logger(), "Plan succeeded (%lu waypoints).",
                 plan.trajectory_.joint_trajectory.points.size());
+
+    if (out_trajectory != nullptr)
+    {
+      *out_trajectory = plan.trajectory_;
+      publish_plan_visualization(plan.trajectory_, "joint_plan (SRDF)");
+    }
 
     if (should_execute)
     {
@@ -946,11 +1191,45 @@ private:
       return;
     }
 
-    bool ok = plan_and_maybe_execute(execute);
-    response->success = ok;
-    response->message = ok
-      ? "Joint target " + std::string(execute ? "executed" : "planned") + " successfully"
-      : "Failed to " + std::string(execute ? "plan/execute" : "plan") + " joint target";
+    move_group_->setPlanningTime(planning_time_);
+    move_group_->setNumPlanningAttempts(num_planning_attempts_);
+
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    auto plan_result = move_group_->plan(plan);
+
+    if (plan_result != moveit::core::MoveItErrorCode::SUCCESS)
+    {
+      response->success = false;
+      response->message = "Failed to plan joint target (error code: " +
+                          std::to_string(plan_result.val) + ")";
+      RCLCPP_ERROR(this->get_logger(), "%s", response->message.c_str());
+      return;
+    }
+
+    RCLCPP_INFO(this->get_logger(), "Joint target plan succeeded (%lu waypoints).",
+                plan.trajectory_.joint_trajectory.points.size());
+    publish_plan_visualization(plan.trajectory_, "/move_to_joint_target");
+
+    if (execute)
+    {
+      RCLCPP_INFO(this->get_logger(), "Executing joint target...");
+      auto exec_result = move_group_->execute(plan.trajectory_);
+      if (exec_result != moveit::core::MoveItErrorCode::SUCCESS)
+      {
+        response->success = false;
+        response->message = "Failed to execute joint target";
+        RCLCPP_ERROR(this->get_logger(), "%s", response->message.c_str());
+        return;
+      }
+      RCLCPP_INFO(this->get_logger(), "Execution completed successfully.");
+    }
+    else
+    {
+      RCLCPP_INFO(this->get_logger(), "Plan-only mode: trajectory not executed.");
+    }
+
+    response->success = true;
+    response->message = "Joint target " + std::string(execute ? "executed" : "planned") + " successfully";
   }
 
   void handle_pose_target(
@@ -1100,6 +1379,7 @@ private:
     RCLCPP_INFO(this->get_logger(),
                 "[PoseTarget]   plan() succeeded (%lu waypoints).",
                 plan.trajectory_.joint_trajectory.points.size());
+    publish_plan_visualization(plan.trajectory_, "/move_to_pose_target");
 
     if (execute)
     {
@@ -1221,7 +1501,8 @@ private:
     constexpr double JUMP_THRESHOLD = 0.0;
 
     bool path_ok = compute_cartesian_path_waypoints(
-        waypoints, EEF_STEP, JUMP_THRESHOLD, trajectory, fraction);
+        waypoints, EEF_STEP, JUMP_THRESHOLD, trajectory, fraction,
+        "/move_to_cartesian_target");
 
     response->fraction = fraction;
 
@@ -1309,7 +1590,8 @@ private:
     moveit_msgs::msg::RobotTrajectory trajectory;
     double fraction = 0.0;
 
-    bool path_ok = compute_named_cartesian_path(waypoint_names, trajectory, fraction);
+    bool path_ok = compute_named_cartesian_path(waypoint_names, trajectory, fraction,
+        "/move_to_named_cartesian_target");
 
     response->fraction = fraction;
 
@@ -1394,7 +1676,8 @@ private:
     moveit_msgs::msg::RobotTrajectory trajectory;
     double fraction = 0.0;
 
-    bool path_ok = compute_named_cartesian_path(waypoint_names, trajectory, fraction);
+    bool path_ok = compute_named_cartesian_path(waypoint_names, trajectory, fraction,
+        "/move_cartesian_sequence");
 
     response->fraction = fraction;
 
@@ -1460,6 +1743,11 @@ private:
   double max_acceleration_scaling_factor_;
 
   geometry_msgs::msg::Quaternion cartesian_quat_;
+
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_tool_path_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_waypoint_markers_;
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_path_line_marker_;
+  std::string viz_frame_;
 
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;

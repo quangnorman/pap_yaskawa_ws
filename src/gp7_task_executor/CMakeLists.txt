@@ -12,8 +12,11 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_eigen REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(gp7_task_executor_msgs REQUIRED)
@@ -28,8 +31,11 @@ add_executable(task_executor_node src/task_executor_node.cpp)
 ament_target_dependencies(task_executor_node
   rclcpp
   geometry_msgs
+  nav_msgs
+  visualization_msgs
   tf2_ros
   tf2_geometry_msgs
+  tf2_eigen
   moveit_ros_planning_interface
   pluginlib
   gp7_task_executor_msgs
