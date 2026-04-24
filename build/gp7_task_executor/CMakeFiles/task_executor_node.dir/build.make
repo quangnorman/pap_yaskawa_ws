@@ -83,14 +83,78 @@ CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/task_executor_node.cpp -o CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.s
 
+CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o: CMakeFiles/task_executor_node.dir/flags.make
+CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o: /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/planner_utils.cpp
+CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o: CMakeFiles/task_executor_node.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/norman/pap_yaskawa_ws/build/gp7_task_executor/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o -MF CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o.d -o CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o -c /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/planner_utils.cpp
+
+CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/planner_utils.cpp > CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.i
+
+CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/planner_utils.cpp -o CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.s
+
+CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o: CMakeFiles/task_executor_node.dir/flags.make
+CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o: /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/visualization_utils.cpp
+CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o: CMakeFiles/task_executor_node.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/norman/pap_yaskawa_ws/build/gp7_task_executor/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o -MF CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o.d -o CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o -c /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/visualization_utils.cpp
+
+CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/visualization_utils.cpp > CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.i
+
+CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/visualization_utils.cpp -o CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.s
+
+CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o: CMakeFiles/task_executor_node.dir/flags.make
+CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o: /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/waypoint_loader.cpp
+CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o: CMakeFiles/task_executor_node.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/norman/pap_yaskawa_ws/build/gp7_task_executor/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o -MF CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o.d -o CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o -c /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/waypoint_loader.cpp
+
+CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/waypoint_loader.cpp > CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.i
+
+CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/waypoint_loader.cpp -o CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.s
+
+CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o: CMakeFiles/task_executor_node.dir/flags.make
+CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o: /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/transform_utils.cpp
+CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o: CMakeFiles/task_executor_node.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/norman/pap_yaskawa_ws/build/gp7_task_executor/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o -MF CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o.d -o CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o -c /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/transform_utils.cpp
+
+CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/transform_utils.cpp > CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.i
+
+CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/norman/pap_yaskawa_ws/src/gp7_task_executor/src/transform_utils.cpp -o CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.s
+
 # Object files for target task_executor_node
 task_executor_node_OBJECTS = \
-"CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o"
+"CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o" \
+"CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o" \
+"CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o" \
+"CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o" \
+"CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o"
 
 # External object files for target task_executor_node
 task_executor_node_EXTERNAL_OBJECTS =
 
 task_executor_node: CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.o
+task_executor_node: CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o
+task_executor_node: CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o
+task_executor_node: CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o
+task_executor_node: CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o
 task_executor_node: CMakeFiles/task_executor_node.dir/build.make
 task_executor_node: /opt/ros/humble/lib/libnav_msgs__rosidl_typesupport_fastrtps_c.so
 task_executor_node: /opt/ros/humble/lib/libnav_msgs__rosidl_typesupport_fastrtps_cpp.so
@@ -368,7 +432,7 @@ task_executor_node: /opt/ros/humble/lib/librosidl_runtime_c.so
 task_executor_node: /opt/ros/humble/lib/librcutils.so
 task_executor_node: /usr/lib/x86_64-linux-gnu/libpython3.10.so
 task_executor_node: CMakeFiles/task_executor_node.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/norman/pap_yaskawa_ws/build/gp7_task_executor/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable task_executor_node"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/norman/pap_yaskawa_ws/build/gp7_task_executor/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable task_executor_node"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/task_executor_node.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

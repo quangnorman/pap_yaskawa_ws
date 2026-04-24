@@ -22,11 +22,19 @@ find_package(pluginlib REQUIRED)
 find_package(gp7_task_executor_msgs REQUIRED)
 find_package(yaml_cpp_vendor REQUIRED)
 
-include_directories(
-  include
+install(DIRECTORY include/
+  DESTINATION include
 )
 
-add_executable(task_executor_node src/task_executor_node.cpp)
+include_directories(include)
+
+add_executable(task_executor_node
+  src/task_executor_node.cpp
+  src/planner_utils.cpp
+  src/visualization_utils.cpp
+  src/waypoint_loader.cpp
+  src/transform_utils.cpp
+)
 
 ament_target_dependencies(task_executor_node
   rclcpp

@@ -5,12 +5,20 @@
 
 <!--
   Gazebo-only properties for the GP7 robot model.
-  The world -> base_link transform is handled exclusively by the URDF
-  virtual_joint (parent=world, child=base_link, origin xyz=0 0 0.33) in arm.xacro.
-  Gazebo spawn z=0.0 places base_link at the Gazebo world frame (z=0).
-  Gravity anchors the robot body there; the URDF virtual_joint offset is
-  visible to planning/RViz but does not affect the Gazebo body placement.
+  base_link is the kinematic root (no world frame, no virtual joint in URDF).
+  In Gazebo, the robot is spawned at z=0.33 so base_link sits 0.33 m above the
+  ground plane.  The world_to_base_joint fixed joint anchors base_link to the
+  Gazebo world frame so the robot does not fall.  Controllers (arm_controller)
+  operate on joint_1..joint_6 and are unaffected by this joint.
 -->
+<gazebo>
+  <joint name="world_to_base_joint" type="fixed">
+    <parent>world</parent>
+    <child>base_link</child>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+</gazebo>
+
 <gazebo reference="base_link">
   <self_collide>0</self_collide>
   <kinematic>false</kinematic>

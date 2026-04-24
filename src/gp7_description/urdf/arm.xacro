@@ -38,15 +38,9 @@
 
   <xacro:macro name="gp7_yaskawa_arm">
 
-    <link name="world"/>
-
-    <!-- virtual_joint: world (ref) -> base_link; base_link sits 0.33 m above world -->
-    <joint name="virtual_joint" type="fixed">
-      <parent link="world"/>
-      <child link="base_link"/>
-      <origin xyz="0 0 0.33" rpy="0 0 0"/>
-    </joint>
-
+    <!-- Robot root: base_link is the kinematic root — no world frame, no virtual joint.
+         All FK, IK, and planning are computed relative to base_link.
+         The 0.33 m base height is embedded in the link geometry/origin, not a world offset. -->
     <xacro:make_link
       name="base_link"
       mesh="base_link.STL"

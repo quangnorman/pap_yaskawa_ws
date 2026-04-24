@@ -47,7 +47,7 @@ def generate_launch_description() -> LaunchDescription:
 
     x_arg = DeclareLaunchArgument('x', default_value='0', description='X position')
     y_arg = DeclareLaunchArgument('y', default_value='0', description='Y position')
-    z_arg = DeclareLaunchArgument('z', default_value='0.0', description='Robot spawn Z (base_link rests at world z=0.0; virtual_joint origin 0 0 0.33 places the URDF base_link 330 mm above world)')
+    z_arg = DeclareLaunchArgument('z', default_value='0.33', description='Robot spawn Z (base_link rests 0.33 m above world ground)')
     
     # --- ENV Gazebo ---
     gazebo_resource_path = SetEnvironmentVariable(
@@ -186,8 +186,8 @@ def generate_launch_description() -> LaunchDescription:
     )
 
     # Publishes the world -> base_link transform (0, 0, 0.33).
-    # This is now handled EXCLUSIVELY by the URDF virtual_joint.
-    # This node is removed — keeping only URDF as the single source of truth.
+    # No longer needed — the URDF virtual_joint is removed.
+    # base_link is spawned directly in Gazebo at z=0.33 via spawn_entity.py -z argument.
     # static_tf_world_base_link = Node(
     #     package="tf2_ros",
     #     executable="static_transform_publisher",
@@ -209,7 +209,7 @@ def generate_launch_description() -> LaunchDescription:
         x_arg,y_arg,z_arg,
         # control_node,
         node_robot_state_publisher,
-        # static_tf_world_base_link,  # removed: world->base_link is now in URDF
+        # static_tf_world_base_link,  # removed: no world frame; base_link spawned at z=0.33 in Gazebo
         delayed_spawn_robot,
         delayed_controller_loading,
         # spawn_conveyor,

@@ -210,6 +210,30 @@ task_executor_node/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/build
 .PHONY : task_executor_node/fast
 
+src/planner_utils.o: src/planner_utils.cpp.o
+.PHONY : src/planner_utils.o
+
+# target to build an object file
+src/planner_utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.o
+.PHONY : src/planner_utils.cpp.o
+
+src/planner_utils.i: src/planner_utils.cpp.i
+.PHONY : src/planner_utils.i
+
+# target to preprocess a source file
+src/planner_utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.i
+.PHONY : src/planner_utils.cpp.i
+
+src/planner_utils.s: src/planner_utils.cpp.s
+.PHONY : src/planner_utils.s
+
+# target to generate assembly for a file
+src/planner_utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/planner_utils.cpp.s
+.PHONY : src/planner_utils.cpp.s
+
 src/task_executor_node.o: src/task_executor_node.cpp.o
 .PHONY : src/task_executor_node.o
 
@@ -234,6 +258,78 @@ src/task_executor_node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/task_executor_node.cpp.s
 .PHONY : src/task_executor_node.cpp.s
 
+src/transform_utils.o: src/transform_utils.cpp.o
+.PHONY : src/transform_utils.o
+
+# target to build an object file
+src/transform_utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.o
+.PHONY : src/transform_utils.cpp.o
+
+src/transform_utils.i: src/transform_utils.cpp.i
+.PHONY : src/transform_utils.i
+
+# target to preprocess a source file
+src/transform_utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.i
+.PHONY : src/transform_utils.cpp.i
+
+src/transform_utils.s: src/transform_utils.cpp.s
+.PHONY : src/transform_utils.s
+
+# target to generate assembly for a file
+src/transform_utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/transform_utils.cpp.s
+.PHONY : src/transform_utils.cpp.s
+
+src/visualization_utils.o: src/visualization_utils.cpp.o
+.PHONY : src/visualization_utils.o
+
+# target to build an object file
+src/visualization_utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.o
+.PHONY : src/visualization_utils.cpp.o
+
+src/visualization_utils.i: src/visualization_utils.cpp.i
+.PHONY : src/visualization_utils.i
+
+# target to preprocess a source file
+src/visualization_utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.i
+.PHONY : src/visualization_utils.cpp.i
+
+src/visualization_utils.s: src/visualization_utils.cpp.s
+.PHONY : src/visualization_utils.s
+
+# target to generate assembly for a file
+src/visualization_utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/visualization_utils.cpp.s
+.PHONY : src/visualization_utils.cpp.s
+
+src/waypoint_loader.o: src/waypoint_loader.cpp.o
+.PHONY : src/waypoint_loader.o
+
+# target to build an object file
+src/waypoint_loader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.o
+.PHONY : src/waypoint_loader.cpp.o
+
+src/waypoint_loader.i: src/waypoint_loader.cpp.i
+.PHONY : src/waypoint_loader.i
+
+# target to preprocess a source file
+src/waypoint_loader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.i
+.PHONY : src/waypoint_loader.cpp.i
+
+src/waypoint_loader.s: src/waypoint_loader.cpp.s
+.PHONY : src/waypoint_loader.s
+
+# target to generate assembly for a file
+src/waypoint_loader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/task_executor_node.dir/build.make CMakeFiles/task_executor_node.dir/src/waypoint_loader.cpp.s
+.PHONY : src/waypoint_loader.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -250,9 +346,21 @@ help:
 	@echo "... gp7_task_executor_uninstall"
 	@echo "... uninstall"
 	@echo "... task_executor_node"
+	@echo "... src/planner_utils.o"
+	@echo "... src/planner_utils.i"
+	@echo "... src/planner_utils.s"
 	@echo "... src/task_executor_node.o"
 	@echo "... src/task_executor_node.i"
 	@echo "... src/task_executor_node.s"
+	@echo "... src/transform_utils.o"
+	@echo "... src/transform_utils.i"
+	@echo "... src/transform_utils.s"
+	@echo "... src/visualization_utils.o"
+	@echo "... src/visualization_utils.i"
+	@echo "... src/visualization_utils.s"
+	@echo "... src/waypoint_loader.o"
+	@echo "... src/waypoint_loader.i"
+	@echo "... src/waypoint_loader.s"
 .PHONY : help
 
 

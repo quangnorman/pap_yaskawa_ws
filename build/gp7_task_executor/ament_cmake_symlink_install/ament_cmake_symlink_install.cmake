@@ -315,6 +315,9 @@ message(STATUS "Execute custom install script")
 
 # begin of custom install code
 
+# install(DIRECTORY "include/" "DESTINATION" "include")
+ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_task_executor" DIRECTORY "include/" "DESTINATION" "include")
+
 # install("TARGETS" "task_executor_node" "DESTINATION" "lib/gp7_task_executor")
 include("/home/norman/pap_yaskawa_ws/build/gp7_task_executor/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 

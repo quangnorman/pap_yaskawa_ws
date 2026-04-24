@@ -46,6 +46,10 @@ def generate_launch_description() -> LaunchDescription:
             default_value=[pkg_share, "/config/cartesian_points.yaml"],
             description="Path to the YAML file containing Cartesian points (xyz only, fixed orientation)"),
         DeclareLaunchArgument(
+            "pose_waypoints_config",
+            default_value=[pkg_share, "/config/pose_waypoints.yaml"],
+            description="Path to the YAML file containing named pose waypoints (position + RPY)"),
+        DeclareLaunchArgument(
             "planning_time",
             default_value="2.0",
             description="Default planning time (seconds)"),
@@ -74,6 +78,7 @@ def generate_launch_description() -> LaunchDescription:
             "ee_link": LaunchConfiguration("ee_link"),
             "waypoints_config_path": LaunchConfiguration("waypoints_config"),
             "cartesian_points_config_path": LaunchConfiguration("cartesian_points_config"),
+            "pose_waypoints_config_path": LaunchConfiguration("pose_waypoints_config"),
             "planning_time": LaunchConfiguration("planning_time"),
             "num_planning_attempts": LaunchConfiguration("num_planning_attempts"),
             "max_velocity_scaling_factor": LaunchConfiguration("max_velocity_scaling_factor"),

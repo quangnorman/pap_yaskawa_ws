@@ -1,3 +1,7 @@
+/home/norman/pap_yaskawa_ws/install/gp7_task_executor/include/gp7_task_executor/planner_utils.h
+/home/norman/pap_yaskawa_ws/install/gp7_task_executor/include/gp7_task_executor/transform_utils.h
+/home/norman/pap_yaskawa_ws/install/gp7_task_executor/include/gp7_task_executor/visualization_utils.h
+/home/norman/pap_yaskawa_ws/install/gp7_task_executor/include/gp7_task_executor/waypoint_loader.h
 /home/norman/pap_yaskawa_ws/install/gp7_task_executor/lib/gp7_task_executor/task_executor_node
 /home/norman/pap_yaskawa_ws/install/gp7_task_executor/share/gp7_task_executor/launch/task_executor.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_task_executor/share/gp7_task_executor/config/cartesian_points.yaml
