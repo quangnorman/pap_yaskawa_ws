@@ -1,1 +1,0 @@
-/home/norman/pap_yaskawa_ws/src/gp7_moveit_config/launch/moveit_real.launch.py

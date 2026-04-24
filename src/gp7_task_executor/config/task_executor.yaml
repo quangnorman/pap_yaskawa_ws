@@ -3,7 +3,7 @@
 /**:
   ros__parameters:
     move_group_name: "arm"
-    base_frame: "world"
+    base_frame: "base_link"
     ee_link: "tool0"
     planning_time: 2.0
     num_planning_attempts: 5

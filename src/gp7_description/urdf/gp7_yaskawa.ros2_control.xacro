@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<xacro:macro name="gp7_yaskawa_ros2_control" params="controller_yaml initial_positions_file">
+<xacro:macro name="gp7_yaskawa_ros2_control" params="controller_yaml initial_positions_file robot_description_file">
 
   <!-- Load configurable home/start joint positions for Gazebo ros2_control state init. -->
   <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
@@ -10,59 +10,72 @@
     <hardware>
       <plugin>gazebo_ros2_control/GazeboSystem</plugin>
     </hardware>
-    <joint name="joint_s">
+    <joint name="joint_1">
       <command_interface name="position"/>
       <state_interface name="position">
-        <param name="initial_value">${initial_positions['joint_s']}</param>
+        <param name="initial_value">${initial_positions['joint_1']}</param>
       </state_interface>
       <state_interface name="velocity"/>
     </joint>
-    <joint name="joint_l">
+    <joint name="joint_2">
       <command_interface name="position"/>
       <state_interface name="position">
-        <param name="initial_value">${initial_positions['joint_l']}</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-    </joint>
-
-    <joint name="joint_u">
-      <command_interface name="position"/>
-      <state_interface name="position">
-        <param name="initial_value">${initial_positions['joint_u']}</param>
+        <param name="initial_value">${initial_positions['joint_2']}</param>
       </state_interface>
       <state_interface name="velocity"/>
     </joint>
 
-    <joint name="joint_r">
+    <joint name="joint_3">
       <command_interface name="position"/>
       <state_interface name="position">
-        <param name="initial_value">${initial_positions['joint_r']}</param>
+        <param name="initial_value">${initial_positions['joint_3']}</param>
       </state_interface>
       <state_interface name="velocity"/>
     </joint>
-    
-    <joint name="joint_b">
+
+    <joint name="joint_4">
       <command_interface name="position"/>
       <state_interface name="position">
-        <param name="initial_value">${initial_positions['joint_b']}</param>
+        <param name="initial_value">${initial_positions['joint_4']}</param>
       </state_interface>
       <state_interface name="velocity"/>
     </joint>
-    
-    <joint name="joint_t">
+
+    <joint name="joint_5">
       <command_interface name="position"/>
       <state_interface name="position">
-        <param name="initial_value">${initial_positions['joint_t']}</param>
+        <param name="initial_value">${initial_positions['joint_5']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_6']}</param>
       </state_interface>
       <state_interface name="velocity"/>
     </joint>
   </ros2_control>
 
-<gazebo>
-  <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-    <parameters>${controller_yaml}</parameters>
-  </plugin>
-</gazebo>
+  <!--
+    Loads libgazebo_ros2_control.so inside Gazebo.
+    This plugin connects Gazebo's physics joint state to ros2_control
+    hardware interfaces and bridges them to /controller_manager.
+
+    Parameters:
+      robot_description_file — absolute path to the processed URDF file.
+        Passed from the launch file; the plugin reads this directly on init,
+        avoiding any race condition with the robot_state_publisher namespace.
+      controller_yaml — absolute path to the controller YAML defining
+        controller_manager (update_rate), arm_controller, and joint_state_broadcaster.
+  -->
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <robot_description_file>${robot_description_file}</robot_description_file>
+      <parameters>${controller_yaml}</parameters>
+    </plugin>
+  </gazebo>
 
 </xacro:macro>
 

@@ -9,6 +9,7 @@
 
 <xacro:arg name="controller_yaml" default="$(find gp7_bringup)/config/gp7_controller.yaml"/>
 <xacro:arg name="initial_positions_file" default="$(find gp7_description)/config/initial_positions.yaml"/>
+<xacro:arg name="robot_description_file" default="$(find gp7_description)/urdf/gp7_yaskawa.urdf"/>
 
 <xacro:gp7_yaskawa_arm/>
 
@@ -16,7 +17,8 @@
 
 <xacro:gp7_yaskawa_ros2_control
   controller_yaml="$(arg controller_yaml)"
-  initial_positions_file="$(arg initial_positions_file)"/>
+  initial_positions_file="$(arg initial_positions_file)"
+  robot_description_file="$(arg robot_description_file)"/>
 <!--
 <xacro:gp7_yaskawa_real/>
 -->

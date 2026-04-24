@@ -31,8 +31,8 @@ def generate_launch_description() -> LaunchDescription:
             description="MoveIt planning group name"),
         DeclareLaunchArgument(
             "base_frame",
-            default_value="world",
-            description="Base reference frame for planning"),
+            default_value="base_link",
+            description="Base reference frame for planning (MUST be base_link — do NOT use world)"),
         DeclareLaunchArgument(
             "ee_link",
             default_value="tool0",

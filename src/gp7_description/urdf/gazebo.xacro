@@ -3,8 +3,21 @@
 
 <xacro:macro name="gp7_yaskawa_gazebo">
 
+<!--
+  Gazebo-only properties for the GP7 robot model.
+  The world -> base_link transform is handled exclusively by the URDF
+  virtual_joint (parent=world, child=base_link, origin xyz=0 0 0.33) in arm.xacro.
+  Gazebo spawn z=0.0 places base_link at the Gazebo world frame (z=0).
+  Gravity anchors the robot body there; the URDF virtual_joint offset is
+  visible to planning/RViz but does not affect the Gazebo body placement.
+-->
 <gazebo reference="base_link">
-  <material>Gazebo/Blue</material>
+  <self_collide>0</self_collide>
+  <kinematic>false</kinematic>
+  <gravity>true</gravity>
+  <!-- mu/mu2: friction coefficients matching the table/ground (high traction) -->
+  <mu>1.0</mu>
+  <mu2>1.0</mu2>
 </gazebo>
 
 <gazebo reference="link_s">
@@ -28,6 +41,10 @@
 </gazebo>
 
 <gazebo reference="link_t">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+<gazebo reference="base_link">
   <material>Gazebo/Blue</material>
 </gazebo>
 

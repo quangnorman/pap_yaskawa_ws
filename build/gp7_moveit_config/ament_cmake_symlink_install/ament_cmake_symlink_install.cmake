@@ -315,12 +315,6 @@ message(STATUS "Execute custom install script")
 
 # begin of custom install code
 
-# install(DIRECTORY "launch" "config" "legacy" "DESTINATION" "share/gp7_moveit_config")
-ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" DIRECTORY "launch" "config" "legacy" "DESTINATION" "share/gp7_moveit_config")
-
-# install(PROGRAMS "scripts/verify_plan_execute.py" "DESTINATION" "lib/gp7_moveit_config")
-ament_cmake_symlink_install_programs("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" PROGRAMS "scripts/verify_plan_execute.py" "DESTINATION" "lib/gp7_moveit_config")
-
 # install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_moveit_config/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/gp7_moveit_config" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" FILES "/home/norman/pap_yaskawa_ws/build/gp7_moveit_config/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/gp7_moveit_config" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
@@ -362,3 +356,12 @@ ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_moveit_co
 
 # install(FILES "/home/norman/pap_yaskawa_ws/src/gp7_moveit_config/package.xml" "DESTINATION" "share/gp7_moveit_config")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" FILES "/home/norman/pap_yaskawa_ws/src/gp7_moveit_config/package.xml" "DESTINATION" "share/gp7_moveit_config")
+
+# install(DIRECTORY "launch" "DESTINATION" "share/gp7_moveit_config" "PATTERN_EXCLUDE" "setup_assistant.launch")
+ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" DIRECTORY "launch" "DESTINATION" "share/gp7_moveit_config" "PATTERN_EXCLUDE" "setup_assistant.launch")
+
+# install(DIRECTORY "config" "DESTINATION" "share/gp7_moveit_config")
+ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" DIRECTORY "config" "DESTINATION" "share/gp7_moveit_config")
+
+# install(FILES ".setup_assistant" "DESTINATION" "share/gp7_moveit_config")
+ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_moveit_config" FILES ".setup_assistant" "DESTINATION" "share/gp7_moveit_config")

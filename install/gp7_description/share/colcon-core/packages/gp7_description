@@ -1,1 +1,1 @@
-controller_manager:ros2_control:ros2_controllers:trajectory_msgs:xacro
+joint_state_publisher:joint_state_publisher_gui:robot_state_publisher:rviz2:xacro

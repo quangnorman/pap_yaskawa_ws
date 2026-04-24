@@ -315,8 +315,8 @@ message(STATUS "Execute custom install script")
 
 # begin of custom install code
 
-# install(DIRECTORY "urdf" "meshes" "models" "config" "legacy" "DESTINATION" "share/gp7_description")
-ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_description" DIRECTORY "urdf" "meshes" "models" "config" "legacy" "DESTINATION" "share/gp7_description")
+# install(DIRECTORY "urdf" "meshes" "models" "config" "legacy" "rviz" "launch" "DESTINATION" "share/gp7_description")
+ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_description" DIRECTORY "urdf" "meshes" "models" "config" "legacy" "rviz" "launch" "DESTINATION" "share/gp7_description")
 
 # install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/gp7_description" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_description" FILES "/home/norman/pap_yaskawa_ws/build/gp7_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/gp7_description" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")

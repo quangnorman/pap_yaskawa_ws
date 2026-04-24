@@ -1,0 +1,164 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Robot Model1
+      Splitter Ratio: 0.5
+    Tree Height: 557
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.0299999993294477
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 100
+      Reference Frame: world
+      Value: true
+    - Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Parameter
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Value: true
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Tree Details: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_b:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_l:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_r:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_s:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_t:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_tool:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_u:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: Robot Model
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 2.0
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.0599999986588955
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.33
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.0500000007450581
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.00999999977648258
+      Pitch: 0.5
+      Target Frame: world
+      Value: Orbit (rviz)
+      Yaw: 0.5
+    Saved: ~
+
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 846
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow Stacked Sketch: 0
+  Reports Left Dock: false
+  Reports Right Dock: false
+  Views:
+    collapsed: false
+  Width: 1200
+  X: 72
+  Y: 27

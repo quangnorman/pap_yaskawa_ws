@@ -4,5 +4,3 @@ gp7_vision_pipeline.egg-info/PKG-INFO
 gp7_vision_pipeline.egg-info/SOURCES.txt
 gp7_vision_pipeline.egg-info/dependency_links.txt
 gp7_vision_pipeline.egg-info/top_level.txt
-gp7_vision_pipeline/msg/__init__.py
-gp7_vision_pipeline/msg/_box_detection.py

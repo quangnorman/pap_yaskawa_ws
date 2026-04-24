@@ -40,153 +40,193 @@
 
     <link name="world"/>
 
+    <!-- virtual_joint: world (ref) -> base_link; base_link sits 0.33 m above world -->
+    <joint name="virtual_joint" type="fixed">
+      <parent link="world"/>
+      <child link="base_link"/>
+      <origin xyz="0 0 0.33" rpy="0 0 0"/>
+    </joint>
+
     <xacro:make_link
       name="base_link"
       mesh="base_link.STL"
-      mass="5.34385766810208"
-      ixx="0.0268120506162238"
-      iyy="0.0298810284905347"
-      izz="0.0280953042458823"
-      ixy="-5.49304128768293E-06"
-      ixz="-6.58204530122182E-05"
-      iyz="-1.07583502357515E-05"
-      origin_xyz="-0.00624897643718072 -4.06788056359388E-05 0.0878963749528747"/>
-
-    <joint name="world_to_base" type="fixed">
-      <parent link="world"/>
-      <child link="base_link"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-    </joint>
+      mass="5.34384241568406"
+      ixx="0.0268119676458748"
+      iyy="0.029881002123894"
+      izz="0.028095213396638"
+      ixy="-5.51396167836154E-06"
+      ixz="-6.58031844389876E-05"
+      iyz="-1.07632911017694E-05"
+      origin_xyz="-0.00624914196957612 -4.04717974173639E-05 0.0878963100563808"/>
 
     <xacro:make_link
       name="link_s"
       mesh="link_s.STL"
-      mass="3.58812693054627"
-      ixx="0.0176545948181882"
-      iyy="0.0196883922866279"
-      izz="0.0110072682998687"
-      ixy="0.000292412394014776"
-      ixz="-0.00271185140292341"
-      iyz="0.000611148188974288"
-      origin_xyz="0.011858502077693 -0.00295265214999133 0.122210117300555"/>
+      mass="3.58814802547406"
+      ixx="0.0176545821104539"
+      iyy="0.0196884339537049"
+      izz="0.011007205277213"
+      ixy="0.000292442325680018"
+      ixz="-0.00271183358250668"
+      iyz="0.000611163166693478"
+      origin_xyz="0.0118575476995821 -0.00295252489817784 0.0722106805016177"/>
 
-    <joint name="joint_s" type="revolute">
-      <origin xyz="0 0 0.149" rpy="0 0 0"/>
+    <!-- joint_1: base_link -> link_s -->
+    <joint name="joint_1" type="revolute">
+      <origin xyz="0 0 -0.13" rpy="0 0 0"/>
       <parent link="base_link"/>
       <child link="link_s"/>
       <axis xyz="0 0 1"/>
-      <limit lower="-2.97" upper="2.97" effort="100" velocity="100"/>
+      <limit lower="-2.967" upper="2.967" effort="0" velocity="0"/>
     </joint>
 
     <xacro:make_link
       name="link_l"
       mesh="link_l.STL"
-      mass="6.8699710770859"
-      ixx="0.0493549954753869"
-      iyy="0.169028774801027"
-      izz="0.135763392313836"
-      ixy="0.0124404750037575"
-      ixz="-9.21313420430245E-05"
-      iyz="-0.000474992986990169"
-      origin_xyz="0.1950960949914 0.00588736405257174 -0.00358464651309072"/>
+      mass="6.86828072813635"
+      ixx="0.0480652626907165"
+      iyy="0.170253388982184"
+      izz="0.135714429845793"
+      ixy="6.83697936889496E-05"
+      ixz="6.23662672066351E-05"
+      iyz="-0.000478558708182214"
+      origin_xyz="0.193498892080953 -0.0259054362875145 0.00275184272330129"/>
 
-    <joint name="joint_l" type="revolute">
-      <origin
-        xyz="0.0403301738197811 -0.000833201823887367 0.181232732594651"
-        rpy="1.5707963267949 -1.5707963267949 0"/>
+    <!-- joint_2: link_s -> link_l -->
+    <joint name="joint_2" type="revolute">
+      <origin xyz="0.04 0 0.13" rpy="-1.5708 -1.5708 0"/>
       <parent link="link_s"/>
       <child link="link_l"/>
-      <axis xyz="0 0 -1"/>
-      <limit lower="-1.13" upper="2.53" effort="100" velocity="100"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.134" upper="2.53" effort="0" velocity="0"/>
     </joint>
 
     <xacro:make_link
       name="link_u"
       mesh="link_u.STL"
-      mass="2.70075909380273"
-      ixx="0.00868308462329224"
-      iyy="0.00807037862879338"
-      izz="0.00973494540187748"
-      ixy="0.00058566039461849"
-      ixz="0.000160022090964061"
-      iyz="0.000206151559976939"
-      origin_xyz="0.0196273114678842 0.0207121098005496 0.00155842689906504"/>
+      mass="2.70489525302695"
+      ixx="0.0080705141761923"
+      iyy="0.00868316749874126"
+      izz="0.00973498410252516"
+      ixy="-0.000585798961817208"
+      ixz="-0.000206159141956839"
+      iyz="0.000160006288312911"
+      origin_xyz="-0.0208224844268707 0.0196602104493013 0.00304260330920494"/>
 
-    <joint name="joint_u" type="revolute">
-      <origin xyz="0.442642675889132 -0.0457474009631756 0.000650000127384594" rpy="0 0 0"/>
+    <!-- joint_3: link_l -> link_u -->
+    <joint name="joint_3" type="revolute">
+      <origin xyz="0.445 0 0" rpy="3.1416 0 1.5708"/>
       <parent link="link_l"/>
       <child link="link_u"/>
       <axis xyz="0 0 1"/>
-      <limit lower="-1.22" upper="3.32" effort="100" velocity="100"/>
+      <limit lower="-1.221" upper="3.3161" effort="0" velocity="0"/>
     </joint>
 
     <xacro:make_link
       name="link_r"
       mesh="link_r.STL"
-      mass="3.08241442345227"
-      ixx="0.0351496235200395"
-      iyy="0.0345408127779901"
-      izz="0.00466894082483317"
-      ixy="6.4717867119387E-07"
-      ixz="1.44146957885359E-06"
-      iyz="-1.51646831364399E-05"
-      origin_xyz="-3.80524387983971E-05 6.60930201229412E-05 0.171221650951751"/>
+      mass="18.9092203482809"
+      ixx="0.19457456525127"
+      iyy="1.46825915892511"
+      izz="1.39775942863277"
+      ixy="2.62737161656305E-06"
+      ixz="0.125666206826633"
+      iyz="-1.81136173232842E-05"
+      origin_xyz="-0.417233135752391 -7.79136127369717E-06 0.09092426041281"/>
 
-    <joint name="joint_r" type="revolute">
-      <origin
-        xyz="0.0399557359456865 -0.0700010032730031 -0.00142194023422651"
-        rpy="1.5707963267949 0 0"/>
+    <!-- joint_4: link_u -> link_r -->
+    <joint name="joint_4" type="revolute">
+      <origin xyz="0.07 0.039957 0" rpy="-1.5708 0 1.5708"/>
       <parent link="link_u"/>
       <child link="link_r"/>
-      <axis xyz="3.49049884806369E-05 0 -0.999999999390821"/>
-      <limit lower="-3.32" upper="3.32" effort="17" velocity="100"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-3.3161" upper="3.3161" effort="0" velocity="0"/>
     </joint>
 
     <xacro:make_link
       name="link_b"
       mesh="link_b.STL"
-      mass="0.380194796719151"
-      ixx="0.000448429877178545"
-      iyy="0.000244636597517231"
-      izz="0.000479793202750977"
-      ixy="5.90644941685375E-07"
-      ixz="-4.00836971238007E-07"
-      iyz="1.94112752372982E-07"
-      origin_xyz="0.00012138060167699 -0.01884616123928 -1.59972390146E-05"/>
+      mass="0.380193709461138"
+      ixx="0.000244640508050436"
+      iyy="0.000448421612095098"
+      izz="0.000479792326173296"
+      ixy="1.22324354768958E-06"
+      ixz="1.93127414185342E-07"
+      iyz="-4.01202663050252E-07"
+      origin_xyz="0.0189079745317445 -0.000209216105547805 1.59395134461097E-05"/>
 
-    <joint name="joint_b" type="revolute">
-      <origin xyz="-1.2862E-05 0 0.3685" rpy="-1.5708 0 0"/>
+    <!-- joint_5: link_r -> link_b -->
+    <joint name="joint_5" type="revolute">
+      <origin xyz="0 0 -0.37" rpy="1.5708 1.5708 0"/>
       <parent link="link_r"/>
       <child link="link_b"/>
       <axis xyz="0 0 1"/>
-      <limit lower="-2.36" upper="2.36" effort="17" velocity="100"/>
+      <limit lower="-2.356" upper="2.356" effort="0" velocity="0"/>
     </joint>
 
     <xacro:make_link
       name="link_t"
       mesh="link_t.STL"
-      mass="0.105727479258304"
-      ixx="2.85659471178277E-05"
-      iyy="2.8462178687687E-05"
-      izz="4.5646910115595E-05"
-      ixy="8.25842336712336E-10"
-      ixz="-9.14025226011089E-08"
-      iyz="-1.72937844893503E-08"
-      origin_xyz="0.000234533533654879 2.25139143942184E-05 -0.0618042658955615"/>
+      mass="0.0238316498274653"
+      ixx="4.62925903203031E-06"
+      iyy="4.66142070753499E-06"
+      izz="8.62861647089172E-06"
+      ixy="2.12236723211218E-17"
+      ixz="1.01754890905325E-08"
+      iyz="5.95563466379997E-16"
+      origin_xyz="-6.575302849543E-05 -6.63907970870713E-12 -0.00620586394301925"/>
 
-    <joint name="joint_t" type="revolute">
-      <origin xyz="-0.00049762 -0.1605 0" rpy="1.5708 0 0"/>
+    <!-- joint_6: link_b -> link_t -->
+    <joint name="joint_6" type="revolute">
+      <origin xyz="0.08 0 0" rpy="1.5708 0 1.5708"/>
       <parent link="link_b"/>
       <child link="link_t"/>
-      <axis xyz="-0.0031004 0 -1"/>
-      <limit lower="-6.28" upper="6.28" effort="10" velocity="100"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.283" upper="6.283" effort="0" velocity="0"/>
     </joint>
 
-    <!-- Standard tool frame (future: offset from link_t); required for TF checks world → base_link → tool0 -->
-    <link name="tool0"/>
-    <joint name="tool0_fixed" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+    <!-- link_tool: end effector with same inertials as link_t -->
+    <link name="link_tool">
+      <inertial>
+        <origin xyz="-6.575302849543E-05 -6.63907970870713E-12 -0.00620586394301925" rpy="0 0 0"/>
+        <mass value="0.0238316498274653"/>
+        <inertia
+          ixx="4.62925903203031E-06"
+          ixy="2.12236723211218E-17"
+          ixz="1.01754890905325E-08"
+          iyy="4.66142070753499E-06"
+          iyz="5.95563466379997E-16"
+          izz="8.62861647089172E-06"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://gp7_description/meshes/end_effector.STL"/>
+        </geometry>
+        <material name="gp7_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://gp7_description/meshes/end_effector.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- tool: fixed joint link_t -> link_tool -->
+    <joint name="tool" type="fixed">
+      <origin xyz="0 0 0.002" rpy="0 0 0"/>
       <parent link="link_t"/>
+      <child link="link_tool"/>
+    </joint>
+
+    <!-- tool0: tool center point frame (massless) -->
+    <link name="tool0"/>
+
+    <!-- tcp: fixed joint link_tool -> tool0 -->
+    <joint name="tcp" type="fixed">
+      <origin xyz="0 0 0.088" rpy="0 0 0"/>
+      <parent link="link_tool"/>
       <child link="tool0"/>
     </joint>
 

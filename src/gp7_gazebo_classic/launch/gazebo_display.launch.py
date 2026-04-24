@@ -20,9 +20,20 @@ def generate_launch_description() -> LaunchDescription:
     bringup_share = get_package_share_directory(bringup_pkg)
     gazebo_classic_share = get_package_share_directory(gazebo_classic_pkg)
     controller_share = os.path.join(bringup_share, "config", "gp7_controller.yaml")
+    initial_positions_path = os.path.join(desc_share, "config", "initial_positions.yaml")
 
     xacro_file = os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf.xacro")
-    robot_description_raw = xacro.process_file(xacro_file).toxml()
+    controller_share = os.path.join(bringup_share, "config", "gp7_controller.yaml")
+    initial_positions_path = os.path.join(desc_share, "config", "initial_positions.yaml")
+    robot_description_file = os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf")
+    robot_description_raw = xacro.process_file(
+        xacro_file,
+        mappings={
+            "controller_yaml": controller_share,
+            "initial_positions_file": initial_positions_path,
+            "robot_description_file": robot_description_file,
+        },
+    ).toxml()
     # gazebo_ros2_control passes robot_description as a CLI --param override.
     # XML comments that contain "--" can break rcl argument parsing in Humble.
     robot_description = re.sub(r"<!--.*?-->", "", robot_description_raw, flags=re.DOTALL)
@@ -36,7 +47,7 @@ def generate_launch_description() -> LaunchDescription:
 
     x_arg = DeclareLaunchArgument('x', default_value='0', description='X position')
     y_arg = DeclareLaunchArgument('y', default_value='0', description='Y position')
-    z_arg = DeclareLaunchArgument('z', default_value='0', description='Z position')
+    z_arg = DeclareLaunchArgument('z', default_value='0.0', description='Robot spawn Z (base_link rests at world z=0.0; virtual_joint origin 0 0 0.33 places the URDF base_link 330 mm above world)')
     
     # --- ENV Gazebo ---
     gazebo_resource_path = SetEnvironmentVariable(
@@ -174,6 +185,22 @@ def generate_launch_description() -> LaunchDescription:
         )
     )
 
+    # Publishes the world -> base_link transform (0, 0, 0.33).
+    # This is now handled EXCLUSIVELY by the URDF virtual_joint.
+    # This node is removed — keeping only URDF as the single source of truth.
+    # static_tf_world_base_link = Node(
+    #     package="tf2_ros",
+    #     executable="static_transform_publisher",
+    #     name="static_tf_world_base_link",
+    #     output="screen",
+    #     arguments=[
+    #         "--x", "0", "--y", "0", "--z", "0.33",
+    #         "--roll", "0", "--pitch", "0", "--yaw", "0",
+    #         "--frame-id", "world",
+    #         "--child-frame-id", "base_link",
+    #     ],
+    # )
+
     return LaunchDescription([
         gazebo_resource_path,
         gazebo_model_path,
@@ -182,6 +209,7 @@ def generate_launch_description() -> LaunchDescription:
         x_arg,y_arg,z_arg,
         # control_node,
         node_robot_state_publisher,
+        # static_tf_world_base_link,  # removed: world->base_link is now in URDF
         delayed_spawn_robot,
         delayed_controller_loading,
         # spawn_conveyor,

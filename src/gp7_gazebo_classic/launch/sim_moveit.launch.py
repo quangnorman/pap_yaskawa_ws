@@ -35,7 +35,17 @@ def generate_launch_description() -> LaunchDescription:
     gazebo_classic_share = get_package_share_directory(gazebo_classic_pkg)
 
     xacro_file = os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf.xacro")
-    robot_description_raw = xacro.process_file(xacro_file).toxml()
+    controller_yaml_path = os.path.join(bringup_share, "config", "gp7_controller.yaml")
+    initial_positions_path = os.path.join(desc_share, "config", "initial_positions.yaml")
+    robot_description_file = os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf")
+    robot_description_raw = xacro.process_file(
+        xacro_file,
+        mappings={
+            "controller_yaml": controller_yaml_path,
+            "initial_positions_file": initial_positions_path,
+            "robot_description_file": robot_description_file,
+        },
+    ).toxml()
     # gazebo_ros2_control forwards robot_description via CLI parameter overrides.
     robot_description = re.sub(r"<!--.*?-->", "", robot_description_raw, flags=re.DOTALL)
 
@@ -49,7 +59,7 @@ def generate_launch_description() -> LaunchDescription:
     # -------------------------------------------------------------------------
     x_arg = DeclareLaunchArgument("x", default_value="0", description="X position")
     y_arg = DeclareLaunchArgument("y", default_value="0", description="Y position")
-    z_arg = DeclareLaunchArgument("z", default_value="0", description="Z position")
+    z_arg = DeclareLaunchArgument("z", default_value="0.0", description="Robot spawn Z (base_link rests at world z=0.0; virtual_joint origin 0 0 0.33 places the URDF base_link 330 mm above world)")
     rviz_arg = DeclareLaunchArgument("rviz", default_value="true", description="Launch RViz")
     # world_arg = DeclareLaunchArgument(
     #     "world", default_value=default_world, description="Gazebo world file"
@@ -191,26 +201,82 @@ def generate_launch_description() -> LaunchDescription:
     # MoveIt (start only when controller path is healthy)
     # -------------------------------------------------------------------------
     moveit_config = (
-        MoveItConfigsBuilder("gp7", package_name=moveit_pkg)
+        MoveItConfigsBuilder("gp7_yaskawa", package_name=moveit_pkg)
         .robot_description(file_path=os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf.xacro"))
         .robot_description_semantic(file_path="config/gp7_yaskawa.srdf")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
+        .planning_pipelines("ompl")
         .to_moveit_configs()
     )
 
     moveit_params = moveit_config.to_dict()
     moveit_params.update({"use_sim_time": True})
 
+    # -------------------------------------------------------------------------
+    # EXPLICIT OMPL OVERRIDES — these take precedence over moveit_params defaults
+    # and prevent any CHOMP / Pilz pipelines from being loaded.
+    # -------------------------------------------------------------------------
+    ompl_explicit_params = {
+        "planning_pipelines": ["ompl"],
+        "default_planning_pipeline": "ompl",
+        "ompl.planning_plugin": "ompl_interface/OMPLPlanner",
+        "ompl.request_adapters": (
+            "default_planner_request_adapters/AddTimeOptimalParameterization "
+            "default_planner_request_adapters/FixWorkspaceBounds "
+            "default_planner_request_adapters/FixStartStateBounds "
+            "default_planner_request_adapters/FixStartStateCollision "
+            "default_planner_request_adapters/FixStartStatePathConstraints"
+        ),
+        "ompl.start_state_max_bounds_error": 0.1,
+    }
+
+    # -------------------------------------------------------------------------
+    # Debug: print the final planning-pipeline parameters received by move_group.
+    # Runs as a oneshot action ~5 s after move_group starts.
+    # -------------------------------------------------------------------------
+    debug_param_script = ExecuteProcess(
+        cmd=[
+            "python3",
+            "-c",
+            (
+                "import sys, time, rclpy"
+                "; rclpy.init()"
+                "; node = rclpy.create_node('param_debug')"
+                "; time.sleep(5)"
+                "; params = node.get_parameter('planning_pipelines').get_parameter_value().string_array_value"
+                "; default = node.get_parameter('default_planning_pipeline').get_parameter_value().string_value"
+                "; plugin  = node.get_parameter('ompl.planning_plugin').get_parameter_value().string_value"
+                "; print('=== move_group planning params ===')"
+                "; print('planning_pipelines:', params)"
+                "; print('default_planning_pipeline:', default)"
+                "; print('ompl.planning_plugin:', plugin)"
+                "; print('=== end ===')"
+                "; rclpy.shutdown()"
+            ),
+        ],
+        output="screen",
+        condition=IfCondition("false"),  # off by default; set to "true" to enable
+    )
+
     move_group = Node(
         package="moveit_ros_move_group",
         executable="move_group",
         output="screen",
         parameters=[
-            moveit_params,
+            moveit_params,           # base config (may contain pipeline names from defaults)
+            ompl_explicit_params,    # overrides — must come AFTER moveit_params to take precedence
             {"use_sim_time": True},
             {"publish_robot_description_semantic": True},
         ],
         arguments=["--ros-args", "--log-level", "info"],
+    )
+
+    # Log parameter sources after move_group is up (informational, not blocking)
+    log_params_action = RegisterEventHandler(
+        OnProcessStart(
+            target_action=move_group,
+            on_start=[debug_param_script],
+        )
     )
 
     wait_controllers_healthy = ExecuteProcess(
@@ -254,6 +320,7 @@ def generate_launch_description() -> LaunchDescription:
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
             moveit_config.joint_limits,
+            ompl_explicit_params,    # only OMPL pipeline — no CHOMP / Pilz
             {"use_sim_time": True},
         ],
         condition=IfCondition(rviz_enabled),
@@ -262,6 +329,22 @@ def generate_launch_description() -> LaunchDescription:
     rviz_after_move_group = RegisterEventHandler(
         OnProcessStart(target_action=move_group, on_start=[rviz])
     )
+
+    # Publishes the world -> base_link transform (0, 0, 0.33).
+    # This is now handled EXCLUSIVELY by the URDF virtual_joint.
+    # This node is removed — keeping only URDF as the single source of truth.
+    # static_tf_world_base_link = Node(
+    #     package="tf2_ros",
+    #     executable="static_transform_publisher",
+    #     name="static_tf_world_base_link",
+    #     output="screen",
+    #     arguments=[
+    #         "--x", "0", "--y", "0", "--z", "0.33",
+    #         "--roll", "0", "--pitch", "0", "--yaw", "0",
+    #         "--frame-id", "world",
+    #         "--child-frame-id", "base_link",
+    #     ],
+    # )
 
     return LaunchDescription(
         [
@@ -275,10 +358,12 @@ def generate_launch_description() -> LaunchDescription:
             world_arg,
             # gazebo,
             robot_state_publisher,
+            # static_tf_world_base_link,  # removed: world->base_link is now in URDF
             delayed_spawn_robot,
             delayed_controller_loading,
             start_wait_after_arm_spawner,
             move_group_after_controllers,
+            log_params_action,
             rviz_after_move_group,
         ]
     )

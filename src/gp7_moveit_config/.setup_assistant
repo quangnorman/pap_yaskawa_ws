@@ -5,19 +5,6 @@ moveit_setup_assistant_config:
   srdf:
     relative_path: config/gp7_yaskawa.srdf
   package_settings:
-    author_name: todo
-    author_email: todo@todo.com
-    generated_timestamp: 1769078865
-  control_xacro:
-    command:
-      - position
-    state:
-      - position
-  modified_urdf:
-    xacros:
-      - control_xacro
-  control_xacro:
-    command:
-      - position
-    state:
-      - position
+    author_name: norman
+    author_email: quangnorman13@gmail.com
+    generated_timestamp: 1776941111

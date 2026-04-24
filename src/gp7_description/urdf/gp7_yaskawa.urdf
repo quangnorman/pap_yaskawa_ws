@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<robot
+  name="gp7_yaskawa">
+  <link name  ="world"/>
+
+  <joint    name  ="virtual_joint"         type      ="fixed">
+    <origin xyz   ="0 0 0.33"                 rpy       ="0 0 0"/>
+    <parent link  ="world"/>
+    <child  link  ="base_link"/>
+  </joint>
+
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.00624914196957612 -4.04717974173639E-05 0.0878963100563808"
+        rpy="0 0 0" />
+      <mass
+        value="5.34384241568406" />
+      <inertia
+        ixx="0.0268119676458748"
+        ixy="-5.51396167836154E-06"
+        ixz="-6.58031844389876E-05"
+        iyy="0.029881002123894"
+        iyz="-1.07632911017694E-05"
+        izz="0.028095213396638" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link_s">
+    <inertial>
+      <origin
+        xyz="0.0118575476995821 -0.00295252489817784 0.0722106805016177"
+        rpy="0 0 0" />
+      <mass
+        value="3.58814802547406" />
+      <inertia
+        ixx="0.0176545821104539"
+        ixy="0.000292442325680018"
+        ixz="-0.00271183358250668"
+        iyy="0.0196884339537049"
+        iyz="0.000611163166693478"
+        izz="0.011007205277213" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_s.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_s.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_1"
+    type="revolute">
+    <origin
+      xyz="0 0 -0.13"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="link_s" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-2.967"
+      upper="2.967"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- __________________________ -->
+  <link
+    name="link_l">
+    <inertial>
+      <origin
+        xyz="0.193498892080953 -0.0259054362875145 0.00275184272330129"
+        rpy="0 0 0" />
+      <mass
+        value="6.86828072813635" />
+      <inertia
+        ixx="0.0480652626907165"
+        ixy="6.83697936889496E-05"
+        ixz="6.23662672066351E-05"
+        iyy="0.170253388982184"
+        iyz="-0.000478558708182214"
+        izz="0.135714429845793" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_l.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_l.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_2"
+    type="revolute">
+    <origin
+      xyz="0.04 0 0.13"
+      rpy="-1.5708 -1.5708 0" />
+    <parent
+      link="link_s" />
+    <child
+      link="link_l" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.134"
+      upper="2.53"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- __________________________ -->
+  <link
+    name="link_u">
+    <inertial>
+      <origin
+        xyz="-0.0208224844268707 0.0196602104493013 0.00304260330920494"
+        rpy="0 0 0" />
+      <mass
+        value="2.70489525302695" />
+      <inertia
+        ixx="0.0080705141761923"
+        ixy="-0.000585798961817208"
+        ixz="-0.000206159141956839"
+        iyy="0.00868316749874126"
+        iyz="0.000160006288312911"
+        izz="0.00973498410252516" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_u.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_u.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_3"
+    type="revolute">
+    <origin
+      xyz="0.445 0 0"
+      rpy="3.1416 0 1.5708" />
+    <parent
+      link="link_l" />
+    <child
+      link="link_u" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.221"
+      upper="3.3161"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- __________________________ -->
+  <link
+    name="link_r">
+    <inertial>
+      <origin
+        xyz="-0.417233135752391 -7.79136127369717E-06 0.09092426041281"
+        rpy="0 0 0" />
+      <mass
+        value="18.9092203482809" />
+      <inertia
+        ixx="0.19457456525127"
+        ixy="2.62737161656305E-06"
+        ixz="0.125666206826633"
+        iyy="1.46825915892511"
+        iyz="-1.81136173232842E-05"
+        izz="1.39775942863277" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_r.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_r.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_4"
+    type="revolute">
+    <origin
+      xyz="0.07 0.039957 0"
+      rpy="-1.5708 0 1.5708" />
+    <parent
+      link="link_u" />
+    <child
+      link="link_r" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.3161"
+      upper="3.3161"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- __________________________ -->
+  <link
+    name="link_b">
+    <inertial>
+      <origin
+        xyz="0.0189079745317445 -0.000209216105547805 1.59395134461097E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.380193709461138" />
+      <inertia
+        ixx="0.000244640508050436"
+        ixy="1.22324354768958E-06"
+        ixz="1.93127414185342E-07"
+        iyy="0.000448421612095098"
+        iyz="-4.01202663050252E-07"
+        izz="0.000479792326173296" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_b.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_b.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_5"
+    type="revolute">
+    <origin
+      xyz="0 0 -0.37"
+      rpy="1.5708 1.5708 0" />
+    <parent
+      link="link_r" />
+    <child
+      link="link_b" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-2.356"
+      upper="2.356"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- __________________________ -->
+  <link
+    name="link_t">
+    <inertial>
+      <origin
+        xyz="-6.575302849543E-05 -6.63907970870713E-12 -0.00620586394301925"
+        rpy="0 0 0" />
+      <mass
+        value="0.0238316498274653" />
+      <inertia
+        ixx="4.62925903203031E-06"
+        ixy="2.12236723211218E-17"
+        ixz="1.01754890905325E-08"
+        iyy="4.66142070753499E-06"
+        iyz="5.95563466379997E-16"
+        izz="8.62861647089172E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_t.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/link_t.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint_6"
+    type="revolute">
+    <origin
+      xyz="0.08 0 0"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="link_b" />
+    <child
+      link="link_t" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-6.283"
+      upper="6.283"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <!-- __________________________ -->
+  <link    name="link_tool">
+    <inertial>
+      <origin
+        xyz="-6.575302849543E-05 -6.63907970870713E-12 -0.00620586394301925"
+        rpy="0 0 0" />
+      <mass
+        value="0.0238316498274653" />
+      <inertia
+        ixx="4.62925903203031E-06"
+        ixy="2.12236723211218E-17"
+        ixz="1.01754890905325E-08"
+        iyy="4.66142070753499E-06"
+        iyz="5.95563466379997E-16"
+        izz="8.62861647089172E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/end_effector.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gp7_description/meshes/end_effector.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint    name  ="tool"         type      ="fixed">
+    <origin xyz   ="0 0 0"        rpy       ="0 0 0"/>
+    <parent link  ="link_t"/>
+    <child  link  ="link_tool"/>
+  </joint>
+
+  <link name  ="tool0"/>
+
+  <joint    name  ="tcp"         type      ="fixed">
+    <origin xyz   ="0 0 0.09"               rpy       ="0 0 0"/>
+    <parent link  ="link_tool"/>
+    <child  link  ="tool0"/>
+  </joint>
+
+
+</robot>

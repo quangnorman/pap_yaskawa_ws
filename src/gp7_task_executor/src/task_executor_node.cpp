@@ -63,15 +63,20 @@ public:
     move_group_->setMaxVelocityScalingFactor(max_velocity_scaling_factor_);
     move_group_->setMaxAccelerationScalingFactor(max_acceleration_scaling_factor_);
 
+    const std::string actual_planning_frame = move_group_->getPlanningFrame();
+    const std::string actual_ee_link = move_group_->getEndEffectorLink();
+
+    RCLCPP_INFO(this->get_logger(), "Task executor planning frame: '%s'", actual_planning_frame.c_str());
+    RCLCPP_INFO(this->get_logger(), "Task executor end-effector frame: '%s'", actual_ee_link.c_str());
+    RCLCPP_INFO(this->get_logger(), "Waypoint coordinates are interpreted in: '%s'", base_frame_.c_str());
     RCLCPP_INFO(this->get_logger(), "MoveGroupInterface ready for group '%s'", move_group_name_.c_str());
   }
 
   void init_visualization_publishers()
   {
-    viz_frame_ = base_frame_;
     RCLCPP_INFO(this->get_logger(),
-                "[Viz] Visualization frame: '%s' (falls back to planning frame at runtime if not available).",
-                viz_frame_.c_str());
+                "[Viz] Visualization frame: '%s' (set from base_frame parameter, same as planning frame).",
+                base_frame_.c_str());
 
     pub_tool_path_ = create_publisher<nav_msgs::msg::Path>(
         "/task_executor/planned_tool_path", 1);
@@ -95,28 +100,15 @@ public:
    *   3. Marker (SPHERE) — start and goal markers on /planned_waypoints_marker
    *   4. Marker (LINE_STRIP) — TCP path line on /planned_path_line_marker
    *
-   * The frame is resolved at publish time: viz_frame_ if available via TF,
-   * otherwise the planning frame.  Uses the MoveGroupInterface RobotState for FK.
+   * All visualizations use the planning frame (base_link) directly.
+   * Forward kinematics via MoveGroupInterface RobotState maps joint trajectories to tool0 poses.
    */
   void publish_plan_visualization(
       const moveit_msgs::msg::RobotTrajectory& trajectory,
       const std::string& service_name)
   {
     const std::string planning_frame = move_group_->getPlanningFrame();
-    std::string resolved_frame = viz_frame_;
-
-    try
-    {
-      tf_buffer_->lookupTransform(resolved_frame, planning_frame, rclcpp::Time(0),
-                                  rclcpp::Duration::from_seconds(0.1));
-    }
-    catch (const tf2::TransformException&)
-    {
-      resolved_frame = planning_frame;
-      RCLCPP_WARN(this->get_logger(),
-                   "[Viz] Frame '%s' not available via TF; using planning frame '%s'.",
-                   viz_frame_.c_str(), planning_frame.c_str());
-    }
+    const std::string ee_link = move_group_->getEndEffectorLink();
 
     const auto& joint_names = trajectory.joint_trajectory.joint_names;
     const auto& points = trajectory.joint_trajectory.points;
@@ -127,7 +119,6 @@ public:
       return;
     }
 
-    const auto& ee_link = move_group_->getEndEffectorLink();
     const size_t num_points = points.size();
 
     std::vector<geometry_msgs::msg::PoseStamped> tcp_poses;
@@ -163,12 +154,14 @@ public:
     RCLCPP_INFO(this->get_logger(),
                 "[Viz] === Plan Visualization for '%s' ===", service_name.c_str());
     RCLCPP_INFO(this->get_logger(),
-                "[Viz]   trajectory points:  %zu  →  unique TCP poses: %zu",
+                "[Viz] Planned tool path frame:     '%s'", planning_frame.c_str());
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] End-effector frame used:    '%s'", ee_link.c_str());
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz] Number of points in trajectory: %zu", num_tcp);
+    RCLCPP_INFO(this->get_logger(),
+                "[Viz]   trajectory points:  %zu  unique TCP poses: %zu",
                 num_points, num_tcp);
-    RCLCPP_INFO(this->get_logger(),
-                "[Viz]   EE link:           '%s'", ee_link.c_str());
-    RCLCPP_INFO(this->get_logger(),
-                "[Viz]   visualization frame: '%s'", resolved_frame.c_str());
     RCLCPP_INFO(this->get_logger(),
                 "[Viz]   start xyz:         (%.4f, %.4f, %.4f)",
                 tcp_poses.front().pose.position.x,
@@ -183,13 +176,11 @@ public:
     // --- 1. nav_msgs/Path ---
     nav_msgs::msg::Path nav_path;
     nav_path.header.stamp = get_clock()->now();
-    nav_path.header.frame_id = resolved_frame;
+    nav_path.header.frame_id = planning_frame;
 
     for (const auto& pose : tcp_poses)
     {
-      geometry_msgs::msg::PoseStamped p_out = pose;
-      p_out.header.frame_id = resolved_frame;
-      nav_path.poses.push_back(p_out);
+      nav_path.poses.push_back(pose);
     }
     pub_tool_path_->publish(nav_path);
 
@@ -199,7 +190,7 @@ public:
     // Waypoint spheres
     visualization_msgs::msg::Marker waypoint_spheres;
     waypoint_spheres.header.stamp = get_clock()->now();
-    waypoint_spheres.header.frame_id = resolved_frame;
+    waypoint_spheres.header.frame_id = planning_frame;
     waypoint_spheres.ns = "trajectory_waypoints";
     waypoint_spheres.id = 0;
     waypoint_spheres.type = visualization_msgs::msg::Marker::SPHERE_LIST;
@@ -223,7 +214,7 @@ public:
     {
       visualization_msgs::msg::Marker start_marker;
       start_marker.header.stamp = get_clock()->now();
-      start_marker.header.frame_id = resolved_frame;
+      start_marker.header.frame_id = planning_frame;
       start_marker.ns = "start_goal";
       start_marker.id = 1;
       start_marker.type = visualization_msgs::msg::Marker::SPHERE;
@@ -242,7 +233,7 @@ public:
       // Goal marker (red sphere, larger)
       visualization_msgs::msg::Marker goal_marker;
       goal_marker.header.stamp = get_clock()->now();
-      goal_marker.header.frame_id = resolved_frame;
+      goal_marker.header.frame_id = planning_frame;
       goal_marker.ns = "start_goal";
       goal_marker.id = 2;
       goal_marker.type = visualization_msgs::msg::Marker::SPHERE;
@@ -263,7 +254,7 @@ public:
     // --- 3. LINE_STRIP marker for the TCP path ---
     visualization_msgs::msg::Marker path_line;
     path_line.header.stamp = get_clock()->now();
-    path_line.header.frame_id = resolved_frame;
+    path_line.header.frame_id = planning_frame;
     path_line.ns = "tcp_path_line";
     path_line.id = 0;
     path_line.type = visualization_msgs::msg::Marker::LINE_STRIP;
@@ -898,7 +889,7 @@ private:
   void init_parameters()
   {
     this->declare_parameter<std::string>("move_group_name", "arm");
-    this->declare_parameter<std::string>("base_frame", "world");
+    this->declare_parameter<std::string>("base_frame", "base_link");
     this->declare_parameter<std::string>("ee_link", "tool0");
     this->declare_parameter<std::string>("waypoints_config_path", "");
     this->declare_parameter<std::string>("cartesian_points_config_path", "");
@@ -1747,7 +1738,6 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pub_tool_path_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_waypoint_markers_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_path_line_marker_;
-  std::string viz_frame_;
 
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;

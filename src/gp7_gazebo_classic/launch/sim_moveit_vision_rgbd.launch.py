@@ -60,7 +60,17 @@ def generate_launch_description() -> LaunchDescription:
     vision_bringup_share = get_package_share_directory(vision_bringup_pkg)
 
     xacro_file = os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf.xacro")
-    robot_description_raw = xacro.process_file(xacro_file).toxml()
+    controller_yaml_path = os.path.join(bringup_share, "config", "gp7_controller.yaml")
+    initial_positions_path = os.path.join(desc_share, "config", "initial_positions.yaml")
+    robot_description_file = os.path.join(desc_share, "urdf", "gp7_yaskawa.urdf")
+    robot_description_raw = xacro.process_file(
+        xacro_file,
+        mappings={
+            "controller_yaml": controller_yaml_path,
+            "initial_positions_file": initial_positions_path,
+            "robot_description_file": robot_description_file,
+        },
+    ).toxml()
     robot_description = re.sub(r"<!--.*?-->", "", robot_description_raw, flags=re.DOTALL)
 
     gazebo_launch_file = os.path.join(
@@ -80,7 +90,7 @@ def generate_launch_description() -> LaunchDescription:
     # -------------------------------------------------------------------------
     x_arg = DeclareLaunchArgument("x", default_value="0", description="Robot spawn X (world)")
     y_arg = DeclareLaunchArgument("y", default_value="0", description="Robot spawn Y (world)")
-    z_arg = DeclareLaunchArgument("z", default_value="0", description="Robot spawn Z (world)")
+    z_arg = DeclareLaunchArgument("z", default_value="0.0", description="Robot spawn Z (base_link rests at world z=0.0; virtual_joint origin 0 0 0.33 places the URDF base_link 330 mm above world)")
     rviz_arg = DeclareLaunchArgument("rviz", default_value="true", description="Launch RViz")
     world_arg = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(gazebo_launch_file),
@@ -508,5 +518,21 @@ def generate_launch_description() -> LaunchDescription:
             start_wait_after_arm_spawner,
             move_group_after_controllers,
             rviz_after_move_group,
+            # Publishes the world -> base_link transform (0, 0, 0.33).
+            # This is now handled EXCLUSIVELY by the URDF virtual_joint.
+            # This node is removed — keeping only URDF as the single source of truth.
+            # Node(
+            #     package="tf2_ros",
+            #     executable="static_transform_publisher",
+            #     name="static_tf_world_base_link",
+            #     output="screen",
+            #     arguments=[
+            #         "--x", "0", "--y", "0", "--z", "0.33",
+            #         "--roll", "0", "--pitch", "0", "--yaw", "0",
+            #         "--frame-id", "world",
+            #         "--child-frame-id", "base_link",
+            #     ],
+            # ),
+            # static_tf_world_base_link,  # removed: world->base_link is now in URDF
         ]
     )

@@ -7,6 +7,8 @@ Panels:
         - /Global Options1
         - /Status1
         - /RobotModel1
+        - /TF1
+        - /TF1/Frames1
         - /Trajectory1
         - /Camera1
         - /Path1
@@ -99,6 +101,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        link_tool:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         link_u:
           Alpha: 1
           Show Axes: false
@@ -124,21 +131,23 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         base_link:
           Value: true
         link_b:
-          Value: true
+          Value: false
         link_l:
-          Value: true
+          Value: false
         link_r:
-          Value: true
+          Value: false
         link_s:
-          Value: true
+          Value: false
         link_t:
-          Value: true
+          Value: false
+        link_tool:
+          Value: false
         link_u:
-          Value: true
+          Value: false
         tool0:
           Value: true
         world:
@@ -157,8 +166,9 @@ Visualization Manager:
                   link_r:
                     link_b:
                       link_t:
-                        tool0:
-                          {}
+                        link_tool:
+                          tool0:
+                            {}
       Update Interval: 0
       Value: true
     - Acceleration_Scaling_Factor: 0.3
@@ -218,6 +228,11 @@ Visualization Manager:
             Show Trail: false
             Value: true
           link_t:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          link_tool:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -311,6 +326,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          link_tool:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           link_u:
             Alpha: 1
             Show Axes: false
@@ -365,6 +385,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         link_t:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_tool:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -491,7 +516,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 3.7277719974517822
+      Distance: 3.2804393768310547
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

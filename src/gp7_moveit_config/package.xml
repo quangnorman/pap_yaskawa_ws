@@ -4,9 +4,9 @@
   <name>gp7_moveit_config</name>
   <version>0.3.0</version>
   <description>
-     MoveIt 2 configuration and launch files for the Yaskawa GP7
+     An automatically generated package with all the configuration and launch files for using the gp7_yaskawa with the MoveIt Motion Planning Framework
   </description>
-  <maintainer email="todo@todo.com">todo</maintainer>
+  <maintainer email="quangnorman13@gmail.com">norman</maintainer>
 
   <license>BSD</license>
 
@@ -14,7 +14,7 @@
   <url type="bugtracker">https://github.com/ros-planning/moveit2/issues</url>
   <url type="repository">https://github.com/ros-planning/moveit2</url>
 
-  <author email="todo@todo.com">todo</author>
+  <author email="quangnorman13@gmail.com">norman</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -33,6 +33,7 @@
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>gp7_description</exec_depend>
   <exec_depend>moveit_configs_utils</exec_depend>
+  <exec_depend>moveit_ros_move_group</exec_depend>
   <exec_depend>moveit_ros_visualization</exec_depend>
   <exec_depend>moveit_ros_warehouse</exec_depend>
   <exec_depend>moveit_setup_assistant</exec_depend>
@@ -40,21 +41,11 @@
   <exec_depend>rviz2</exec_depend>
   <exec_depend>rviz_common</exec_depend>
   <exec_depend>rviz_default_plugins</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
   <exec_depend>warehouse_ros_mongo</exec_depend>
-  <exec_depend>ament_index_python</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>action_msgs</exec_depend>
-  <exec_depend>control_msgs</exec_depend>
-  <exec_depend>moveit_msgs</exec_depend>
-  <exec_depend>ros2_controllers</exec_depend>
-  <exec_depend>joint_state_broadcaster</exec_depend>
-  <exec_depend>joint_trajectory_controller</exec_depend>
 
 
   <export>
       <build_type>ament_cmake</build_type>
   </export>
 </package>
-

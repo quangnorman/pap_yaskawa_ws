@@ -23,7 +23,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-install(DIRECTORY urdf meshes models config legacy
+install(DIRECTORY urdf meshes models config legacy rviz launch
   DESTINATION share/${PROJECT_NAME}
 )
 

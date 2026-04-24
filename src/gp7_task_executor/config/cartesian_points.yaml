@@ -1,5 +1,5 @@
 # Cartesian points for gp7_task_executor
-# All values are in world frame.
+# All values are in base_link frame.
 # Orientation is FIXED: roll=pi, pitch=0, yaw=0 (tool pointing downward).
 # Only xyz position is stored here; orientation is applied internally.
 #
@@ -9,23 +9,26 @@
 #   - Avoids orientation singularities during Cartesian interpolation
 #   - Easier to debug and visualize linear motions
 #
+# IMPORTANT: frame_id MUST be "base_link".  Coordinates are interpreted
+#   directly in the robot's base frame — no TF transform from world is needed.
+#
 # To add or modify points:
-#   1. Edit the xyz values below.
+#   1. Edit the xyz values below (in base_link).
 #   2. Rebuild the package: colcon build --packages-select gp7_task_executor
 #   3. Restart the node.
 #
 cartesian_points:
   pose_A:
     description: "Cartesian point A"
-    frame_id: "world"
-    xyz: [0.5241, 0.0, 0.6522]
+    frame_id: "base_link"
+    xyz: [0.000, -0.481, 0.315]
 
   pose_B:
     description: "Cartesian point B"
-    frame_id: "world"
-    xyz: [0.00254, -0.4966, 0.4939]
+    frame_id: "base_link"
+    xyz: [0.000, -0.481, 0.215]
 
   pose_C:
     description: "Cartesian point C"
-    frame_id: "world"
-    xyz: [0.00224, -0.4946, 0.3827]
+    frame_id: "base_link"
+    xyz: [0.100, -0.481, 0.215]

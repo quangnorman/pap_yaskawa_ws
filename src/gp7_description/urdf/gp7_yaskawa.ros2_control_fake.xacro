@@ -9,37 +9,37 @@
       <hardware>
         <plugin>mock_components/GenericSystem</plugin>
       </hardware>
-      <joint name="joint_s">
+      <joint name="joint_1">
         <command_interface name="position"/>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
       </joint>
-      <joint name="joint_l">
+      <joint name="joint_2">
         <command_interface name="position"/>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
       </joint>
-      <joint name="joint_u">
+      <joint name="joint_3">
         <command_interface name="position"/>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
       </joint>
-      <joint name="joint_r">
+      <joint name="joint_4">
         <command_interface name="position"/>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
       </joint>
-      <joint name="joint_b">
+      <joint name="joint_5">
         <command_interface name="position"/>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
         </state_interface>
       </joint>
-      <joint name="joint_t">
+      <joint name="joint_6">
         <command_interface name="position"/>
         <state_interface name="position">
           <param name="initial_value">0.0</param>
