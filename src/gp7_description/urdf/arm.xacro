@@ -224,6 +224,29 @@
       <child link="tool0"/>
     </joint>
 
+    <!-- ground: visualization reference frame — a flat gray plane below base_link.
+         parent=base_link, origin z=-0.33 means ground sits 0.33 m below base_link.
+         This frame is only for visualization/reference and does NOT affect MoveIt
+         planning, FK, or any controller.  It is a child of base_link so it moves
+         with the robot root but sits visually at the floor level. -->
+    <link name="ground">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="10.0 10.0 0.005"/>
+        </geometry>
+        <material name="ground_gray">
+          <color rgba="0.55 0.55 0.55 0.35"/>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="base_to_ground" type="fixed">
+      <parent link="base_link"/>
+      <child link="ground"/>
+      <origin xyz="0 0 -0.33" rpy="0 0 0"/>
+    </joint>
+
   </xacro:macro>
 
 </robot>
