@@ -1,6 +1,7 @@
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/config/gp7_controller.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/display.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/real_mode.launch.py
+/home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/sim_mode.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/rviz/rviz.rviz
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/lib/gp7_bringup/trajectory_debug_node
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/ament_index/resource_index/package_run_dependencies/gp7_bringup
