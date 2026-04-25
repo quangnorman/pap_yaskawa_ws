@@ -1,5 +1,6 @@
 /home/norman/pap_yaskawa_ws/build/gp7_bringup/CMakeFiles/uninstall.dir
 /home/norman/pap_yaskawa_ws/build/gp7_bringup/CMakeFiles/gp7_bringup_uninstall.dir
+/home/norman/pap_yaskawa_ws/build/gp7_bringup/CMakeFiles/trajectory_debug_node.dir
 /home/norman/pap_yaskawa_ws/build/gp7_bringup/CMakeFiles/test.dir
 /home/norman/pap_yaskawa_ws/build/gp7_bringup/CMakeFiles/edit_cache.dir
 /home/norman/pap_yaskawa_ws/build/gp7_bringup/CMakeFiles/rebuild_cache.dir

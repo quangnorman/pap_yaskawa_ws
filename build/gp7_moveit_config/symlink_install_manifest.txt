@@ -26,6 +26,7 @@
 /home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/kinematics.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/moveit.rviz
 /home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/moveit_controllers.yaml
+/home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/moveit_controllers_real.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/moveit_real_controllers.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/ompl_planning.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_moveit_config/share/gp7_moveit_config/config/pilz_cartesian_limits.yaml

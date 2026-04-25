@@ -197,6 +197,43 @@ gp7_bringup_uninstall/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gp7_bringup_uninstall.dir/build.make CMakeFiles/gp7_bringup_uninstall.dir/build
 .PHONY : gp7_bringup_uninstall/fast
 
+#=============================================================================
+# Target rules for targets named trajectory_debug_node
+
+# Build rule for target.
+trajectory_debug_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 trajectory_debug_node
+.PHONY : trajectory_debug_node
+
+# fast build rule for target.
+trajectory_debug_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trajectory_debug_node.dir/build.make CMakeFiles/trajectory_debug_node.dir/build
+.PHONY : trajectory_debug_node/fast
+
+src/trajectory_debug_node.o: src/trajectory_debug_node.cpp.o
+.PHONY : src/trajectory_debug_node.o
+
+# target to build an object file
+src/trajectory_debug_node.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trajectory_debug_node.dir/build.make CMakeFiles/trajectory_debug_node.dir/src/trajectory_debug_node.cpp.o
+.PHONY : src/trajectory_debug_node.cpp.o
+
+src/trajectory_debug_node.i: src/trajectory_debug_node.cpp.i
+.PHONY : src/trajectory_debug_node.i
+
+# target to preprocess a source file
+src/trajectory_debug_node.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trajectory_debug_node.dir/build.make CMakeFiles/trajectory_debug_node.dir/src/trajectory_debug_node.cpp.i
+.PHONY : src/trajectory_debug_node.cpp.i
+
+src/trajectory_debug_node.s: src/trajectory_debug_node.cpp.s
+.PHONY : src/trajectory_debug_node.s
+
+# target to generate assembly for a file
+src/trajectory_debug_node.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/trajectory_debug_node.dir/build.make CMakeFiles/trajectory_debug_node.dir/src/trajectory_debug_node.cpp.s
+.PHONY : src/trajectory_debug_node.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -212,6 +249,10 @@ help:
 	@echo "... test"
 	@echo "... gp7_bringup_uninstall"
 	@echo "... uninstall"
+	@echo "... trajectory_debug_node"
+	@echo "... src/trajectory_debug_node.o"
+	@echo "... src/trajectory_debug_node.i"
+	@echo "... src/trajectory_debug_node.s"
 .PHONY : help
 
 

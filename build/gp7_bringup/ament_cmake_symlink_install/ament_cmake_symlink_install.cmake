@@ -318,6 +318,9 @@ message(STATUS "Execute custom install script")
 # install(DIRECTORY "config" "launch" "rviz" "DESTINATION" "share/gp7_bringup")
 ament_cmake_symlink_install_directory("/home/norman/pap_yaskawa_ws/src/gp7_bringup" DIRECTORY "config" "launch" "rviz" "DESTINATION" "share/gp7_bringup")
 
+# install("TARGETS" "trajectory_debug_node" "DESTINATION" "lib/gp7_bringup")
+include("/home/norman/pap_yaskawa_ws/build/gp7_bringup/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+
 # install(FILES "/home/norman/pap_yaskawa_ws/build/gp7_bringup/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/gp7_bringup" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 ament_cmake_symlink_install_files("/home/norman/pap_yaskawa_ws/src/gp7_bringup" FILES "/home/norman/pap_yaskawa_ws/build/gp7_bringup/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/gp7_bringup" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 

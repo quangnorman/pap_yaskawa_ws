@@ -1,0 +1,28 @@
+# MoveIt controller configuration for the real Yaskawa GP7 (robot1 namespace).
+# The controller_manager finds this file via the trajectory_execution config in
+# the MoveIt launch.  It tells MoveIt's SimpleControllerManager to send planned
+# trajectories to the robot1/follow_joint_trajectory action server exposed by
+# MotoROS2.
+#
+# The robot1 namespace is provided by the yaskawa_robot_controller / MotoROS2
+# driver; joint_states are published on /robot1/joint_states and the
+# FollowJointTrajectory action lives at /robot1/follow_joint_trajectory.
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - /robot1
+
+  /robot1:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    ns: /robot1
+    default: true
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6

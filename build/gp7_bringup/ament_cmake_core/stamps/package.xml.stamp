@@ -12,6 +12,7 @@
   <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>trajectory_msgs</depend>
 
   <exec_depend>gp7_description</exec_depend>
   <exec_depend>ament_index_python</exec_depend>

@@ -1,1 +1,1 @@
-rclcpp;geometry_msgs;std_srvs;gp7_description;ament_index_python;launch;launch_ros;robot_state_publisher;joint_state_publisher_gui;rviz2;xacro;ament_lint_auto;ament_lint_common
+rclcpp;geometry_msgs;std_srvs;trajectory_msgs;gp7_description;ament_index_python;launch;launch_ros;robot_state_publisher;joint_state_publisher_gui;rviz2;xacro;ament_lint_auto;ament_lint_common
