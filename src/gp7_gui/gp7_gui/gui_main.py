@@ -1,21 +1,20 @@
 """
 gp7_gui — GP7 Robot GUI
-Phase 1.5: Mode-aware monitoring + unit selector + Tool0 pose display
+Phase 1.6: Launch Manager — GUI starts independently, user controls bringup
 
 Architecture:
+  - GUI starts with mode=none (no ROS subscriptions).
+  - LaunchManager handles ros2 launch subprocesses via subprocess.Popen.
   - ROS 2 node runs in a background thread to avoid blocking the Qt event loop.
-  - Qt Signals are used to safely pass data from the ROS thread to the UI.
-  - A Qt timer in the main thread polls the TF buffer at 10 Hz.
-  - Topic subscriptions are reconfigured when the user switches sim/real mode.
+  - Qt Signals bridge the ROS thread and the UI.
+  - TF2 polls at 10 Hz for base_link → tool0.
 
-Mode differences:
-  sim:  joint_states <- /joint_states
-        controller_state <- /arm_controller/state
-        no robot_status
-
-  real: joint_states <- /robot1/joint_states
-        robot_status   <- /robot1/robot_status
-        no controller_state
+Workflow:
+  1. GUI starts independently — no bringup required.
+  2. User selects sim or real from the dropdown.
+  3. User clicks "Start selected mode" to launch the bringup.
+  4. GUI subscribes to topics for the chosen mode.
+  5. User clicks "Stop system" to shut down and return to idle.
 """
 
 import math
@@ -50,6 +49,8 @@ except ImportError:
 
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtCore import QObject, Signal, Slot
+
+from gp7_gui.launch_manager import LaunchManager, LaunchState
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -127,31 +128,31 @@ class GP7RosNode(Node):
     def _setup_subscriptions(self, cfg: Dict) -> None:
         self.get_logger().info(f"[gp7_gui] Setting up subscriptions for mode: {cfg}")
 
-        self._js_sub = self.create_subscription(
-            JointState, cfg["joint_states_topic"], self._on_joint_states, 10
-        )
+        js_topic = cfg.get("joint_states_topic", "")
+        if js_topic:
+            self._js_sub = self.create_subscription(
+                JointState, js_topic, self._on_joint_states, 10
+            )
 
-        if cfg["controller_state_topic"] and HAS_CONTROLLER_STATE:
+        if cfg.get("controller_state_topic") and HAS_CONTROLLER_STATE:
             self._cs_sub = self.create_subscription(
                 JointTrajectoryControllerState,
                 cfg["controller_state_topic"],
                 self._on_controller_state, 10,
             )
-        else:
-            self._cs_sub = None
 
-        if cfg["robot_status_topic"] and HAS_ROBOT_STATUS:
+        if cfg.get("robot_status_topic") and HAS_ROBOT_STATUS:
             self._rs_sub = self.create_subscription(
                 RobotStatus,
                 cfg["robot_status_topic"],
                 self._on_robot_status, 10,
             )
-        else:
-            self._rs_sub = None
 
-        self._pp_sub = self.create_subscription(
-            Path, cfg["planned_path_topic"], self._on_planned_path, 10
-        )
+        pp_topic = cfg.get("planned_path_topic", "")
+        if pp_topic:
+            self._pp_sub = self.create_subscription(
+                Path, pp_topic, self._on_planned_path, 10
+            )
 
         self._js_stale = False
         self._cs_stale = False
@@ -238,7 +239,7 @@ class GP7RosNode(Node):
                 "available": True,
             })
         except Exception:
-            self._signals.tf_pose_updated.emit({"available": False})
+            pass  # Silently ignore — "TF not available" only shown when mode is none
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -259,26 +260,33 @@ class RosSignals(QObject):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class GP7MainWindow(QtWidgets.QMainWindow):
-    """Phase 1.5 GUI — mode-aware monitoring + unit selector + Tool0 pose."""
+    """Phase 1.6 GUI — Launch Manager with mode selector and Start/Stop buttons."""
 
     JOINT_NAMES = ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"]
-    MODES = ["sim", "real"]
+    MODES = ["none", "sim", "real"]
     UNIT_OPTIONS = ["rad", "deg"]
 
-    def __init__(self, config: Dict, initial_mode: str = "sim"):
+    def __init__(self, config: Dict, initial_mode: str = "none"):
         super().__init__()
         self._config = config
-        self._mode = initial_mode
+        self._mode = initial_mode          # what the combo box says
+        self._running_mode = "none"        # what is actually launched
+        self._stop_reason: Optional[str] = None  # "manual" or "before_launch"
+        self._pending_launch: Optional[str] = None  # mode to launch after stop
+        self._pending_mode: Optional[str] = None
         self._unit = "rad"
         self._raw_joints: Dict[str, float] = {}
         self._ros_node: Optional[GP7RosNode] = None
         self._ros_thread: Optional[threading.Thread] = None
 
-        self.setWindowTitle("GP7 Robot GUI — Phase 1.5: Monitoring")
-        self.setMinimumSize(780, 580)
+        # LaunchManager — runs ros2 launch as a subprocess
+        self._launch_manager = LaunchManager(self)
+
+        self.setWindowTitle("GP7 Robot GUI — Phase 1.6: Launch Manager")
+        self.setMinimumSize(780, 620)
         self._setup_ui()
         self._connect_signals()
-        self._start_ros(initial_mode)
+        self._start_ros()  # No subscriptions until user starts a mode
 
     # ── UI setup ────────────────────────────────────────────────────────────
 
@@ -288,6 +296,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         top_layout = QtWidgets.QVBoxLayout(central)
 
         top_layout.addWidget(self._build_header())
+        top_layout.addWidget(self._build_control_panel())
         top_layout.addWidget(self._build_topic_strip())
         top_layout.addWidget(self._build_joints_panel())
         top_layout.addWidget(self._build_tool_pose_panel())
@@ -295,19 +304,15 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         top_layout.addStretch()
 
     def _build_header(self) -> QtWidgets.QGroupBox:
-        group = QtWidgets.QGroupBox("Mode Selection")
+        group = QtWidgets.QGroupBox()
+        group.setStyleSheet("border: none;")
         layout = QtWidgets.QHBoxLayout(group)
 
-        lbl = QtWidgets.QLabel("Operation mode:")
-        lbl.setStyleSheet("font-weight: bold;")
-        layout.addWidget(lbl)
+        self._title_lbl = QtWidgets.QLabel("GP7 Robot GUI")
+        self._title_lbl.setStyleSheet("font-size: 16pt; font-weight: bold; color: #e0e0e0;")
+        layout.addWidget(self._title_lbl)
 
-        self._mode_combo = QtWidgets.QComboBox()
-        self._mode_combo.addItems(self.MODES)
-        self._mode_combo.setCurrentText(self._mode)
-        layout.addWidget(self._mode_combo)
-
-        layout.addSpacing(24)
+        layout.addStretch()
 
         unit_lbl = QtWidgets.QLabel("Angular unit:")
         unit_lbl.setStyleSheet("font-weight: bold;")
@@ -316,15 +321,67 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._unit_combo = QtWidgets.QComboBox()
         self._unit_combo.addItems(self.UNIT_OPTIONS)
         self._unit_combo.setCurrentText(self._unit)
+        self._unit_combo.setMinimumWidth(90)
+        self._unit_combo.setFixedWidth(90)
+        self._unit_combo.setSizeAdjustPolicy(
+            QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents
+        )
         layout.addWidget(self._unit_combo)
+
+        return group
+
+    def _build_control_panel(self) -> QtWidgets.QGroupBox:
+        group = QtWidgets.QGroupBox("Launch Control")
+        layout = QtWidgets.QHBoxLayout(group)
+
+        mode_lbl = QtWidgets.QLabel("Selected mode:")
+        mode_lbl.setStyleSheet("font-weight: bold;")
+        layout.addWidget(mode_lbl)
+
+        self._mode_combo = QtWidgets.QComboBox()
+        self._mode_combo.addItems(self.MODES)
+        self._mode_combo.setCurrentText("none")
+        layout.addWidget(self._mode_combo)
+
+        layout.addSpacing(16)
+
+        self._start_btn = QtWidgets.QPushButton("Start selected mode")
+        self._start_btn.setStyleSheet(
+            "background: #2e7d32; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 16px;"
+        )
+        self._start_btn.clicked.connect(self._on_start_clicked)
+        layout.addWidget(self._start_btn)
+
+        self._stop_btn = QtWidgets.QPushButton("Stop system")
+        self._stop_btn.setEnabled(False)
+        self._stop_btn.setStyleSheet(
+            "background: #c62828; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 16px;"
+        )
+        self._stop_btn.clicked.connect(self._on_stop_clicked)
+        layout.addWidget(self._stop_btn)
+
+        layout.addSpacing(16)
+
+        self._launch_state_lbl = QtWidgets.QLabel("System: Idle")
+        self._launch_state_lbl.setStyleSheet(
+            "font-size: 10pt; font-weight: bold; color: #888;"
+        )
+        layout.addWidget(self._launch_state_lbl)
 
         layout.addStretch()
 
-        self._mode_label = QtWidgets.QLabel(f"[{self._mode.upper()}]")
-        self._mode_label.setStyleSheet(
-            "font-size: 14pt; font-weight: bold; color: #2e86de;"
+        self._real_warning_lbl = QtWidgets.QLabel(
+            "REAL ROBOT MODE — execution disabled until safety confirmation"
         )
-        layout.addWidget(self._mode_label)
+        self._real_warning_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self._real_warning_lbl.setStyleSheet(
+            "background: #7b1fa2; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px; font-size: 10pt;"
+        )
+        self._real_warning_lbl.setVisible(False)
+        layout.addWidget(self._real_warning_lbl)
 
         return group
 
@@ -516,19 +573,22 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     # ── signal connections ─────────────────────────────────────────────────
 
     def _connect_signals(self) -> None:
-        self._mode_combo.currentTextChanged.connect(self._on_mode_changed)
         self._unit_combo.currentTextChanged.connect(self._on_unit_changed)
+        self._mode_combo.currentTextChanged.connect(self._on_mode_combo_changed)
 
-    def _start_ros(self, mode: str) -> None:
-        self._mode = mode
-        self._update_status_visibility()
+        # LaunchManager signals
+        self._launch_manager.state_changed.connect(self._on_launch_state_changed)
+        self._launch_manager.log_line.connect(self._append_launch_log)
+        self._launch_manager.stop_complete.connect(self._on_stop_complete)
+
+    def _start_ros(self) -> None:
+        """Start the ROS node thread. No subscriptions until a mode is started."""
         self._update_topic_labels()
 
         def ros_spin():
             rclpy.init()
             node = GP7RosNode(self._config)
             self._ros_node = node
-            node.switch_mode(mode)
             node._signals.joints_updated.connect(self._on_joints_updated)
             node._signals.controller_state_updated.connect(self._on_controller_state_updated)
             node._signals.robot_status_updated.connect(self._on_robot_status_updated)
@@ -548,17 +608,182 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     # ── Qt Slots ───────────────────────────────────────────────────────────
 
     @Slot(str)
-    def _on_mode_changed(self, mode: str) -> None:
+    def _on_mode_combo_changed(self, mode: str) -> None:
+        """Selecting a mode only stores it as pending — no subscription yet."""
+        self._pending_mode = mode
         self._mode = mode
-        self._mode_label.setText(f"[{mode.upper()}]")
-        self._mode_label.setStyleSheet(
-            "font-size: 14pt; font-weight: bold; "
-            + ("color: #2e86de;" if mode == "sim" else "color: #f6c90e;")
+
+    @Slot()
+    def _on_start_clicked(self) -> None:
+        """Start the selected mode: confirmation for real, then launch."""
+        selected = self._mode_combo.currentText()
+        if selected == "none":
+            return
+
+        # Guard: prevent double-click while a launch is running
+        if self._launch_manager.is_running:
+            print(f"[GUI] Cannot start: a launch is already running.")
+            return
+
+        # Disable buttons immediately to prevent double-click
+        self._start_btn.setEnabled(False)
+        self._stop_btn.setEnabled(False)
+
+        if selected == "real":
+            reply = QtWidgets.QMessageBox.question(
+                self,
+                "Confirm Real Robot Mode",
+                "You are about to start REAL ROBOT mode.\n\n"
+                "The robot will be commanded. Continue?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.No,
+            )
+            if reply != QtWidgets.QMessageBox.Yes:
+                self._update_button_states(self._launch_manager.state.name.lower())
+                return
+
+        # Queue the launch — will fire in _on_stop_complete
+        self._pending_launch = selected
+        self._stop_reason = "before_launch"
+        print(f"[GUI] _on_start_clicked: pending_launch={self._pending_launch} stop_reason={self._stop_reason} mode={selected}")
+
+        self._reset_all_displays()
+        self._set_all_indicators_gray()
+
+        print(f"[GUI] Calling stop() before starting {selected}...")
+        self._launch_manager.stop(timeout=9.0)
+        # Launch fires in _on_stop_complete after stop finishes
+
+    @Slot()
+    def _on_stop_clicked(self) -> None:
+        """Stop the current system — stop runs asynchronously."""
+        self._stop_reason = "manual"
+        self._pending_launch = None
+        print(f"[GUI] _on_stop_clicked: stop_reason={self._stop_reason} pending_launch={self._pending_launch}")
+        self._start_btn.setEnabled(False)
+        self._stop_btn.setEnabled(False)
+        print(f"[GUI] Calling stop() (manual)...")
+        self._launch_manager.stop(timeout=9.0)
+
+    @Slot()
+    def _on_stop_complete(self) -> None:
+        """
+        Called when LaunchManager finishes stopping.
+        Decides whether to launch a pending mode or go idle.
+        """
+        stop_reason = self._stop_reason
+        pending = self._pending_launch
+        print(f"[GUI] _on_stop_complete: stop_reason={stop_reason} pending_launch={pending}")
+
+        # If we're switching modes, clear subscriptions from the old mode
+        if self._ros_node:
+            self._ros_node._teardown_subscriptions()
+
+        if stop_reason == "before_launch" and pending in ("sim", "real"):
+            # This stop was part of a start-switch flow — proceed with launch
+            print(f"[GUI] Stop complete, proceeding to launch {pending}...")
+            self._pending_launch = None
+            self._stop_reason = None
+            self._do_launch(pending)
+        else:
+            # Pure stop — go idle
+            self._pending_launch = None
+            self._stop_reason = None
+            self._running_mode = "none"
+            self._mode = "none"
+            self._mode_combo.setCurrentText("none")
+            self._real_warning_lbl.setVisible(False)
+            self._reset_all_displays()
+            self._set_all_indicators_gray()
+            self._update_status_visibility()
+            self._update_topic_labels()
+            self._launch_state_lbl.setText("System: Idle")
+            self._launch_state_lbl.setStyleSheet(
+                "font-size: 10pt; font-weight: bold; color: #888;"
+            )
+            self._start_btn.setEnabled(True)
+            self._stop_btn.setEnabled(False)
+            print("[GUI] Stop complete, GUI is now idle.")
+
+    def _do_launch(self, mode: str) -> None:
+        """
+        Actually perform the launch for the given mode.
+        Called from _on_stop_complete after the previous system has fully stopped.
+        """
+        print(f"[GUI] _do_launch({mode}): running_mode={self._running_mode} pending={self._pending_launch}")
+
+        self._running_mode = mode
+        self._mode = mode
+        self._real_warning_lbl.setVisible(mode == "real")
+
+        self._launch_state_lbl.setText(f"System: {mode.upper()} launching...")
+        self._launch_state_lbl.setStyleSheet(
+            "font-size: 10pt; font-weight: bold; color: #ff9800;"
         )
-        self._update_status_visibility()
-        self._update_topic_labels()
+        self._start_btn.setEnabled(False)
+        self._stop_btn.setEnabled(True)
+
+        # Configure ROS subscriptions for this mode
         if self._ros_node:
             self._ros_node.switch_mode(mode)
+        self._update_status_visibility()
+        self._update_topic_labels()
+        print(f"[GUI] ROS subscriptions configured for {mode}.")
+
+        # Launch the external bringup
+        cfg = self._config[mode]
+        if cfg.get("launch_package"):
+            cmd_str = " ".join(
+                ["ros2", "launch", cfg["launch_package"], cfg["launch_file"]]
+                + [f"{k}:={v}" for k, v in cfg.get("launch_args", {}).items()]
+            )
+            print(f"[GUI] Launch command: {cmd_str}")
+            self._launch_manager.launch(
+                cfg["launch_package"],
+                cfg["launch_file"],
+                cfg.get("launch_args"),
+            )
+
+    @Slot(str)
+    def _on_launch_state_changed(self, state: str) -> None:
+        """Update UI based on LaunchManager state."""
+        print(f"[GUI] _on_launch_state_changed({state}): running_mode={self._running_mode} stop_reason={self._stop_reason} pending={self._pending_launch}")
+        self._update_button_states(state)
+        self._update_state_label(state)
+
+    def _update_button_states(self, state: str) -> None:
+        """Update button enabled state based on LaunchManager state."""
+        if state == "running":
+            self._start_btn.setEnabled(False)
+            self._stop_btn.setEnabled(True)
+        elif state in ("idle", "stopped", "failed", "launching"):
+            # These states are handled by _on_stop_complete for actual enabling
+            # For now, keep both disabled — _on_stop_complete will re-enable Start
+            self._start_btn.setEnabled(False)
+            self._stop_btn.setEnabled(False)
+
+    def _update_state_label(self, state: str) -> None:
+        """Update the launch state label text and color."""
+        rm = self._running_mode or "?"
+        state_styles = {
+            "idle":     ("System: Idle",                   "#888888"),
+            "launching":(f"System: {rm.upper()} launching...",  "#ff9800"),
+            "running":  (f"System: {rm.upper()} running",        "#4caf50"),
+            "failed":   ("System: Launch failed",                "#f44336"),
+            "stopped":  ("System: Idle",                         "#888888"),
+        }
+        text, color = state_styles.get(
+            state, (f"System: {state}", "#888888")
+        )
+        self._launch_state_lbl.setText(text)
+        self._launch_state_lbl.setStyleSheet(
+            f"font-size: 10pt; font-weight: bold; color: {color};"
+        )
+
+    def _append_launch_log(self, line: str) -> None:
+        """Append a line from the launch process to the log (stored for debug)."""
+        pass  # Future: QTextEdit log widget
+
 
     @Slot(str)
     def _on_unit_changed(self, unit: str) -> None:
@@ -627,8 +852,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     @Slot(dict)
     def _on_tf_pose_updated(self, pose: Dict[str, float]) -> None:
         if not pose.get("available", False):
-            self._tf_status_lbl.setText("TF not available: base_link → tool0")
-            return
+            return  # Silently ignore — will show "TF not available" on next poll if still needed
         self._pose_cells["tx"].setText(f"{pose['tx']:.4f}")
         self._pose_cells["ty"].setText(f"{pose['ty']:.4f}")
         self._pose_cells["tz"].setText(f"{pose['tz']:.4f}")
@@ -643,18 +867,48 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     # ── helpers ────────────────────────────────────────────────────────────
 
     def _update_status_visibility(self) -> None:
-        self._status_stack.setCurrentIndex(0 if self._mode == "sim" else 1)
+        if self._mode == "none":
+            self._status_stack.setCurrentIndex(-1)  # hide
+        elif self._mode == "sim":
+            self._status_stack.setCurrentIndex(0)
+        else:
+            self._status_stack.setCurrentIndex(1)
 
     def _update_topic_labels(self) -> None:
-        cfg = self._config[self._mode]
-        self._topic_labels["js_topic"].setText(cfg["joint_states_topic"])
-        self._topic_labels["rs_topic"].setText(cfg["robot_status_topic"] or "—")
-        self._topic_labels["cs_topic"].setText(cfg["controller_state_topic"] or "—")
-        self._topic_labels["pp_topic"].setText(cfg["planned_path_topic"])
+        cfg = self._config.get(self._mode, self._config.get("none", {}))
+        self._topic_labels["js_topic"].setText(cfg.get("joint_states_topic") or "—")
+        self._topic_labels["rs_topic"].setText(cfg.get("robot_status_topic") or "—")
+        self._topic_labels["cs_topic"].setText(cfg.get("controller_state_topic") or "—")
+        self._topic_labels["pp_topic"].setText(cfg.get("planned_path_topic") or "—")
+
+    def _set_all_indicators_gray(self) -> None:
+        for indicator in self._topic_alive.values():
+            indicator.setStyleSheet("color: #555; font-size: 10pt;")
+
+    def _reset_all_displays(self) -> None:
+        """Clear all live display values back to '—' after stop."""
+        for cell in self._joint_cells.values():
+            cell.setText("—")
+        for cell in self._cs_actual_cells.values():
+            cell.setText("—")
+        for cell in self._cs_error_cells.values():
+            cell.setText("—")
+        for cell in self._rs_cells.values():
+            cell.setText("—")
+            cell.setStyleSheet(
+                "background: #1e1e1e; color: #888; "
+                "border: 1px solid #333; border-radius: 4px; "
+                "padding: 2px; font-size: 9pt;"
+            )
+        for cell in self._pose_cells.values():
+            cell.setText("—")
+        self._path_label.setText("Planned path: — pose(s)")
+        self._tf_status_lbl.setText("TF inactive: mode none")
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self._launch_manager.stop(timeout=3.0)
         if self._ros_node:
-            self._ros_node.get_logger().info("[gp7_gui] Shutting down ROS node...")
+            self._ros_node.get_logger().info("[gp7_gui] Shutting down...")
         event.accept()
 
 
@@ -664,10 +918,10 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
 def main(args=None):
     import argparse
-    parser = argparse.ArgumentParser(description="GP7 Robot GUI — Phase 1.5")
+    parser = argparse.ArgumentParser(description="GP7 Robot GUI — Phase 1.6")
     parser.add_argument(
-        "--mode", default="sim", choices=["sim", "real"],
-        help="Initial operation mode (sim or real)"
+        "--mode", default="none", choices=["none", "sim", "real"],
+        help="Initial selected mode (default: none)"
     )
     parsed, _ = parser.parse_known_args(args or [])
 

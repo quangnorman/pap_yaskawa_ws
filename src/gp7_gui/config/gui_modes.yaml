@@ -1,10 +1,31 @@
+none:
+  launch_package: ""
+  launch_file: ""
+  launch_args: {}
+  joint_states_topic: ""
+  robot_status_topic: ""
+  controller_state_topic: ""
+  planned_path_topic: ""
+
 sim:
+  launch_package: gp7_bringup
+  launch_file: main.launch.py
+  launch_args:
+    mode: sim
+    use_rviz: "true"
+    start_task_executor: "true"
   joint_states_topic: /joint_states
   robot_status_topic: ""
   controller_state_topic: /arm_controller/state
   planned_path_topic: /task_executor/planned_tool_path
 
 real:
+  launch_package: gp7_bringup
+  launch_file: main.launch.py
+  launch_args:
+    mode: real
+    use_rviz: "true"
+    start_task_executor: "true"
   joint_states_topic: /robot1/joint_states
   robot_status_topic: /robot1/robot_status
   controller_state_topic: ""

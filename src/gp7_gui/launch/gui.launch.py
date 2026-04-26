@@ -1,9 +1,10 @@
 """Launch the GP7 GUI node.
 
 Launch arguments:
-  mode  (default: sim)  — 'sim' or 'real'; forwarded to gui_main.py
+  mode  (default: none)  — 'none', 'sim', or 'real'
 
 Usage:
+  ros2 launch gp7_gui gui.launch.py
   ros2 launch gp7_gui gui.launch.py mode:=sim
   ros2 launch gp7_gui gui.launch.py mode:=real
 """
@@ -17,8 +18,8 @@ from launch_ros.actions import Node
 def generate_launch_description() -> LaunchDescription:
     mode_arg = DeclareLaunchArgument(
         "mode",
-        default_value="sim",
-        description="Operation mode: sim or real",
+        default_value="none",
+        description="Operation mode: none, sim, or real",
     )
 
     gui_node = Node(
