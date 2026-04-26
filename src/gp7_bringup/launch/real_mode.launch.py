@@ -40,6 +40,7 @@ REQUIREMENTS (run separately / outside this launch)
 
 import os
 
+import yaml
 import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -56,12 +57,22 @@ def generate_launch_description() -> LaunchDescription:
     # Packages
     # -------------------------------------------------------------------------
     desc_pkg = "gp7_description"
+    bringup_pkg = "gp7_bringup"
     moveit_pkg = "gp7_moveit_config"
     executor_pkg = "gp7_task_executor"
 
     desc_share = get_package_share_directory(desc_pkg)
+    bringup_share = get_package_share_directory(bringup_pkg)
     moveit_share = get_package_share_directory(moveit_pkg)
     executor_share = get_package_share_directory(executor_pkg)
+
+    # -------------------------------------------------------------------------
+    # Centralized motion scaling config
+    # -------------------------------------------------------------------------
+    motion_scaling_path = os.path.join(bringup_share, "config", "motion_scaling.yaml")
+    with open(motion_scaling_path, "r") as f:
+        motion_scaling_config = yaml.safe_load(f)
+    real_scaling = motion_scaling_config["real"]
 
     # -------------------------------------------------------------------------
     # Launch arguments
@@ -189,8 +200,8 @@ def generate_launch_description() -> LaunchDescription:
                     ),
                 }
             },
-            {"default_velocity_scaling_factor": 0.5},
-            {"default_acceleration_scaling_factor": 0.5},
+            {"default_velocity_scaling_factor": real_scaling["max_velocity_scale"]},
+            {"default_acceleration_scaling_factor": real_scaling["max_accel_scale"]},
         ],
         remappings=[("/joint_states", "/robot1/joint_states")],
         arguments=["--ros-args", "--log-level", "info"],
@@ -221,8 +232,8 @@ def generate_launch_description() -> LaunchDescription:
                     "default_planner_request_adapters/FixStartStateCollision "
                     "default_planner_request_adapters/FixStartStatePathConstraints"
                 ),
-                "default_velocity_scaling_factor": 0.5,
-                "default_acceleration_scaling_factor": 0.5,
+                "default_velocity_scaling_factor": real_scaling["max_velocity_scale"],
+                "default_acceleration_scaling_factor": real_scaling["max_accel_scale"],
                 "use_sim_time": False,
             },
         ],
@@ -247,8 +258,8 @@ def generate_launch_description() -> LaunchDescription:
                 "pose_waypoints_config_path": os.path.join(executor_share, "config", "pose_waypoints.yaml"),
                 "planning_time": 2.0,
                 "num_planning_attempts": 5,
-                "max_velocity_scaling_factor": 0.5,
-                "max_acceleration_scaling_factor": 0.5,
+                "max_velocity_scaling_factor": real_scaling["max_velocity_scale"],
+                "max_acceleration_scaling_factor": real_scaling["max_accel_scale"],
                 "use_sim_time": False,
             },
         ],
@@ -295,6 +306,10 @@ def generate_launch_description() -> LaunchDescription:
     final_launch = TimerAction(
         period=2.0,
         actions=[
+            LogInfo(msg=(
+                f"[real_mode] motion scaling — velocity: {real_scaling['max_velocity_scale']} "
+                f"| acceleration: {real_scaling['max_accel_scale']}"
+            )),
             LogInfo(msg="[real_mode] starting RViz, task_executor, and trajectory_debug..."),
             rviz,
             task_executor,

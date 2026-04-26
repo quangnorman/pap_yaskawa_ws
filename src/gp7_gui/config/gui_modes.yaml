@@ -1,0 +1,11 @@
+sim:
+  joint_states_topic: /joint_states
+  robot_status_topic: ""
+  controller_state_topic: /arm_controller/state
+  planned_path_topic: /task_executor/planned_tool_path
+
+real:
+  joint_states_topic: /robot1/joint_states
+  robot_status_topic: /robot1/robot_status
+  controller_state_topic: ""
+  planned_path_topic: /task_executor/planned_tool_path

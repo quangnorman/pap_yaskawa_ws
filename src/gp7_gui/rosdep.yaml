@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="http://wiki.ros.org/rosdep/template.xsl" ?>
+<html>
+<head>
+<title>rosdep rules for gp7_gui</title>
+</head>
+<body>
+<h1>rosdep rules for gp7_gui</h1>
+<p>This file intentionally left minimal — all dependencies are declared in package.xml.</p>
+</body>
+</html>

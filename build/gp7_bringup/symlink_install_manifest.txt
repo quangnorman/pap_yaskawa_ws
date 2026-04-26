@@ -1,4 +1,5 @@
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/config/gp7_controller.yaml
+/home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/config/motion_scaling.yaml
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/display.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/main.launch.py
 /home/norman/pap_yaskawa_ws/install/gp7_bringup/share/gp7_bringup/launch/real_mode.launch.py

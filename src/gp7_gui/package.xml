@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>gp7_gui</name>
+  <version>0.1.0</version>
+  <description>PySide6 GUI for GP7 robot bringup — Phase 1: mode-aware monitoring</description>
+  <maintainer email="norman@example.com">Norman</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>ament_index_python</depend>
+  <depend>python3-yaml</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -46,6 +46,7 @@ import os
 import re
 from pathlib import Path
 
+import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
@@ -81,6 +82,16 @@ def generate_launch_description() -> LaunchDescription:
     moveit_share = get_package_share_directory(moveit_pkg)
     gazebo_classic_share = get_package_share_directory(gazebo_classic_pkg)
     executor_share = get_package_share_directory(executor_pkg)
+
+    # -------------------------------------------------------------------------
+    # Centralized motion scaling config
+    # Values come from config/motion_scaling.yaml so sim and real modes share
+    # a single source of truth for velocity/acceleration limits.
+    # -------------------------------------------------------------------------
+    motion_scaling_path = os.path.join(bringup_share, "config", "motion_scaling.yaml")
+    with open(motion_scaling_path, "r") as f:
+        motion_scaling_config = yaml.safe_load(f)
+    sim_scaling = motion_scaling_config["sim"]
 
     # -------------------------------------------------------------------------
     # Launch arguments
@@ -299,8 +310,8 @@ def generate_launch_description() -> LaunchDescription:
                 "default_planner_request_adapters/FixStartStatePathConstraints"
             ),
         },
-        "default_velocity_scaling_factor": 0.5,
-        "default_acceleration_scaling_factor": 0.5,
+        "default_velocity_scaling_factor": sim_scaling["max_velocity_scale"],
+        "default_acceleration_scaling_factor": sim_scaling["max_accel_scale"],
     }
 
     move_group = Node(
@@ -385,8 +396,8 @@ def generate_launch_description() -> LaunchDescription:
                 "pose_waypoints_config_path": os.path.join(executor_share, "config", "pose_waypoints.yaml"),
                 "planning_time": 2.0,
                 "num_planning_attempts": 5,
-                "max_velocity_scaling_factor": 0.5,
-                "max_acceleration_scaling_factor": 0.5,
+                "max_velocity_scaling_factor": sim_scaling["max_velocity_scale"],
+                "max_acceleration_scaling_factor": sim_scaling["max_accel_scale"],
                 "use_sim_time": True,
             },
         ],
@@ -401,6 +412,10 @@ def generate_launch_description() -> LaunchDescription:
     final_launch = TimerAction(
         period=2.0,
         actions=[
+            LogInfo(msg=(
+                f"[sim_mode] motion scaling — velocity: {sim_scaling['max_velocity_scale']} "
+                f"| acceleration: {sim_scaling['max_accel_scale']}"
+            )),
             LogInfo(msg="[sim_mode] starting RViz and task_executor..."),
             rviz,
             task_executor,

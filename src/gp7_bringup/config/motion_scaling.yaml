@@ -1,0 +1,7 @@
+sim:
+  max_velocity_scale: 0.5
+  max_accel_scale: 0.5
+
+real:
+  max_velocity_scale: 0.1
+  max_accel_scale: 0.1

@@ -4,3 +4,12 @@ gp7_task_executor_msgs.egg-info/PKG-INFO
 gp7_task_executor_msgs.egg-info/SOURCES.txt
 gp7_task_executor_msgs.egg-info/dependency_links.txt
 gp7_task_executor_msgs.egg-info/top_level.txt
+gp7_task_executor_msgs/srv/__init__.py
+gp7_task_executor_msgs/srv/_move_cartesian_sequence.py
+gp7_task_executor_msgs/srv/_move_sequence.py
+gp7_task_executor_msgs/srv/_move_to_cartesian_target.py
+gp7_task_executor_msgs/srv/_move_to_joint_target.py
+gp7_task_executor_msgs/srv/_move_to_named_cartesian_target.py
+gp7_task_executor_msgs/srv/_move_to_named_pose_target.py
+gp7_task_executor_msgs/srv/_move_to_named_target.py
+gp7_task_executor_msgs/srv/_move_to_pose_target.py
