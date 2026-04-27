@@ -16,6 +16,7 @@
   <depend>tf2_ros</depend>
   <depend>ament_index_python</depend>
   <depend>python3-yaml</depend>
+  <depend>gp7_task_executor_msgs</depend>
 
   <export>
     <build_type>ament_python</build_type>

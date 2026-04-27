@@ -1,6 +1,6 @@
 """
 gp7_gui — GP7 Robot GUI
-Phase 1.6: Launch Manager — GUI starts independently, user controls bringup
+Phase 3: Joint Execute + Cartesian Move
 
 Architecture:
   - GUI starts with mode=none (no ROS subscriptions).
@@ -21,7 +21,7 @@ import math
 import os
 import sys
 import threading
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import rclpy
 from rclpy.node import Node
@@ -52,6 +52,18 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from gp7_gui.launch_manager import LaunchManager, LaunchState
 
+try:
+    from gp7_task_executor_msgs.srv import MoveToJointTarget
+    HAS_MOVE_JOINT_TARGET = True
+except ImportError:
+    HAS_MOVE_JOINT_TARGET = False
+
+try:
+    from gp7_task_executor_msgs.srv import MoveToCartesianTarget
+    HAS_MOVE_CARTESIAN_TARGET = True
+except ImportError:
+    HAS_MOVE_CARTESIAN_TARGET = False
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  Quaternion → RPY (ROS x,y,z,w order)
@@ -77,6 +89,295 @@ def quaternion_to_rpy(x: float, y: float, z: float, w: float) -> Tuple[float, fl
     yaw = math.atan2(siny_cosp, cosy_cosp)
 
     return roll, pitch, yaw
+
+
+def rpy_to_quaternion(roll: float, pitch: float, yaw: float) -> Tuple[float, float, float, float]:
+    """Convert roll, pitch, yaw (radians) to quaternion (ROS x,y,z,w order)."""
+    cy = math.cos(yaw * 0.5)
+    sy = math.sin(yaw * 0.5)
+    cp = math.cos(pitch * 0.5)
+    sp = math.sin(pitch * 0.5)
+    cr = math.cos(roll * 0.5)
+    sr = math.sin(roll * 0.5)
+    qx = sr * cp * cy - cr * sp * sy
+    qy = cr * sp * cy + sr * cp * sy
+    qz = cr * cp * sy - sr * sp * cy
+    qw = cr * cp * cy + sr * sp * sy
+    return qx, qy, qz, qw
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  Qt Signals — bridge between ROS thread and Qt main thread
+# ──────────────────────────────────────────────────────────────────────────────
+
+class RosSignals(QObject):
+    joints_updated = Signal(dict)
+    controller_state_updated = Signal(list, list)   # actual positions, tracking error
+    robot_status_updated = Signal(dict)
+    planned_path_updated = Signal(int)              # number of poses
+    topic_status_updated = Signal(str, bool)       # topic name, alive
+    tf_pose_updated = Signal(dict)                 # tx,ty,tz,roll,pitch,yaw (all rad)
+
+
+class JointPlanSignals(QObject):
+    planning_started = Signal()
+    planning_finished = Signal(bool, str)
+    button_enabled_changed = Signal(bool)
+
+
+class CartesianPlanSignals(QObject):
+    planning_started = Signal()
+    planning_finished = Signal(bool, str)
+    button_enabled_changed = Signal(bool)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  Joint Plan Bridge — service client for /move_to_joint_target
+# ──────────────────────────────────────────────────────────────────────────────
+
+class JointPlanBridge:
+    """
+    Service client for /move_to_joint_target.
+    Lives in the ROS node thread; communicates with Qt via JointPlanSignals.
+    """
+
+    SERVICE_NAME = "/move_to_joint_target"
+    JOINT_NAMES = ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"]
+
+    def __init__(self, node: Node):
+        self._node = node
+        self._signals = JointPlanSignals()
+        self._client = None
+        self._plan_pending = False
+        self._execute_pending = False
+
+    @property
+    def signals(self) -> JointPlanSignals:
+        return self._signals
+
+    def _ensure_client(self) -> bool:
+        if self._client is None:
+            if not HAS_MOVE_JOINT_TARGET:
+                self._node.get_logger().error("[gp7_gui] MoveToJointTarget msg not available")
+                return False
+            self._node.get_logger().info(f"[gp7_gui] Creating client for {self.SERVICE_NAME}")
+            self._client = self._node.create_client(MoveToJointTarget, self.SERVICE_NAME)
+        return self._client.service_is_ready()
+
+    def call_plan(self, positions_rad: List[float]) -> None:
+        if self._plan_pending or self._execute_pending:
+            return
+        if not self._ensure_client():
+            self._node.get_logger().warn("[gp7_gui] Service not ready — waiting...")
+            if not self._client.wait_for_service(timeout_sec=2.0):
+                self._node.get_logger().error("[gp7_gui] Service /move_to_joint_target not available within 2s")
+                self._signals.planning_finished.emit(False, "Service unavailable")
+                return
+            # Re-check after wait
+            if not self._ensure_client():
+                self._signals.planning_finished.emit(False, "Service unavailable")
+                return
+
+        self._plan_pending = True
+        self._signals.planning_started.emit()
+        self._signals.button_enabled_changed.emit(False)
+
+        req = MoveToJointTarget.Request()
+        req.joint_names = self.JOINT_NAMES
+        req.positions = positions_rad
+        req.execute = False
+
+        self._node.get_logger().info(
+            f"[gp7_gui] Calling /move_to_joint_target: joints={req.joint_names}, "
+            f"positions={req.positions}, execute={req.execute}"
+        )
+
+        future = self._client.call_async(req)
+        future.add_done_callback(self._on_response(future, is_execute=False))
+
+    def call_execute(self, positions_rad: List[float]) -> None:
+        if self._plan_pending or self._execute_pending:
+            return
+        if not self._ensure_client():
+            self._node.get_logger().warn("[gp7_gui] Service not ready — waiting...")
+            if not self._client.wait_for_service(timeout_sec=2.0):
+                self._node.get_logger().error("[gp7_gui] Service /move_to_joint_target not available within 2s")
+                self._signals.planning_finished.emit(False, "Service unavailable")
+                return
+            if not self._ensure_client():
+                self._signals.planning_finished.emit(False, "Service unavailable")
+                return
+
+        self._execute_pending = True
+        self._signals.planning_started.emit()
+        self._signals.button_enabled_changed.emit(False)
+
+        req = MoveToJointTarget.Request()
+        req.joint_names = self.JOINT_NAMES
+        req.positions = positions_rad
+        req.execute = True
+
+        self._node.get_logger().info(
+            f"[gp7_gui] Calling /move_to_joint_target EXECUTE: joints={req.joint_names}, "
+            f"positions={req.positions}, execute={req.execute}"
+        )
+
+        future = self._client.call_async(req)
+        future.add_done_callback(self._on_response(future, is_execute=True))
+
+    def _on_response(self, future, is_execute: bool = False):
+        def callback(_future):
+            if is_execute:
+                self._execute_pending = False
+            else:
+                self._plan_pending = False
+            try:
+                response = _future.result()
+                if response is None:
+                    self._node.get_logger().error("[gp7_gui] Service response is None")
+                    self._signals.planning_finished.emit(False, "Service unavailable")
+                else:
+                    self._node.get_logger().info(
+                        f"[gp7_gui] Service response: success={response.success}, message={response.message}"
+                    )
+                    self._signals.planning_finished.emit(
+                        bool(response.success), str(response.message)
+                    )
+            except Exception as e:
+                self._node.get_logger().error(f"[gp7_gui] Service call failed: {e}")
+                self._signals.planning_finished.emit(False, f"Service call failed: {e}")
+            finally:
+                self._signals.button_enabled_changed.emit(True)
+
+        return callback
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  Cartesian Bridge — service client for /move_to_cartesian_target
+# ──────────────────────────────────────────────────────────────────────────────
+
+class CartesianBridge:
+    """
+    Service client for /move_to_cartesian_target.
+    Lives in the ROS node thread; communicates with Qt via CartesianPlanSignals.
+    """
+
+    SERVICE_NAME = "/move_to_cartesian_target"
+    FIXED_ROLL = math.pi    # 180 deg
+    FIXED_PITCH = 0.0
+    FIXED_YAW = 0.0
+
+    def __init__(self, node: Node):
+        self._node = node
+        self._signals = CartesianPlanSignals()
+        self._client = None
+        self._plan_pending = False
+        self._execute_pending = False
+
+    @property
+    def signals(self) -> CartesianPlanSignals:
+        return self._signals
+
+    def _ensure_client(self) -> bool:
+        if self._client is None:
+            if not HAS_MOVE_CARTESIAN_TARGET:
+                self._node.get_logger().error("[gp7_gui] MoveToCartesianTarget msg not available")
+                return False
+            self._node.get_logger().info(f"[gp7_gui] Creating client for {self.SERVICE_NAME}")
+            self._client = self._node.create_client(MoveToCartesianTarget, self.SERVICE_NAME)
+        return self._client.service_is_ready()
+
+    def call_plan(self, x_m: float, y_m: float, z_m: float, frame_id: str) -> None:
+        self._do_call(x_m, y_m, z_m, frame_id, execute=False, is_execute=False)
+
+    def call_execute(self, x_m: float, y_m: float, z_m: float, frame_id: str) -> None:
+        self._do_call(x_m, y_m, z_m, frame_id, execute=True, is_execute=True)
+
+    def _do_call(self, x_m: float, y_m: float, z_m: float, frame_id: str, execute: bool, is_execute: bool) -> None:
+        if self._plan_pending or self._execute_pending:
+            return
+        if not self._ensure_client():
+            self._node.get_logger().warn("[gp7_gui] Cartesian service not ready — waiting...")
+            if not self._client.wait_for_service(timeout_sec=2.0):
+                self._node.get_logger().error("[gp7_gui] Service /move_to_cartesian_target not available within 2s")
+                self._signals.planning_finished.emit(False, "Service unavailable")
+                return
+            if not self._ensure_client():
+                self._signals.planning_finished.emit(False, "Service unavailable")
+                return
+
+        roll = self.FIXED_ROLL
+        pitch = self.FIXED_PITCH
+        yaw = self.FIXED_YAW
+        qx, qy, qz, qw = rpy_to_quaternion(roll, pitch, yaw)
+        x_mm = x_m * 1000.0
+        y_mm = y_m * 1000.0
+        z_mm = z_m * 1000.0
+
+        req = MoveToCartesianTarget.Request()
+        req.x = x_m
+        req.y = y_m
+        req.z = z_m
+        req.frame_id = frame_id
+        req.execute = execute
+
+        print(f"DEBUG Cartesian service: {self.SERVICE_NAME}")
+        print(f"DEBUG Cartesian input mm: {x_mm:.3f} {y_mm:.3f} {z_mm:.3f}")
+        print(f"DEBUG Cartesian converted m: {x_m:.6f} {y_m:.6f} {z_m:.6f}")
+        print(f"DEBUG Cartesian fixed rpy: {roll:.6f} {pitch:.6f} {yaw:.6f}")
+        print(f"DEBUG Cartesian quaternion: {qx:.6f} {qy:.6f} {qz:.6f} {qw:.6f}")
+        print(f"DEBUG Cartesian execute: {execute}")
+        print(f"DEBUG Cartesian request: x={req.x}, y={req.y}, z={req.z}, frame_id={req.frame_id}, execute={req.execute}")
+
+        self._node.get_logger().info(
+            f"[gp7_gui] Calling /move_to_cartesian_target: "
+            f"x={x_m:.4f} y={y_m:.4f} z={z_m:.4f} frame={frame_id} "
+            f"rpy=({roll:.4f},{pitch:.4f},{yaw:.4f}) q=({qx:.4f},{qy:.4f},{qz:.4f},{qw:.4f}) "
+            f"execute={execute}"
+        )
+
+        if is_execute:
+            self._execute_pending = True
+        else:
+            self._plan_pending = True
+        self._signals.planning_started.emit()
+        self._signals.button_enabled_changed.emit(False)
+
+        future = self._client.call_async(req)
+        future.add_done_callback(self._on_response(future, is_execute))
+
+    def _on_response(self, future, is_execute: bool):
+        def callback(_future):
+            if is_execute:
+                self._execute_pending = False
+            else:
+                self._plan_pending = False
+            try:
+                response = _future.result()
+                if response is None:
+                    self._node.get_logger().error("[gp7_gui] Cartesian service response is None")
+                    print("DEBUG Cartesian response success: False")
+                    print("DEBUG Cartesian response message: Service response is None")
+                    self._signals.planning_finished.emit(False, "Service unavailable")
+                else:
+                    print(f"DEBUG Cartesian response success: {response.success}")
+                    print(f"DEBUG Cartesian response message: {response.message}")
+                    self._node.get_logger().info(
+                        f"[gp7_gui] Cartesian response: success={response.success}, "
+                        f"fraction={response.fraction}, message={response.message}"
+                    )
+                    self._signals.planning_finished.emit(
+                        bool(response.success), str(response.message)
+                    )
+            except Exception as e:
+                self._node.get_logger().error(f"[gp7_gui] Cartesian service call failed: {e}")
+                print(f"DEBUG Cartesian response success: False")
+                print(f"DEBUG Cartesian response message: Service call failed: {e}")
+                self._signals.planning_finished.emit(False, f"Service call failed: {e}")
+            finally:
+                self._signals.button_enabled_changed.emit(True)
+
+        return callback
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -106,6 +407,18 @@ class GP7RosNode(Node):
             self._tf_listener = TransformListener(self._tf_buffer, self)
         else:
             self._tf_buffer = None
+
+        self._tf_pose_cache: Dict[str, float] = {}
+
+        # Joint plan service bridge
+        self._joint_plan_bridge: Optional[JointPlanBridge] = None
+        if HAS_MOVE_JOINT_TARGET:
+            self._joint_plan_bridge = JointPlanBridge(self)
+
+        # Cartesian plan service bridge
+        self._cartesian_bridge: Optional[CartesianBridge] = None
+        if HAS_MOVE_CARTESIAN_TARGET:
+            self._cartesian_bridge = CartesianBridge(self)
 
         # Stale-detection timers
         self._js_timer = self.create_timer(0.5, self._check_js_stale)
@@ -233,26 +546,46 @@ class GP7RosNode(Node):
             t = transform.transform.translation
             q = transform.transform.rotation
             roll, pitch, yaw = quaternion_to_rpy(q.x, q.y, q.z, q.w)
-            self._signals.tf_pose_updated.emit({
+            self._tf_pose_cache = {
                 "tx": t.x, "ty": t.y, "tz": t.z,
                 "roll": roll, "pitch": pitch, "yaw": yaw,
                 "available": True,
-            })
+            }
+            self._signals.tf_pose_updated.emit(self._tf_pose_cache)
         except Exception:
             pass  # Silently ignore — "TF not available" only shown when mode is none
 
+    def call_joint_plan(self, positions_rad: List[float]) -> None:
+        """Call the /move_to_joint_target service with execute=False."""
+        if self._joint_plan_bridge:
+            self._joint_plan_bridge.call_plan(positions_rad)
 
-# ──────────────────────────────────────────────────────────────────────────────
-#  Qt Signals — bridge between ROS thread and Qt main thread
-# ──────────────────────────────────────────────────────────────────────────────
+    def get_joint_plan_signals(self) -> Optional[JointPlanSignals]:
+        """Return the bridge signals object for connecting to Qt slots."""
+        if self._joint_plan_bridge:
+            return self._joint_plan_bridge.signals
+        return None
 
-class RosSignals(QObject):
-    joints_updated = Signal(dict)
-    controller_state_updated = Signal(list, list)   # actual positions, tracking error
-    robot_status_updated = Signal(dict)
-    planned_path_updated = Signal(int)              # number of poses
-    topic_status_updated = Signal(str, bool)       # topic name, alive
-    tf_pose_updated = Signal(dict)                 # tx,ty,tz,roll,pitch,yaw (all rad)
+    def call_joint_execute(self, positions_rad: List[float]) -> None:
+        """Call the /move_to_joint_target service with execute=True."""
+        if self._joint_plan_bridge:
+            self._joint_plan_bridge.call_execute(positions_rad)
+
+    def call_cartesian_plan(self, x_m: float, y_m: float, z_m: float, frame_id: str) -> None:
+        """Call the /move_to_cartesian_target service with execute=False."""
+        if self._cartesian_bridge:
+            self._cartesian_bridge.call_plan(x_m, y_m, z_m, frame_id)
+
+    def call_cartesian_execute(self, x_m: float, y_m: float, z_m: float, frame_id: str) -> None:
+        """Call the /move_to_cartesian_target service with execute=True."""
+        if self._cartesian_bridge:
+            self._cartesian_bridge.call_execute(x_m, y_m, z_m, frame_id)
+
+    def get_cartesian_signals(self) -> Optional[CartesianPlanSignals]:
+        """Return the cartesian bridge signals object for connecting to Qt slots."""
+        if self._cartesian_bridge:
+            return self._cartesian_bridge.signals
+        return None
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -260,7 +593,7 @@ class RosSignals(QObject):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class GP7MainWindow(QtWidgets.QMainWindow):
-    """Phase 1.6 GUI — Launch Manager with mode selector and Start/Stop buttons."""
+    """Phase 3 GUI — Joint Execute + Cartesian Move."""
 
     JOINT_NAMES = ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5", "joint_6"]
     MODES = ["none", "sim", "real"]
@@ -282,9 +615,11 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         # LaunchManager — runs ros2 launch as a subprocess
         self._launch_manager = LaunchManager(self)
 
-        self.setWindowTitle("GP7 Robot GUI — Phase 1.6: Launch Manager")
-        self.setMinimumSize(780, 620)
+        self.setWindowTitle("GP7 Robot GUI — Phase 3: Joint Execute + Cartesian")
+        self.setMinimumSize(960, 900)
         self._setup_ui()
+        self._update_joint_target_labels()
+        self._update_cartesian_rpy_display()
         self._connect_signals()
         self._start_ros()  # No subscriptions until user starts a mode
 
@@ -299,6 +634,8 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         top_layout.addWidget(self._build_control_panel())
         top_layout.addWidget(self._build_topic_strip())
         top_layout.addWidget(self._build_joints_panel())
+        top_layout.addWidget(self._build_joint_plan_panel())
+        top_layout.addWidget(self._build_cartesian_panel())
         top_layout.addWidget(self._build_tool_pose_panel())
         top_layout.addWidget(self._build_status_panel())
         top_layout.addStretch()
@@ -570,6 +907,257 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._update_status_visibility()
         return group
 
+    def _build_joint_plan_panel(self) -> QtWidgets.QGroupBox:
+        group = QtWidgets.QGroupBox("Joint Target")
+        self._joint_plan_group = group
+        layout = QtWidgets.QGridLayout(group)
+
+        self._target_inputs: List[QtWidgets.QLineEdit] = []
+        self._joint_target_labels: List[QtWidgets.QLabel] = []
+
+        for col, name in enumerate(self.JOINT_NAMES):
+            lbl = QtWidgets.QLabel(f"{name} (rad):")
+            lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+            lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+            layout.addWidget(lbl, 0, col)
+            self._joint_target_labels.append(lbl)
+
+            le = QtWidgets.QLineEdit()
+            le.setPlaceholderText("0.000")
+            le.setAlignment(QtCore.Qt.AlignCenter)
+            le.setStyleSheet(
+                "background: #1a1a2e; color: #fff; "
+                "border: 1px solid #444; border-radius: 4px; "
+                "padding: 3px; font-family: monospace; font-size: 9pt;"
+            )
+            le.setMinimumWidth(80)
+            le.returnPressed.connect(self._on_plan_clicked)
+            layout.addWidget(le, 1, col)
+            self._target_inputs.append(le)
+
+        # Buttons row
+        btn_layout = QtWidgets.QHBoxLayout()
+
+        self._fill_joints_btn = QtWidgets.QPushButton("Fill current joints")
+        self._fill_joints_btn.setStyleSheet(
+            "background: #1565c0; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 16px;"
+        )
+        self._fill_joints_btn.clicked.connect(self._on_fill_joints_clicked)
+        btn_layout.addWidget(self._fill_joints_btn)
+
+        self._plan_btn = QtWidgets.QPushButton("Plan only")
+        self._plan_btn.setStyleSheet(
+            "background: #00695c; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 20px;"
+        )
+        self._plan_btn.clicked.connect(self._on_plan_clicked)
+        self._plan_btn.setEnabled(False)
+        btn_layout.addWidget(self._plan_btn)
+
+        self._execute_btn = QtWidgets.QPushButton("Execute")
+        self._execute_btn.setStyleSheet(
+            "background: #e65100; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 20px;"
+        )
+        self._execute_btn.clicked.connect(self._on_execute_clicked)
+        self._execute_btn.setEnabled(False)
+        btn_layout.addWidget(self._execute_btn)
+
+        btn_layout.addStretch()
+
+        # Status label
+        self._plan_status_lbl = QtWidgets.QLabel("—")
+        self._plan_status_lbl.setStyleSheet(
+            "font-size: 9pt; color: #888; font-style: italic;"
+        )
+        btn_layout.addWidget(self._plan_status_lbl)
+
+        layout.addLayout(btn_layout, 2, 0, 1, 6)
+
+        # Safety checkbox row
+        safety_layout = QtWidgets.QHBoxLayout()
+        safety_layout.addStretch()
+        self._joint_safety_chk = QtWidgets.QCheckBox(
+            "I understand this will move the real robot"
+        )
+        self._joint_safety_chk.setStyleSheet("color: #ff8a65; font-size: 9pt;")
+        self._joint_safety_chk.setVisible(False)
+        self._joint_safety_chk.stateChanged.connect(self._on_joint_safety_changed)
+        safety_layout.addWidget(self._joint_safety_chk)
+        safety_layout.addStretch()
+        layout.addLayout(safety_layout, 3, 0, 1, 6)
+
+        return group
+
+    def _build_cartesian_panel(self) -> QtWidgets.QGroupBox:
+        group = QtWidgets.QGroupBox("Cartesian Target")
+        self._cartesian_group = group
+        layout = QtWidgets.QGridLayout(group)
+
+        # X, Y, Z (mm) — row 0
+        x_lbl = QtWidgets.QLabel("X (mm):")
+        x_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        x_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(x_lbl, 0, 0)
+
+        self._cart_x_input = QtWidgets.QLineEdit()
+        self._cart_x_input.setPlaceholderText("0.000")
+        self._cart_x_input.setStyleSheet(
+            "background: #1a1a2e; color: #fff; "
+            "border: 1px solid #444; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        self._cart_x_input.setMinimumWidth(100)
+        self._cart_x_input.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self._cart_x_input, 0, 1)
+
+        y_lbl = QtWidgets.QLabel("Y (mm):")
+        y_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        y_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(y_lbl, 0, 2)
+
+        self._cart_y_input = QtWidgets.QLineEdit()
+        self._cart_y_input.setPlaceholderText("0.000")
+        self._cart_y_input.setStyleSheet(
+            "background: #1a1a2e; color: #fff; "
+            "border: 1px solid #444; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        self._cart_y_input.setMinimumWidth(100)
+        self._cart_y_input.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self._cart_y_input, 0, 3)
+
+        z_lbl = QtWidgets.QLabel("Z (mm):")
+        z_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        z_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(z_lbl, 0, 4)
+
+        self._cart_z_input = QtWidgets.QLineEdit()
+        self._cart_z_input.setPlaceholderText("0.000")
+        self._cart_z_input.setStyleSheet(
+            "background: #1a1a2e; color: #fff; "
+            "border: 1px solid #444; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        self._cart_z_input.setMinimumWidth(100)
+        self._cart_z_input.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self._cart_z_input, 0, 5)
+
+        # R, P, Y (fixed, read-only) — row 1
+        roll_lbl = QtWidgets.QLabel("Roll (fixed):")
+        roll_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        roll_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(roll_lbl, 1, 0)
+
+        self._cart_roll_lbl = QtWidgets.QLabel("3.1416 (rad)")
+        self._cart_roll_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self._cart_roll_lbl.setStyleSheet(
+            "background: #1e1e2e; color: #ce93d8; "
+            "border: 1px solid #333; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        layout.addWidget(self._cart_roll_lbl, 1, 1)
+
+        pitch_lbl = QtWidgets.QLabel("Pitch (fixed):")
+        pitch_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        pitch_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(pitch_lbl, 1, 2)
+
+        self._cart_pitch_lbl = QtWidgets.QLabel("0.0000 (rad)")
+        self._cart_pitch_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self._cart_pitch_lbl.setStyleSheet(
+            "background: #1e1e2e; color: #ce93d8; "
+            "border: 1px solid #333; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        layout.addWidget(self._cart_pitch_lbl, 1, 3)
+
+        yaw_lbl = QtWidgets.QLabel("Yaw (fixed):")
+        yaw_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        yaw_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(yaw_lbl, 1, 4)
+
+        self._cart_yaw_lbl = QtWidgets.QLabel("0.0000 (rad)")
+        self._cart_yaw_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self._cart_yaw_lbl.setStyleSheet(
+            "background: #1e1e2e; color: #ce93d8; "
+            "border: 1px solid #333; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        layout.addWidget(self._cart_yaw_lbl, 1, 5)
+
+        # Frame ID row — row 2
+        frame_lbl = QtWidgets.QLabel("Frame ID:")
+        frame_lbl.setStyleSheet("font-size: 9pt; color: #aaa;")
+        frame_lbl.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        layout.addWidget(frame_lbl, 2, 0)
+
+        self._cart_frame_input = QtWidgets.QLineEdit("base_link")
+        self._cart_frame_input.setStyleSheet(
+            "background: #1a1a2e; color: #fff; "
+            "border: 1px solid #444; border-radius: 4px; "
+            "padding: 3px; font-family: monospace; font-size: 9pt;"
+        )
+        self._cart_frame_input.setMaximumWidth(120)
+        self._cart_frame_input.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self._cart_frame_input, 2, 1, 1, 2)
+
+        # Buttons row — row 3
+        cart_btn_layout = QtWidgets.QHBoxLayout()
+
+        self._fill_cart_btn = QtWidgets.QPushButton("Fill current tool0")
+        self._fill_cart_btn.setStyleSheet(
+            "background: #1565c0; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 16px;"
+        )
+        self._fill_cart_btn.clicked.connect(self._on_fill_cart_clicked)
+        cart_btn_layout.addWidget(self._fill_cart_btn)
+
+        self._cart_plan_btn = QtWidgets.QPushButton("Plan Cartesian")
+        self._cart_plan_btn.setStyleSheet(
+            "background: #00695c; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 20px;"
+        )
+        self._cart_plan_btn.clicked.connect(self._on_cart_plan_clicked)
+        self._cart_plan_btn.setEnabled(False)
+        cart_btn_layout.addWidget(self._cart_plan_btn)
+
+        self._cart_execute_btn = QtWidgets.QPushButton("Execute Cartesian")
+        self._cart_execute_btn.setStyleSheet(
+            "background: #e65100; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 20px;"
+        )
+        self._cart_execute_btn.clicked.connect(self._on_cart_execute_clicked)
+        self._cart_execute_btn.setEnabled(False)
+        cart_btn_layout.addWidget(self._cart_execute_btn)
+
+        cart_btn_layout.addStretch()
+
+        # Cartesian status label
+        self._cart_status_lbl = QtWidgets.QLabel("—")
+        self._cart_status_lbl.setStyleSheet(
+            "font-size: 9pt; color: #888; font-style: italic;"
+        )
+        cart_btn_layout.addWidget(self._cart_status_lbl)
+
+        layout.addLayout(cart_btn_layout, 3, 0, 1, 6)
+
+        # Safety checkbox row
+        cart_safety_layout = QtWidgets.QHBoxLayout()
+        cart_safety_layout.addStretch()
+        self._cart_safety_chk = QtWidgets.QCheckBox(
+            "I understand this will move the real robot"
+        )
+        self._cart_safety_chk.setStyleSheet("color: #ff8a65; font-size: 9pt;")
+        self._cart_safety_chk.setVisible(False)
+        self._cart_safety_chk.stateChanged.connect(self._on_cart_safety_changed)
+        cart_safety_layout.addWidget(self._cart_safety_chk)
+        cart_safety_layout.addStretch()
+        layout.addLayout(cart_safety_layout, 4, 0, 1, 6)
+
+        return group
+
     # ── signal connections ─────────────────────────────────────────────────
 
     def _connect_signals(self) -> None:
@@ -595,6 +1183,18 @@ class GP7MainWindow(QtWidgets.QMainWindow):
             node._signals.planned_path_updated.connect(self._on_planned_path_updated)
             node._signals.topic_status_updated.connect(self._on_topic_status_updated)
             node._signals.tf_pose_updated.connect(self._on_tf_pose_updated)
+            # Connect joint plan signals
+            plan_signals = node.get_joint_plan_signals()
+            if plan_signals:
+                plan_signals.planning_started.connect(self._on_planning_started)
+                plan_signals.planning_finished.connect(self._on_planning_finished)
+                plan_signals.button_enabled_changed.connect(self._on_plan_btn_enabled)
+            # Connect cartesian plan signals
+            cart_signals = node.get_cartesian_signals()
+            if cart_signals:
+                cart_signals.planning_started.connect(self._on_cart_planning_started)
+                cart_signals.planning_finished.connect(self._on_cart_planning_finished)
+                cart_signals.button_enabled_changed.connect(self._on_cart_btn_enabled)
             try:
                 while rclpy.ok():
                     rclpy.spin_once(node, timeout_sec=0.05)
@@ -649,6 +1249,11 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
         self._reset_all_displays()
         self._set_all_indicators_gray()
+        self._joint_safety_chk.setChecked(False)
+        self._cart_safety_chk.setChecked(False)
+        # Show safety checkbox in real mode so execute is available
+        self._joint_safety_chk.setVisible(selected == "real")
+        self._cart_safety_chk.setVisible(selected == "real")
 
         print(f"[GUI] Calling stop() before starting {selected}...")
         self._launch_manager.stop(timeout=9.0)
@@ -693,6 +1298,10 @@ class GP7MainWindow(QtWidgets.QMainWindow):
             self._mode = "none"
             self._mode_combo.setCurrentText("none")
             self._real_warning_lbl.setVisible(False)
+            self._joint_safety_chk.setVisible(False)
+            self._cart_safety_chk.setVisible(False)
+            self._joint_safety_chk.setChecked(False)
+            self._cart_safety_chk.setChecked(False)
             self._reset_all_displays()
             self._set_all_indicators_gray()
             self._update_status_visibility()
@@ -703,6 +1312,10 @@ class GP7MainWindow(QtWidgets.QMainWindow):
             )
             self._start_btn.setEnabled(True)
             self._stop_btn.setEnabled(False)
+            self._plan_btn.setEnabled(False)
+            self._execute_btn.setEnabled(False)
+            self._cart_plan_btn.setEnabled(False)
+            self._cart_execute_btn.setEnabled(False)
             print("[GUI] Stop complete, GUI is now idle.")
 
     def _do_launch(self, mode: str) -> None:
@@ -715,6 +1328,10 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._running_mode = mode
         self._mode = mode
         self._real_warning_lbl.setVisible(mode == "real")
+        self._joint_safety_chk.setVisible(mode == "real")
+        self._cart_safety_chk.setVisible(mode == "real")
+        self._joint_safety_chk.setChecked(False)
+        self._cart_safety_chk.setChecked(False)
 
         self._launch_state_lbl.setText(f"System: {mode.upper()} launching...")
         self._launch_state_lbl.setStyleSheet(
@@ -750,17 +1367,25 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         print(f"[GUI] _on_launch_state_changed({state}): running_mode={self._running_mode} stop_reason={self._stop_reason} pending={self._pending_launch}")
         self._update_button_states(state)
         self._update_state_label(state)
+        if state == "running":
+            self._update_plan_button_enabled()
+            self._update_cart_button_enabled()
 
     def _update_button_states(self, state: str) -> None:
         """Update button enabled state based on LaunchManager state."""
         if state == "running":
             self._start_btn.setEnabled(False)
             self._stop_btn.setEnabled(True)
+            self._update_plan_button_enabled()
         elif state in ("idle", "stopped", "failed", "launching"):
             # These states are handled by _on_stop_complete for actual enabling
             # For now, keep both disabled — _on_stop_complete will re-enable Start
             self._start_btn.setEnabled(False)
             self._stop_btn.setEnabled(False)
+            self._plan_btn.setEnabled(False)
+            self._execute_btn.setEnabled(False)
+            self._cart_plan_btn.setEnabled(False)
+            self._cart_execute_btn.setEnabled(False)
 
     def _update_state_label(self, state: str) -> None:
         """Update the launch state label text and color."""
@@ -790,8 +1415,31 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._unit = unit
         self._joint_unit_lbl.setText(f"unit: {unit}")
         self._pose_unit_lbl.setText(f"unit: {unit}")
+        self._update_joint_target_labels()
+        self._update_cartesian_rpy_display()
         self._refresh_joint_display()
         self._refresh_pose_display()
+
+    def _update_joint_target_labels(self) -> None:
+        """Update joint target labels to reflect the current angular unit."""
+        unit = self._unit
+        for i, label in enumerate(self._joint_target_labels):
+            label.setText(f"{self.JOINT_NAMES[i]} ({unit}):")
+
+    def _update_cartesian_rpy_display(self) -> None:
+        """Update the fixed RPY display to show values in the selected unit."""
+        unit = self._unit
+        roll_fixed = CartesianBridge.FIXED_ROLL
+        pitch_fixed = CartesianBridge.FIXED_PITCH
+        yaw_fixed = CartesianBridge.FIXED_YAW
+        if unit == "deg":
+            self._cart_roll_lbl.setText(f"{math.degrees(roll_fixed):.1f} (deg)")
+            self._cart_pitch_lbl.setText(f"{math.degrees(pitch_fixed):.1f} (deg)")
+            self._cart_yaw_lbl.setText(f"{math.degrees(yaw_fixed):.1f} (deg)")
+        else:
+            self._cart_roll_lbl.setText(f"{roll_fixed:.4f} (rad)")
+            self._cart_pitch_lbl.setText(f"{pitch_fixed:.4f} (rad)")
+            self._cart_yaw_lbl.setText(f"{yaw_fixed:.4f} (rad)")
 
     @Slot(dict)
     def _on_joints_updated(self, joints: Dict[str, float]) -> None:
@@ -864,6 +1512,312 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
         self._tf_status_lbl.setText("")
 
+    # ── Joint Plan slots ──────────────────────────────────────────────────
+
+    def _update_plan_button_enabled(self) -> None:
+        """Enable joint plan buttons only when backend is running and mode is not none."""
+        plan_enabled = self._mode != "none" and self._launch_manager.is_running
+        self._plan_btn.setEnabled(plan_enabled)
+        # Execute requires safety checkbox in real mode
+        exec_enabled = plan_enabled and self._mode == "sim"
+        if self._mode == "real" and self._joint_safety_chk.isChecked():
+            exec_enabled = plan_enabled
+        self._execute_btn.setEnabled(exec_enabled)
+
+    def _update_cart_button_enabled(self) -> None:
+        """Enable cartesian buttons only when backend is running and mode is not none."""
+        plan_enabled = self._mode != "none" and self._launch_manager.is_running
+        self._cart_plan_btn.setEnabled(plan_enabled)
+        exec_enabled = plan_enabled and self._mode == "sim"
+        if self._mode == "real" and self._cart_safety_chk.isChecked():
+            exec_enabled = plan_enabled
+        self._cart_execute_btn.setEnabled(exec_enabled)
+
+    @Slot()
+    def _on_fill_joints_clicked(self) -> None:
+        """Fill target fields with current joint values, in the selected unit."""
+        if self._unit == "deg":
+            inv_factor = 180.0 / math.pi
+        else:
+            inv_factor = 1.0
+        for i, name in enumerate(self.JOINT_NAMES):
+            val = self._raw_joints.get(name)
+            if val is not None:
+                self._target_inputs[i].setText(f"{val * inv_factor:.4f}")
+            else:
+                self._target_inputs[i].setText("")
+        self._plan_status_lbl.setText("—")
+        self._plan_status_lbl.setStyleSheet(
+            "font-size: 9pt; color: #888; font-style: italic;"
+        )
+
+    @Slot()
+    def _on_plan_clicked(self) -> None:
+        """Read target fields, convert to radians, call the service via ROS bridge."""
+        angular_unit = self._unit
+        raw_values: List[float] = []
+        for le in self._target_inputs:
+            text = le.text().strip()
+            if not text:
+                self._plan_status_lbl.setText("Invalid input — fill all 6 fields")
+                self._plan_status_lbl.setStyleSheet(
+                    "font-size: 9pt; color: #ff5252; font-weight: bold;"
+                )
+                return
+            try:
+                raw_values.append(float(text))
+            except ValueError:
+                self._plan_status_lbl.setText(f"Invalid input — non-numeric value")
+                self._plan_status_lbl.setStyleSheet(
+                    "font-size: 9pt; color: #ff5252; font-weight: bold;"
+                )
+                return
+
+        if len(raw_values) != 6:
+            self._plan_status_lbl.setText("Invalid input — enter 6 values")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        # Always convert to radians before sending to ROS
+        if angular_unit == "deg":
+            positions_rad = [math.radians(v) for v in raw_values]
+        else:
+            positions_rad = raw_values
+
+        print(f"DEBUG unit: {angular_unit}")
+        print(f"DEBUG input: {raw_values}")
+        print(f"DEBUG positions_rad: {positions_rad}")
+
+        if self._ros_node is None:
+            self._plan_status_lbl.setText("ROS node not running")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        self._ros_node.call_joint_plan(positions_rad)
+
+    @Slot()
+    def _on_planning_started(self) -> None:
+        self._plan_status_lbl.setText("Planning...")
+        self._plan_status_lbl.setStyleSheet(
+            "font-size: 9pt; color: #ff9800; font-weight: bold;"
+        )
+
+    @Slot(bool, str)
+    def _on_planning_finished(self, success: bool, message: str) -> None:
+        if success:
+            self._plan_status_lbl.setText(f"Plan success — {message}")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #00e676; font-weight: bold;"
+            )
+        else:
+            self._plan_status_lbl.setText(f"Plan failed — {message}")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+
+    @Slot(bool)
+    def _on_plan_btn_enabled(self, enabled: bool) -> None:
+        """Called from bridge during service call — only disable plan button."""
+        self._plan_btn.setEnabled(enabled)
+
+    @Slot()
+    def _on_execute_clicked(self) -> None:
+        """Execute joint target (execute=True on service)."""
+        if self._mode == "real" and not self._joint_safety_chk.isChecked():
+            self._plan_status_lbl.setText("Safety checkbox required for real mode")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+        angular_unit = self._unit
+        raw_values: List[float] = []
+        for le in self._target_inputs:
+            text = le.text().strip()
+            if not text:
+                self._plan_status_lbl.setText("Invalid input — fill all 6 fields")
+                self._plan_status_lbl.setStyleSheet(
+                    "font-size: 9pt; color: #ff5252; font-weight: bold;"
+                )
+                return
+            try:
+                raw_values.append(float(text))
+            except ValueError:
+                self._plan_status_lbl.setText(f"Invalid input — non-numeric value")
+                self._plan_status_lbl.setStyleSheet(
+                    "font-size: 9pt; color: #ff5252; font-weight: bold;"
+                )
+                return
+
+        if len(raw_values) != 6:
+            self._plan_status_lbl.setText("Invalid input — enter 6 values")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        if angular_unit == "deg":
+            positions_rad = [math.radians(v) for v in raw_values]
+        else:
+            positions_rad = raw_values
+
+        print(f"DEBUG unit: {angular_unit}")
+        print(f"DEBUG input: {raw_values}")
+        print(f"DEBUG positions_rad: {positions_rad}")
+        print(f"DEBUG execute: True")
+
+        if self._ros_node is None:
+            self._plan_status_lbl.setText("ROS node not running")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        self._ros_node.call_joint_execute(positions_rad)
+
+    @Slot()
+    def _on_fill_cart_clicked(self) -> None:
+        """Fill X,Y,Z from current tool0 TF transform."""
+        pose = getattr(self._ros_node, "_tf_pose_cache", None) if self._ros_node else None
+        if pose and pose.get("available"):
+            x_m = pose["tx"]
+            y_m = pose["ty"]
+            z_m = pose["tz"]
+            self._cart_x_input.setText(f"{x_m * 1000.0:.3f}")
+            self._cart_y_input.setText(f"{y_m * 1000.0:.3f}")
+            self._cart_z_input.setText(f"{z_m * 1000.0:.3f}")
+        else:
+            self._cart_status_lbl.setText("TF tool0 not available")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+
+    def _read_cartesian_inputs(self) -> Tuple[bool, float, float, float, str]:
+        """Read and validate cartesian XYZ inputs. Returns (ok, x_m, y_m, z_m, frame_id)."""
+        try:
+            x_mm = float(self._cart_x_input.text().strip())
+            y_mm = float(self._cart_y_input.text().strip())
+            z_mm = float(self._cart_z_input.text().strip())
+        except ValueError:
+            return False, 0.0, 0.0, 0.0, ""
+        x_m = x_mm / 1000.0
+        y_m = y_mm / 1000.0
+        z_m = z_mm / 1000.0
+        frame_id = self._cart_frame_input.text().strip() or "base_link"
+        return True, x_m, y_m, z_m, frame_id
+
+    @Slot()
+    def _on_cart_plan_clicked(self) -> None:
+        """Plan cartesian target (execute=False on service)."""
+        ok, x_m, y_m, z_m, frame_id = self._read_cartesian_inputs()
+        if not ok:
+            self._cart_status_lbl.setText("Invalid input — enter X, Y, Z in mm")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        roll = CartesianBridge.FIXED_ROLL
+        pitch = CartesianBridge.FIXED_PITCH
+        yaw = CartesianBridge.FIXED_YAW
+        qx, qy, qz, qw = rpy_to_quaternion(roll, pitch, yaw)
+
+        x_mm = x_m * 1000.0
+        y_mm = y_m * 1000.0
+        z_mm = z_m * 1000.0
+        print(f"DEBUG Cartesian input mm: {x_mm:.3f} {y_mm:.3f} {z_mm:.3f}")
+        print(f"DEBUG Cartesian m: {x_m:.6f} {y_m:.6f} {z_m:.6f}")
+        print(f"DEBUG fixed rpy: {roll:.6f} {pitch:.6f} {yaw:.6f}")
+        print(f"DEBUG quaternion: {qx:.6f} {qy:.6f} {qz:.6f} {qw:.6f}")
+        print(f"DEBUG execute: False")
+
+        if self._ros_node is None:
+            self._cart_status_lbl.setText("ROS node not running")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        self._ros_node.call_cartesian_plan(x_m, y_m, z_m, frame_id)
+
+    @Slot()
+    def _on_cart_execute_clicked(self) -> None:
+        """Execute cartesian target (execute=True on service)."""
+        if self._mode == "real" and not self._cart_safety_chk.isChecked():
+            self._cart_status_lbl.setText("Safety checkbox required for real mode")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        ok, x_m, y_m, z_m, frame_id = self._read_cartesian_inputs()
+        if not ok:
+            self._cart_status_lbl.setText("Invalid input — enter X, Y, Z in mm")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        roll = CartesianBridge.FIXED_ROLL
+        pitch = CartesianBridge.FIXED_PITCH
+        yaw = CartesianBridge.FIXED_YAW
+        qx, qy, qz, qw = rpy_to_quaternion(roll, pitch, yaw)
+
+        x_mm = x_m * 1000.0
+        y_mm = y_m * 1000.0
+        z_mm = z_m * 1000.0
+        print(f"DEBUG Cartesian input mm: {x_mm:.3f} {y_mm:.3f} {z_mm:.3f}")
+        print(f"DEBUG Cartesian m: {x_m:.6f} {y_m:.6f} {z_m:.6f}")
+        print(f"DEBUG fixed rpy: {roll:.6f} {pitch:.6f} {yaw:.6f}")
+        print(f"DEBUG quaternion: {qx:.6f} {qy:.6f} {qz:.6f} {qw:.6f}")
+        print(f"DEBUG execute: True")
+
+        if self._ros_node is None:
+            self._cart_status_lbl.setText("ROS node not running")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        self._ros_node.call_cartesian_execute(x_m, y_m, z_m, frame_id)
+
+    @Slot()
+    def _on_cart_planning_started(self) -> None:
+        self._cart_status_lbl.setText("Planning...")
+        self._cart_status_lbl.setStyleSheet(
+            "font-size: 9pt; color: #ff9800; font-weight: bold;"
+        )
+
+    @Slot(bool, str)
+    def _on_cart_planning_finished(self, success: bool, message: str) -> None:
+        if success:
+            self._cart_status_lbl.setText(f"Plan success — {message}")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #00e676; font-weight: bold;"
+            )
+        else:
+            self._cart_status_lbl.setText(f"Plan failed — {message}")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+
+    @Slot(bool)
+    def _on_cart_btn_enabled(self, enabled: bool) -> None:
+        self._cart_plan_btn.setEnabled(enabled)
+
+    @Slot(int)
+    def _on_joint_safety_changed(self, state: int) -> None:
+        """Re-evaluate execute button when safety checkbox toggles."""
+        self._update_plan_button_enabled()
+
+    @Slot(int)
+    def _on_cart_safety_changed(self, state: int) -> None:
+        """Re-evaluate execute button when safety checkbox toggles."""
+        self._update_cart_button_enabled()
+
     # ── helpers ────────────────────────────────────────────────────────────
 
     def _update_status_visibility(self) -> None:
@@ -918,7 +1872,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
 def main(args=None):
     import argparse
-    parser = argparse.ArgumentParser(description="GP7 Robot GUI — Phase 1.6")
+    parser = argparse.ArgumentParser(description="GP7 Robot GUI — Phase 2.1: Joint Plan Only")
     parser.add_argument(
         "--mode", default="none", choices=["none", "sim", "real"],
         help="Initial selected mode (default: none)"
