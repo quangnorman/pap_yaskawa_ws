@@ -25,6 +25,7 @@ from typing import Dict, List, Optional, Tuple
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from ament_index_python.packages import get_package_share_directory
 
 from sensor_msgs.msg import JointState
@@ -35,10 +36,19 @@ try:
 except ImportError:
     HAS_CONTROLLER_STATE = False
 try:
-    from yaskawa_robot_controller_msgs.msg import RobotStatus
+    from industrial_msgs.msg import RobotStatus
     HAS_ROBOT_STATUS = True
+    print("[GUI] RobotStatus: industrial_msgs (BEST_EFFORT capable) — REAL MODE WILL WORK")
 except ImportError:
     HAS_ROBOT_STATUS = False
+    print("[GUI] RobotStatus: NOT AVAILABLE — industrial_msgs not installed, real robot_status subscription SKIPPED")
+
+# QoS profiles
+REAL_ROBOT_QOS = QoSProfile(
+    reliability=ReliabilityPolicy.BEST_EFFORT,
+    durability=DurabilityPolicy.VOLATILE,
+    depth=10,
+)
 
 from geometry_msgs.msg import TransformStamped
 try:
@@ -63,6 +73,25 @@ try:
     HAS_MOVE_CARTESIAN_TARGET = True
 except ImportError:
     HAS_MOVE_CARTESIAN_TARGET = False
+
+
+# Topic type reference (verify with: ros2 topic type /topic_name)
+# /robot1/joint_states       -> sensor_msgs/msg/JointState          (sensor_msgs)
+# /robot1/robot_status       -> yaskawa_robot_controller_msgs/msg/RobotStatus (moto_ros2_interface)
+# /arm_controller/state     -> control_msgs/msg/JointTrajectoryControllerState  (control_msgs)
+# /task_executor/planned_tool_path -> nav_msgs/msg/Path               (nav_msgs)
+#
+# To check actual types on your system:
+#   ros2 topic type /robot1/joint_states
+#   ros2 topic type /robot1/robot_status
+#   ros2 topic type /arm_controller/state
+#   ros2 topic type /task_executor/planned_tool_path
+
+# Joint name mapping: maps actual names from /robot1/joint_states to canonical names.
+# If the real robot publishes "joint_s", "joint_t", etc. instead of "joint_1", "joint_6",
+# add them here. Keys = names from the message, Values = canonical names expected by GUI.
+# Leave empty {} if the robot already uses "joint_1".."joint_6".
+JOINT_NAME_MAP: Dict[str, str] = {}
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -397,9 +426,10 @@ class GP7RosNode(Node):
 
         self._signals = RosSignals()
 
-        self._js_stale = False
-        self._cs_stale = False
-        self._rs_stale = False
+        # All stale at start — indicators will go green only when first message arrives
+        self._js_stale = True
+        self._cs_stale = True
+        self._rs_stale = True
 
         # TF2 — lookup base_link → tool0
         if HAS_TF2:
@@ -436,40 +466,59 @@ class GP7RosNode(Node):
         """Unsubscribe / resubscribe based on the new mode."""
         self._teardown_subscriptions()
         cfg = self._config[mode]
-        self._setup_subscriptions(cfg)
+        self._setup_subscriptions(cfg, mode)
 
-    def _setup_subscriptions(self, cfg: Dict) -> None:
-        self.get_logger().info(f"[gp7_gui] Setting up subscriptions for mode: {cfg}")
+    def _setup_subscriptions(self, cfg: Dict, mode: str) -> None:
+        self.get_logger().info(f"[gp7_gui] Setting up subscriptions for mode={mode} cfg={cfg}")
+        is_real = (mode == "real")
 
         js_topic = cfg.get("joint_states_topic", "")
         if js_topic:
+            qos = REAL_ROBOT_QOS if is_real else 10
+            print(f"[GUI] _setup_subscriptions: creating joint_states subscription to topic='{js_topic}' is_real={is_real} qos={qos}")
             self._js_sub = self.create_subscription(
-                JointState, js_topic, self._on_joint_states, 10
+                JointState, js_topic, self._on_joint_states, qos
             )
+            print(f"[GUI] _setup_subscriptions: joint_states sub={self._js_sub} topic='{js_topic}'")
+            if is_real:
+                print(f"[GUI] real joint_states QoS = BEST_EFFORT")
 
         if cfg.get("controller_state_topic") and HAS_CONTROLLER_STATE:
+            cs_topic = cfg["controller_state_topic"]
+            print(f"[GUI] _setup_subscriptions: creating controller_state subscription to topic='{cs_topic}'")
             self._cs_sub = self.create_subscription(
                 JointTrajectoryControllerState,
-                cfg["controller_state_topic"],
+                cs_topic,
                 self._on_controller_state, 10,
             )
+            print(f"[GUI] _setup_subscriptions: controller_state sub={self._cs_sub} topic='{cs_topic}'")
 
         if cfg.get("robot_status_topic") and HAS_ROBOT_STATUS:
+            rs_topic = cfg["robot_status_topic"]
+            qos = REAL_ROBOT_QOS if is_real else 10
+            print(f"[GUI] _setup_subscriptions: creating robot_status subscription to topic='{rs_topic}' is_real={is_real} qos={qos}")
             self._rs_sub = self.create_subscription(
                 RobotStatus,
-                cfg["robot_status_topic"],
-                self._on_robot_status, 10,
+                rs_topic,
+                self._on_robot_status, qos,
             )
+            print(f"[GUI] _setup_subscriptions: robot_status sub={self._rs_sub} topic='{rs_topic}'")
+            if is_real:
+                print(f"[GUI] real robot_status QoS = BEST_EFFORT")
 
         pp_topic = cfg.get("planned_path_topic", "")
         if pp_topic:
+            qos = REAL_ROBOT_QOS if is_real else 10
+            print(f"[GUI] _setup_subscriptions: creating planned_path subscription to topic='{pp_topic}' is_real={is_real} qos={qos}")
             self._pp_sub = self.create_subscription(
-                Path, pp_topic, self._on_planned_path, 10
+                Path, pp_topic, self._on_planned_path, qos
             )
+            print(f"[GUI] _setup_subscriptions: planned_path sub={self._pp_sub} topic='{pp_topic}'")
 
-        self._js_stale = False
-        self._cs_stale = False
-        self._rs_stale = False
+        # Reset to True so indicators go gray until first message arrives
+        self._js_stale = True
+        self._cs_stale = True
+        self._rs_stale = True
 
     def _teardown_subscriptions(self) -> None:
         if self._js_sub:
@@ -488,50 +537,56 @@ class GP7RosNode(Node):
     # ── subscription callbacks ──────────────────────────────────────────────
 
     def _on_joint_states(self, msg: JointState) -> None:
+        print(f"[CALLBACK] joint_states received name={msg.name} position={msg.position}")
         self._js_stale = False
-        self._signals.joints_updated.emit(
-            dict(zip(msg.name, msg.position)) if msg.position else {}
-        )
+        self._signals.topic_status_updated.emit("joint_states", True)
+        if not msg.name or not msg.position:
+            return
+        # Map actual names to canonical names using JOINT_NAME_MAP
+        joints = {}
+        for name, pos in zip(msg.name, msg.position):
+            canonical = JOINT_NAME_MAP.get(name, name)
+            joints[canonical] = pos
+        print(f"[CALLBACK] joint_states mapped joints={joints}")
+        self._signals.joints_updated.emit(joints)
 
     def _on_controller_state(self, msg: JointTrajectoryControllerState) -> None:
         self._cs_stale = False
+        self._signals.topic_status_updated.emit("controller_state", True)
         actual = list(msg.actual.positions) if msg.actual.positions else []
         error = list(msg.error.positions) if msg.error.positions else []
         self._signals.controller_state_updated.emit(actual, error)
 
-    def _on_robot_status(self, msg: object) -> None:
-        self._cs_stale = False
+    def _on_robot_status(self, msg: RobotStatus) -> None:
+        print(f"[CALLBACK] robot_status received msg={msg}")
         self._rs_stale = False
+        self._signals.topic_status_updated.emit("robot_status", True)
+        # industrial_msgs.TriState.val: 1=TRUE, 0=FALSE, -1=UNKNOWN
         self._signals.robot_status_updated.emit({
-            "drives_powered": getattr(msg, "drives_powered", False),
-            "motion_possible": getattr(msg, "motion_possible", False),
-            "in_motion": getattr(msg, "in_motion", False),
-            "in_error": getattr(msg, "in_error", False),
+            "drives_powered": msg.drives_powered.val == 1,
+            "motion_possible": msg.motion_possible.val == 1,
+            "in_motion": msg.in_motion.val == 1,
+            "in_error": msg.in_error.val == 1,
         })
 
     def _on_planned_path(self, msg: Path) -> None:
+        print(f"[CALLBACK] planned_path received poses={len(msg.poses)}")
         self._signals.planned_path_updated.emit(len(msg.poses))
 
     # ── stale monitoring ───────────────────────────────────────────────────
 
     def _check_js_stale(self) -> None:
+        # Only emit when the state CHANGES to stale (message stopped arriving)
         if self._js_stale and self._js_sub:
             self._signals.topic_status_updated.emit("joint_states", False)
-        else:
-            self._signals.topic_status_updated.emit("joint_states", True)
-        self._js_stale = True
 
     def _check_cs_stale(self) -> None:
-        topic = "controller_state" if self._cs_sub else None
-        if topic:
-            self._signals.topic_status_updated.emit(topic, not self._cs_stale)
-            self._cs_stale = True
+        if self._cs_stale and self._cs_sub:
+            self._signals.topic_status_updated.emit("controller_state", False)
 
     def _check_rs_stale(self) -> None:
-        topic = "robot_status" if self._rs_sub else None
-        if topic:
-            self._signals.topic_status_updated.emit(topic, not self._rs_stale)
-            self._rs_stale = True
+        if self._rs_stale and self._rs_sub:
+            self._signals.topic_status_updated.emit("robot_status", False)
 
     # ── TF polling ────────────────────────────────────────────────────────
 
@@ -698,6 +753,16 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         )
         self._stop_btn.clicked.connect(self._on_stop_clicked)
         layout.addWidget(self._stop_btn)
+
+        layout.addSpacing(16)
+
+        self._refresh_topics_btn = QtWidgets.QPushButton("Refresh topics")
+        self._refresh_topics_btn.setStyleSheet(
+            "background: #1565c0; color: white; font-weight: bold; "
+            "border-radius: 4px; padding: 6px 16px;"
+        )
+        self._refresh_topics_btn.clicked.connect(self._on_refresh_topics_clicked)
+        layout.addWidget(self._refresh_topics_btn)
 
         layout.addSpacing(16)
 
@@ -1174,33 +1239,43 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._update_topic_labels()
 
         def ros_spin():
-            rclpy.init()
-            node = GP7RosNode(self._config)
-            self._ros_node = node
-            node._signals.joints_updated.connect(self._on_joints_updated)
-            node._signals.controller_state_updated.connect(self._on_controller_state_updated)
-            node._signals.robot_status_updated.connect(self._on_robot_status_updated)
-            node._signals.planned_path_updated.connect(self._on_planned_path_updated)
-            node._signals.topic_status_updated.connect(self._on_topic_status_updated)
-            node._signals.tf_pose_updated.connect(self._on_tf_pose_updated)
-            # Connect joint plan signals
-            plan_signals = node.get_joint_plan_signals()
-            if plan_signals:
-                plan_signals.planning_started.connect(self._on_planning_started)
-                plan_signals.planning_finished.connect(self._on_planning_finished)
-                plan_signals.button_enabled_changed.connect(self._on_plan_btn_enabled)
-            # Connect cartesian plan signals
-            cart_signals = node.get_cartesian_signals()
-            if cart_signals:
-                cart_signals.planning_started.connect(self._on_cart_planning_started)
-                cart_signals.planning_finished.connect(self._on_cart_planning_finished)
-                cart_signals.button_enabled_changed.connect(self._on_cart_btn_enabled)
             try:
+                print("[SPIN] ROS spin thread started")
+                rclpy.init()
+                node = GP7RosNode(self._config)
+                self._ros_node = node
+                node._signals.joints_updated.connect(self._on_joints_updated)
+                node._signals.controller_state_updated.connect(self._on_controller_state_updated)
+                node._signals.robot_status_updated.connect(self._on_robot_status_updated)
+                node._signals.planned_path_updated.connect(self._on_planned_path_updated)
+                node._signals.topic_status_updated.connect(self._on_topic_status_updated)
+                node._signals.tf_pose_updated.connect(self._on_tf_pose_updated)
+                print("[SIGNAL] signal connections configured")
+                # Connect joint plan signals
+                plan_signals = node.get_joint_plan_signals()
+                if plan_signals:
+                    plan_signals.planning_started.connect(self._on_planning_started)
+                    plan_signals.planning_finished.connect(self._on_planning_finished)
+                    plan_signals.button_enabled_changed.connect(self._on_plan_btn_enabled)
+                # Connect cartesian plan signals
+                cart_signals = node.get_cartesian_signals()
+                if cart_signals:
+                    cart_signals.planning_started.connect(self._on_cart_planning_started)
+                    cart_signals.planning_finished.connect(self._on_cart_planning_finished)
+                    cart_signals.button_enabled_changed.connect(self._on_cart_buttons_enabled)
+                print("[SPIN] ROS node spinning...")
+                spin_count = 0
                 while rclpy.ok():
                     rclpy.spin_once(node, timeout_sec=0.05)
-            finally:
-                node.destroy_node()
-                rclpy.shutdown()
+                    spin_count += 1
+                    if spin_count % 20 == 0:
+                        print(f"[SPIN] ROS node spinning... spin_count={spin_count}")
+                print(f"[SPIN] ROS spin loop ended (spin_count={spin_count})")
+            except Exception as exc:
+                print(f"[SPIN][ERROR] ROS spin thread crashed: {exc}")
+                import traceback
+                traceback.print_exc()
+                self._ros_node = None
 
         self._ros_thread = threading.Thread(target=ros_spin, daemon=True)
         self._ros_thread.start()
@@ -1260,6 +1335,15 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         # Launch fires in _on_stop_complete after stop finishes
 
     @Slot()
+    def _on_refresh_topics_clicked(self) -> None:
+        """Reconfigure subscriptions for the current running mode."""
+        if self._ros_node and self._running_mode != "none":
+            print(f"[GUI] Refresh topics: re-subscribing for mode={self._running_mode}")
+            self._ros_node.switch_mode(self._running_mode)
+        else:
+            print("[GUI] Refresh topics: no active mode, nothing to refresh")
+
+    @Slot()
     def _on_stop_clicked(self) -> None:
         """Stop the current system — stop runs asynchronously."""
         self._stop_reason = "manual"
@@ -1310,6 +1394,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
             self._launch_state_lbl.setStyleSheet(
                 "font-size: 10pt; font-weight: bold; color: #888;"
             )
+            self._tf_status_lbl.setText("TF inactive: mode none")
             self._start_btn.setEnabled(True)
             self._stop_btn.setEnabled(False)
             self._plan_btn.setEnabled(False)
@@ -1332,6 +1417,11 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._cart_safety_chk.setVisible(mode == "real")
         self._joint_safety_chk.setChecked(False)
         self._cart_safety_chk.setChecked(False)
+        self._tf_status_lbl.setText(
+            "TF unavailable: base_link -> tool0"
+            if mode in ("sim", "real")
+            else "TF inactive: mode none"
+        )
 
         self._launch_state_lbl.setText(f"System: {mode.upper()} launching...")
         self._launch_state_lbl.setStyleSheet(
@@ -1341,10 +1431,20 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         self._stop_btn.setEnabled(True)
 
         # Configure ROS subscriptions for this mode
-        if self._ros_node:
-            self._ros_node.switch_mode(mode)
+        if self._ros_node is None:
+            print("[GUI] ERROR: ROS node is not running — cannot switch mode")
+            self._launch_state_lbl.setText("System: ERROR — ROS node not running")
+            self._launch_state_lbl.setStyleSheet(
+                "font-size: 10pt; font-weight: bold; color: #ff5252;"
+            )
+            self._start_btn.setEnabled(True)
+            self._stop_btn.setEnabled(False)
+            return
+        self._ros_node.switch_mode(mode)
         self._update_status_visibility()
         self._update_topic_labels()
+        self._update_plan_button_enabled()
+        self._update_cart_button_enabled()
         print(f"[GUI] ROS subscriptions configured for {mode}.")
 
         # Launch the external bringup
@@ -1443,6 +1543,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
     @Slot(dict)
     def _on_joints_updated(self, joints: Dict[str, float]) -> None:
+        print(f"[UI] updating joints {joints}")
         self._raw_joints = joints
         self._refresh_joint_display()
 
@@ -1457,6 +1558,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
     @Slot(list, list)
     def _on_controller_state_updated(self, actual: list, error: list) -> None:
+        print(f"[UI] updating controller_state actual={actual[:3] if actual else []} error={error[:3] if error else []}")
         factor = 180.0 / math.pi if self._unit == "deg" else 1.0
         for i, name in enumerate(self.JOINT_NAMES):
             if i < len(actual):
@@ -1466,6 +1568,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
     @Slot(dict)
     def _on_robot_status_updated(self, status: Dict) -> None:
+        print(f"[UI] updating robot_status {status}")
         for field, cell in self._rs_cells.items():
             val = status.get(field, False)
             cell.setText("ON" if val else "OFF")
@@ -1478,10 +1581,12 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
     @Slot(int)
     def _on_planned_path_updated(self, num_poses: int) -> None:
+        print(f"[UI] updating planned_path num_poses={num_poses}")
         self._path_label.setText(f"Planned path: {num_poses} pose(s)")
 
     @Slot(str, bool)
     def _on_topic_status_updated(self, topic: str, alive: bool) -> None:
+        print(f"[UI] updating topic_status topic={topic} alive={alive}")
         key_map = {
             "joint_states": "js_topic",
             "controller_state": "cs_topic",
@@ -1499,6 +1604,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
 
     @Slot(dict)
     def _on_tf_pose_updated(self, pose: Dict[str, float]) -> None:
+        print(f"[UI] updating tf_pose {pose}")
         if not pose.get("available", False):
             return  # Silently ignore — will show "TF not available" on next poll if still needed
         self._pose_cells["tx"].setText(f"{pose['tx']:.4f}")
@@ -1515,23 +1621,40 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     # ── Joint Plan slots ──────────────────────────────────────────────────
 
     def _update_plan_button_enabled(self) -> None:
-        """Enable joint plan buttons only when backend is running and mode is not none."""
-        plan_enabled = self._mode != "none" and self._launch_manager.is_running
+        """Enable joint plan buttons only when backend is running and running_mode is not none."""
+        plan_enabled = self._running_mode in ("sim", "real") and self._launch_manager.is_running
         self._plan_btn.setEnabled(plan_enabled)
-        # Execute requires safety checkbox in real mode
-        exec_enabled = plan_enabled and self._mode == "sim"
-        if self._mode == "real" and self._joint_safety_chk.isChecked():
+        if self._running_mode == "sim":
             exec_enabled = plan_enabled
+        elif self._running_mode == "real":
+            exec_enabled = plan_enabled and self._joint_safety_chk.isChecked()
+        else:
+            exec_enabled = False
         self._execute_btn.setEnabled(exec_enabled)
+        print(
+            f"[BTN] _update_plan_button_enabled: "
+            f"running_mode={self._running_mode} is_running={self._launch_manager.is_running} "
+            f"safety_checked={self._joint_safety_chk.isChecked()} "
+            f"plan_enabled={plan_enabled} exec_enabled={exec_enabled}"
+        )
 
     def _update_cart_button_enabled(self) -> None:
-        """Enable cartesian buttons only when backend is running and mode is not none."""
-        plan_enabled = self._mode != "none" and self._launch_manager.is_running
+        """Enable cartesian buttons only when backend is running and running_mode is not none."""
+        plan_enabled = self._running_mode in ("sim", "real") and self._launch_manager.is_running
         self._cart_plan_btn.setEnabled(plan_enabled)
-        exec_enabled = plan_enabled and self._mode == "sim"
-        if self._mode == "real" and self._cart_safety_chk.isChecked():
+        if self._running_mode == "sim":
             exec_enabled = plan_enabled
+        elif self._running_mode == "real":
+            exec_enabled = plan_enabled and self._cart_safety_chk.isChecked()
+        else:
+            exec_enabled = False
         self._cart_execute_btn.setEnabled(exec_enabled)
+        print(
+            f"[BTN] _update_cart_button_enabled: "
+            f"running_mode={self._running_mode} is_running={self._launch_manager.is_running} "
+            f"safety_checked={self._cart_safety_chk.isChecked()} "
+            f"plan_enabled={plan_enabled} exec_enabled={exec_enabled}"
+        )
 
     @Slot()
     def _on_fill_joints_clicked(self) -> None:
@@ -1618,6 +1741,7 @@ class GP7MainWindow(QtWidgets.QMainWindow):
             self._plan_status_lbl.setStyleSheet(
                 "font-size: 9pt; color: #ff5252; font-weight: bold;"
             )
+        self._update_plan_button_enabled()
 
     @Slot(bool)
     def _on_plan_btn_enabled(self, enabled: bool) -> None:
@@ -1627,12 +1751,26 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     @Slot()
     def _on_execute_clicked(self) -> None:
         """Execute joint target (execute=True on service)."""
-        if self._mode == "real" and not self._joint_safety_chk.isChecked():
+        print(
+            f"[EXEC] _on_execute_clicked: "
+            f"running_mode={self._running_mode} "
+            f"safety_checked={self._joint_safety_chk.isChecked()} "
+            f"execute=True"
+        )
+        if self._running_mode == "real" and not self._joint_safety_chk.isChecked():
             self._plan_status_lbl.setText("Safety checkbox required for real mode")
             self._plan_status_lbl.setStyleSheet(
                 "font-size: 9pt; color: #ff5252; font-weight: bold;"
             )
             return
+
+        if self._ros_node is None:
+            self._plan_status_lbl.setText("ROS node not running")
+            self._plan_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
         angular_unit = self._unit
         raw_values: List[float] = []
         for le in self._target_inputs:
@@ -1664,19 +1802,20 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         else:
             positions_rad = raw_values
 
-        print(f"DEBUG unit: {angular_unit}")
-        print(f"DEBUG input: {raw_values}")
-        print(f"DEBUG positions_rad: {positions_rad}")
-        print(f"DEBUG execute: True")
-
-        if self._ros_node is None:
-            self._plan_status_lbl.setText("ROS node not running")
-            self._plan_status_lbl.setStyleSheet(
-                "font-size: 9pt; color: #ff5252; font-weight: bold;"
-            )
-            return
+        print(f"[EXEC] unit={angular_unit} input={raw_values} positions_rad={positions_rad}")
+        bridge = self._ros_node._joint_plan_bridge
+        if bridge and bridge._client:
+            svc = bridge.SERVICE_NAME
+            if not bridge._client.wait_for_service(timeout_sec=2.0):
+                self._plan_status_lbl.setText(f"Service {svc} not available")
+                self._plan_status_lbl.setStyleSheet(
+                    "font-size: 9pt; color: #ff5252; font-weight: bold;"
+                )
+                return
+            print(f"[EXEC] service={svc} ready, calling execute=True")
 
         self._ros_node.call_joint_execute(positions_rad)
+        self._update_plan_button_enabled()
 
     @Slot()
     def _on_fill_cart_clicked(self) -> None:
@@ -1712,6 +1851,11 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     @Slot()
     def _on_cart_plan_clicked(self) -> None:
         """Plan cartesian target (execute=False on service)."""
+        print("[GUI] Cartesian plan clicked")
+        print(f"[GUI] running_mode: {self._running_mode}")
+        print(f"[GUI] launch_state: {'running' if self._launch_manager.is_running else 'stopped'}")
+        print(f"[GUI] execute: False")
+
         ok, x_m, y_m, z_m, frame_id = self._read_cartesian_inputs()
         if not ok:
             self._cart_status_lbl.setText("Invalid input — enter X, Y, Z in mm")
@@ -1732,7 +1876,6 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         print(f"DEBUG Cartesian m: {x_m:.6f} {y_m:.6f} {z_m:.6f}")
         print(f"DEBUG fixed rpy: {roll:.6f} {pitch:.6f} {yaw:.6f}")
         print(f"DEBUG quaternion: {qx:.6f} {qy:.6f} {qz:.6f} {qw:.6f}")
-        print(f"DEBUG execute: False")
 
         if self._ros_node is None:
             self._cart_status_lbl.setText("ROS node not running")
@@ -1746,8 +1889,21 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     @Slot()
     def _on_cart_execute_clicked(self) -> None:
         """Execute cartesian target (execute=True on service)."""
-        if self._mode == "real" and not self._cart_safety_chk.isChecked():
+        print(
+            f"[EXEC] _on_cart_execute_clicked: "
+            f"running_mode={self._running_mode} "
+            f"safety_checked={self._cart_safety_chk.isChecked()} "
+            f"execute=True"
+        )
+        if self._running_mode == "real" and not self._cart_safety_chk.isChecked():
             self._cart_status_lbl.setText("Safety checkbox required for real mode")
+            self._cart_status_lbl.setStyleSheet(
+                "font-size: 9pt; color: #ff5252; font-weight: bold;"
+            )
+            return
+
+        if self._ros_node is None:
+            self._cart_status_lbl.setText("ROS node not running")
             self._cart_status_lbl.setStyleSheet(
                 "font-size: 9pt; color: #ff5252; font-weight: bold;"
             )
@@ -1766,30 +1922,30 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         yaw = CartesianBridge.FIXED_YAW
         qx, qy, qz, qw = rpy_to_quaternion(roll, pitch, yaw)
 
-        x_mm = x_m * 1000.0
-        y_mm = y_m * 1000.0
-        z_mm = z_m * 1000.0
-        print(f"DEBUG Cartesian input mm: {x_mm:.3f} {y_mm:.3f} {z_mm:.3f}")
-        print(f"DEBUG Cartesian m: {x_m:.6f} {y_m:.6f} {z_m:.6f}")
-        print(f"DEBUG fixed rpy: {roll:.6f} {pitch:.6f} {yaw:.6f}")
-        print(f"DEBUG quaternion: {qx:.6f} {qy:.6f} {qz:.6f} {qw:.6f}")
-        print(f"DEBUG execute: True")
+        print(f"[EXEC] Cartesian: x_m={x_m:.6f} y_m={y_m:.6f} z_m={z_m:.6f} frame={frame_id}")
+        print(f"[EXEC] Cartesian: rpy=({roll:.6f},{pitch:.6f},{yaw:.6f}) q=({qx:.6f},{qy:.6f},{qz:.6f},{qw:.6f})")
 
-        if self._ros_node is None:
-            self._cart_status_lbl.setText("ROS node not running")
-            self._cart_status_lbl.setStyleSheet(
-                "font-size: 9pt; color: #ff5252; font-weight: bold;"
-            )
-            return
+        bridge = self._ros_node._cartesian_bridge
+        if bridge and bridge._client:
+            svc = bridge.SERVICE_NAME
+            if not bridge._client.wait_for_service(timeout_sec=2.0):
+                self._cart_status_lbl.setText(f"Service {svc} not available")
+                self._cart_status_lbl.setStyleSheet(
+                    "font-size: 9pt; color: #ff5252; font-weight: bold;"
+                )
+                return
+            print(f"[EXEC] service={svc} ready, calling execute=True")
 
         self._ros_node.call_cartesian_execute(x_m, y_m, z_m, frame_id)
+        self._update_cart_button_enabled()
 
     @Slot()
     def _on_cart_planning_started(self) -> None:
-        self._cart_status_lbl.setText("Planning...")
-        self._cart_status_lbl.setStyleSheet(
-            "font-size: 9pt; color: #ff9800; font-weight: bold;"
-        )
+        """Called when cartesian planning service call starts."""
+        self._cart_status_lbl.setText("Cartesian planning...")
+        self._cart_status_lbl.setStyleSheet("font-size: 9pt; color: #ff9800;")
+        self._cart_plan_btn.setEnabled(False)
+        self._cart_execute_btn.setEnabled(False)
 
     @Slot(bool, str)
     def _on_cart_planning_finished(self, success: bool, message: str) -> None:
@@ -1803,10 +1959,12 @@ class GP7MainWindow(QtWidgets.QMainWindow):
             self._cart_status_lbl.setStyleSheet(
                 "font-size: 9pt; color: #ff5252; font-weight: bold;"
             )
+        self._update_cart_button_enabled()
 
     @Slot(bool)
-    def _on_cart_btn_enabled(self, enabled: bool) -> None:
-        self._cart_plan_btn.setEnabled(enabled)
+    def _on_cart_buttons_enabled(self, enabled: bool) -> None:
+        """Re-evaluate cartesian button states after a service call completes."""
+        self._update_cart_button_enabled()
 
     @Slot(int)
     def _on_joint_safety_changed(self, state: int) -> None:
@@ -1821,15 +1979,15 @@ class GP7MainWindow(QtWidgets.QMainWindow):
     # ── helpers ────────────────────────────────────────────────────────────
 
     def _update_status_visibility(self) -> None:
-        if self._mode == "none":
+        if self._running_mode == "none":
             self._status_stack.setCurrentIndex(-1)  # hide
-        elif self._mode == "sim":
+        elif self._running_mode == "sim":
             self._status_stack.setCurrentIndex(0)
         else:
             self._status_stack.setCurrentIndex(1)
 
     def _update_topic_labels(self) -> None:
-        cfg = self._config.get(self._mode, self._config.get("none", {}))
+        cfg = self._config.get(self._running_mode, self._config.get("none", {}))
         self._topic_labels["js_topic"].setText(cfg.get("joint_states_topic") or "—")
         self._topic_labels["rs_topic"].setText(cfg.get("robot_status_topic") or "—")
         self._topic_labels["cs_topic"].setText(cfg.get("controller_state_topic") or "—")
@@ -1857,12 +2015,36 @@ class GP7MainWindow(QtWidgets.QMainWindow):
         for cell in self._pose_cells.values():
             cell.setText("—")
         self._path_label.setText("Planned path: — pose(s)")
-        self._tf_status_lbl.setText("TF inactive: mode none")
+        self._tf_status_lbl.setText(
+            "TF unavailable: base_link -> tool0"
+            if self._running_mode in ("sim", "real")
+            else "TF inactive: mode none"
+        )
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self._launch_manager.stop(timeout=3.0)
-        if self._ros_node:
-            self._ros_node.get_logger().info("[gp7_gui] Shutting down...")
+        # Capture and null out _ros_node so no new calls can start
+        node = self._ros_node
+        self._ros_node = None
+        # Signal rclpy context shutdown so spin thread exits its loop naturally
+        try:
+            rclpy.shutdown()
+            print("[GUI] rclpy.shutdown() called")
+        except Exception:
+            pass
+        # Wait for the spin thread to finish (it exits after rclpy.ok() returns False)
+        if self._ros_thread is not None and self._ros_thread.is_alive():
+            print("[GUI] waiting for ROS spin thread to finish...")
+            self._ros_thread.join(timeout=5.0)
+            if self._ros_thread.is_alive():
+                print("[GUI] WARNING: ROS spin thread did not exit cleanly")
+        # Now safe to destroy the node (spin thread is done)
+        if node is not None:
+            try:
+                node.destroy_node()
+                print("[GUI] ROS node destroyed on close")
+            except Exception as exc:
+                print(f"[GUI] Error destroying ROS node: {exc}")
         event.accept()
 
 

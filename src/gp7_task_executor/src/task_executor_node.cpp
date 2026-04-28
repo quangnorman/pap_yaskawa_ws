@@ -530,14 +530,90 @@ private:
         : "Failed to " + std::string(execute ? "plan/execute" : "plan") + " named pose target '" + target_name + "'";
   }
 
+  // ── shared cartesian planning helper ───────────────────────────────────────
+  // Both direct and named Cartesian services call this.  It is the single
+  // source of truth for how a Cartesian target is planned, executed, and
+  // visualised.  No logic may diverge here — any difference between the two
+  // callers must be eliminated at the call-site (handle_*) before invoking
+  // this helper.
+  //
+  // Both response types (MoveToCartesianTarget and MoveToNamedCartesianTarget)
+  // share the same fields: { bool success, string message, float64 fraction }.
+
+  template<typename ResT>
+  void _plan_cartesian_to_pose(
+      ResT* response,
+      const geometry_msgs::msg::Pose& target_pose,
+      const std::string& source_frame_id,
+      bool execute,
+      const char* service_name)
+  {
+    RCLCPP_INFO(get_logger(), "======================================================");
+    RCLCPP_INFO(get_logger(), "[%s] CARTESIAN PLANNING", service_name);
+    RCLCPP_INFO(get_logger(), "  target frame_id : '%s'", source_frame_id.c_str());
+    RCLCPP_INFO(get_logger(), "  target xyz      : (%.4f, %.4f, %.4f)",
+                target_pose.position.x, target_pose.position.y, target_pose.position.z);
+    RCLCPP_INFO(get_logger(), "  target quat    : (%.6f, %.6f, %.6f, %.6f)",
+                target_pose.orientation.x, target_pose.orientation.y,
+                target_pose.orientation.z, target_pose.orientation.w);
+    RCLCPP_INFO(get_logger(), "  execute        : %s", execute ? "true" : "false");
+    RCLCPP_INFO(get_logger(), "  planning method: computeCartesianPath");
+    RCLCPP_INFO(get_logger(), "  eef_step       : %.4f m",
+                gp7_task_executor::PlannerUtils::DEFAULT_EEF_STEP);
+    RCLCPP_INFO(get_logger(), "  jump_threshold  : %.4f",
+                gp7_task_executor::PlannerUtils::DEFAULT_JUMP_THRESHOLD);
+    RCLCPP_INFO(get_logger(), "  waypoint count : 1  (start state = current pose)");
+    RCLCPP_INFO(get_logger(), "======================================================");
+
+    auto result = planner_->plan_cartesian_from_poses(
+        {target_pose},
+        gp7_task_executor::PlannerUtils::DEFAULT_EEF_STEP,
+        gp7_task_executor::PlannerUtils::DEFAULT_JUMP_THRESHOLD,
+        service_name);
+
+    response->fraction = planner_->last_cartesian_fraction();
+
+    if (!result.success)
+    {
+      response->success = false;
+      response->message = "Cartesian path failed or fraction < 0.95 (fraction=" +
+                         std::to_string(response->fraction) + ")";
+      RCLCPP_ERROR(get_logger(), "[%s] %s", service_name, response->message.c_str());
+      return;
+    }
+
+    viz_->publish_plan_visualization(result.trajectory, service_name);
+
+    if (execute)
+    {
+      const bool exec_ok = planner_->execute_trajectory(result.trajectory);
+      response->success = exec_ok;
+      response->message = exec_ok
+          ? (std::string(service_name) + " executed successfully (fraction=" +
+             std::to_string(response->fraction) + ")")
+          : (std::string(service_name) + " planned but execution failed (fraction=" +
+             std::to_string(response->fraction) + ")");
+    }
+    else
+    {
+      response->success = true;
+      response->message = std::string(service_name) +
+                         " planned successfully (fraction=" +
+                         std::to_string(response->fraction) + "), plan-only";
+    }
+  }
+
+  // ── service callbacks ──────────────────────────────────────────────────────
+
   void handle_cartesian_target(
       const std::shared_ptr<gp7_task_executor_msgs::srv::MoveToCartesianTarget::Request>& request,
       const std::shared_ptr<gp7_task_executor_msgs::srv::MoveToCartesianTarget::Response>& response)
   {
+    // Initialise shared response pointer for the helper
     const double x = request->x;
     const double y = request->y;
     const double z = request->z;
-    const auto& frame_id = request->frame_id;
+    const std::string& frame_id = request->frame_id;
     const bool execute = request->execute;
 
     RCLCPP_INFO(get_logger(),
@@ -553,18 +629,26 @@ private:
       return;
     }
 
+    // Build target pose with fixed orientation (pi, 0, 0) — identical to what
+    // the waypoint loader applies to YAML cartesian_points.
     geometry_msgs::msg::Pose target_pose;
     target_pose.position.x = x;
     target_pose.position.y = y;
     target_pose.position.z = z;
     target_pose.orientation = planner_->cartesian_quat();
 
-    const std::string task_frame = base_frame_;
+    RCLCPP_INFO(get_logger(),
+                "[DIRECT] orientation source: planner_->cartesian_quat() "
+                "(fixed rpy=(pi,0,0))  quat=(%.6f, %.6f, %.6f, %.6f)",
+                target_pose.orientation.x, target_pose.orientation.y,
+                target_pose.orientation.z, target_pose.orientation.w);
 
+    // Transform to task frame if needed — same policy as named cartesian.
+    const std::string task_frame = base_frame_;
     if (frame_id != task_frame)
     {
       RCLCPP_INFO(get_logger(),
-                  "/move_to_cartesian_target: transforming from '%s' to '%s'",
+                  "[DIRECT] frame_id='%s' != task_frame='%s' — transforming via TF",
                   frame_id.c_str(), task_frame.c_str());
       geometry_msgs::msg::PoseStamped pose_in;
       pose_in.header.stamp = get_clock()->now();
@@ -575,57 +659,39 @@ private:
       {
         const auto transformed = transform_->transform_to_planning_frame(pose_in, task_frame);
         target_pose = transformed.pose;
+        RCLCPP_INFO(get_logger(),
+                    "[DIRECT] TF result: xyz=(%.4f, %.4f, %.4f) in '%s'  "
+                    "quat=(%.6f, %.6f, %.6f, %.6f)",
+                    target_pose.position.x, target_pose.position.y, target_pose.position.z,
+                    task_frame.c_str(),
+                    target_pose.orientation.x, target_pose.orientation.y,
+                    target_pose.orientation.z, target_pose.orientation.w);
       }
       catch (const tf2::TransformException& ex)
       {
         response->success = false;
         response->message = "TF transform failed: " + std::string(ex.what());
         response->fraction = 0.0;
-        RCLCPP_ERROR(get_logger(), "%s", response->message.c_str());
+        RCLCPP_ERROR(get_logger(), "[DIRECT] %s", response->message.c_str());
         return;
       }
     }
-
-    auto result = planner_->plan_cartesian_from_poses(
-        {target_pose},
-        gp7_task_executor::PlannerUtils::DEFAULT_EEF_STEP,
-        gp7_task_executor::PlannerUtils::DEFAULT_JUMP_THRESHOLD,
-        "/move_to_cartesian_target");
-
-    response->fraction = planner_->last_cartesian_fraction();
-
-    if (!result.success)
-    {
-      response->success = false;
-      response->message = "Cartesian path computation failed or fraction < 0.95 (fraction=" +
-                         std::to_string(response->fraction) + ")";
-      RCLCPP_ERROR(get_logger(), "%s", response->message.c_str());
-      return;
-    }
-
-    viz_->publish_plan_visualization(result.trajectory, "/move_to_cartesian_target");
-
-    if (execute)
-    {
-      const bool exec_ok = planner_->execute_trajectory(result.trajectory);
-      response->success = exec_ok;
-      response->message = exec_ok
-          ? "Cartesian target executed successfully (fraction=" + std::to_string(response->fraction) + ")"
-          : "Cartesian path computed but execution failed (fraction=" + std::to_string(response->fraction) + ")";
-    }
     else
     {
-      response->success = true;
-      response->message = "Cartesian path planned successfully (fraction=" +
-                         std::to_string(response->fraction) + "), plan-only";
+      RCLCPP_INFO(get_logger(),
+                  "[DIRECT] frame_id='%s' == task_frame — no TF needed",
+                  frame_id.c_str());
     }
+
+    _plan_cartesian_to_pose(response.get(), target_pose, frame_id, execute, "/move_to_cartesian_target");
   }
 
   void handle_named_cartesian_target(
       const std::shared_ptr<gp7_task_executor_msgs::srv::MoveToNamedCartesianTarget::Request>& request,
       const std::shared_ptr<gp7_task_executor_msgs::srv::MoveToNamedCartesianTarget::Response>& response)
   {
-    const auto& target_name = request->target_name;
+    // Initialise shared response pointer for the helper
+    const std::string& target_name = request->target_name;
     const bool execute = request->execute;
 
     RCLCPP_INFO(get_logger(), "/move_to_named_cartesian_target: '%s' execute=%d",
@@ -650,38 +716,30 @@ private:
       return;
     }
 
-    auto result = planner_->plan_cartesian_named_sequence(
-        {target_name});
+    const auto* stored_pose = waypoint_loader_->get_cartesian_point(target_name);
+    RCLCPP_INFO(get_logger(),
+                "[NAMED] '%s' from YAML: frame_id='%s'  "
+                "xyz=(%.4f, %.4f, %.4f)  "
+                "quat=(%.6f, %.6f, %.6f, %.6f)",
+                target_name.c_str(),
+                stored_pose->header.frame_id.c_str(),
+                stored_pose->pose.position.x,
+                stored_pose->pose.position.y,
+                stored_pose->pose.position.z,
+                stored_pose->pose.orientation.x,
+                stored_pose->pose.orientation.y,
+                stored_pose->pose.orientation.z,
+                stored_pose->pose.orientation.w);
+    RCLCPP_INFO(get_logger(),
+                "[NAMED] NOTE: YAML poses are assumed to already be in base_link. "
+                "No TF transform is applied.  "
+                "Verify stored_pose->header.frame_id matches base_frame_='%s'.",
+                base_frame_.c_str());
 
-    response->fraction = planner_->last_cartesian_fraction();
-
-    if (!result.success)
-    {
-      response->success = false;
-      response->message = "Cartesian path failed or fraction < 0.95 (fraction=" +
-                         std::to_string(response->fraction) + ")";
-      RCLCPP_ERROR(get_logger(), "%s", response->message.c_str());
-      return;
-    }
-
-    viz_->publish_plan_visualization(result.trajectory, "/move_to_named_cartesian_target");
-
-    if (execute)
-    {
-      const bool exec_ok = planner_->execute_trajectory(result.trajectory);
-      response->success = exec_ok;
-      response->message = exec_ok
-          ? "Named Cartesian target '" + target_name + "' executed (fraction=" +
-            std::to_string(response->fraction) + ")"
-          : "Cartesian path computed but execution failed (fraction=" +
-            std::to_string(response->fraction) + ")";
-    }
-    else
-    {
-      response->success = true;
-      response->message = "Named Cartesian target '" + target_name +
-                          "' planned (fraction=" + std::to_string(response->fraction) + "), plan-only";
-    }
+    // Pass through the stored pose directly — same way the YAML loader returned it.
+    // The waypoint loader already applied cartesian_quat_ (fixed pi,0,0) to it.
+    _plan_cartesian_to_pose(response.get(), stored_pose->pose, stored_pose->header.frame_id,
+                            execute, "/move_to_named_cartesian_target");
   }
 
   void handle_cartesian_sequence(

@@ -27,6 +27,21 @@ void PlannerUtils::init(
   max_velocity_scaling_ = max_velocity_scaling;
   max_acceleration_scaling_ = max_acceleration_scaling;
   task_frame_ = task_frame;
+
+  // Fixed orientation for Cartesian moves: roll=pi (tool pointing downward), pitch=0, yaw=0
+  tf2::Quaternion q;
+  q.setRPY(M_PI, 0.0, 0.0);
+  q.normalize();
+  cartesian_quat_.x = q.x();
+  cartesian_quat_.y = q.y();
+  cartesian_quat_.z = q.z();
+  cartesian_quat_.w = q.w();
+
+  RCLCPP_INFO(logger(),
+              "[Planner] Cartesian fixed orientation: roll=pi, pitch=0, yaw=0  "
+              "quat=(%.6f, %.6f, %.6f, %.6f)",
+              cartesian_quat_.x, cartesian_quat_.y,
+              cartesian_quat_.z, cartesian_quat_.w);
 }
 
 void PlannerUtils::set_task_frame(const std::string& frame)
@@ -291,7 +306,7 @@ PlanResult PlannerUtils::plan_cartesian_named_sequence(
     return result;
   }
 
-  RCLCPP_INFO(logger(), "[Cartesian] Named sequence: %zu waypoints  (task_frame='%s')",
+  RCLCPP_INFO(logger(), "[NAMED] Named sequence: %zu waypoints  (task_frame='%s')",
                waypoint_names.size(), task_frame_.c_str());
 
   std::vector<geometry_msgs::msg::Pose> waypoints;
@@ -302,7 +317,7 @@ PlanResult PlannerUtils::plan_cartesian_named_sequence(
     const auto* stored_pose = waypoint_loader_->get_cartesian_point(waypoint_names[i]);
     if (!stored_pose)
     {
-      RCLCPP_ERROR(logger(), "[Cartesian] Unknown cartesian point: '%s'",
+      RCLCPP_ERROR(logger(), "[NAMED] Unknown cartesian point: '%s'",
                    waypoint_names[i].c_str());
       return result;
     }
@@ -312,7 +327,7 @@ PlanResult PlannerUtils::plan_cartesian_named_sequence(
     if (stored_pose->header.frame_id != task_frame_)
     {
       RCLCPP_WARN(logger(),
-                  "[Cartesian] Waypoint '%s' frame_id='%s' != task_frame='%s' — "
+                  "[NAMED] Waypoint '%s' frame_id='%s' != task_frame='%s' — "
                   "YAML poses must already be in '%s'.  Skipping transform.",
                   waypoint_names[i].c_str(),
                   stored_pose->header.frame_id.c_str(),
@@ -323,31 +338,41 @@ PlanResult PlannerUtils::plan_cartesian_named_sequence(
 
     waypoints.push_back(waypoint_pose);
 
-    RCLCPP_INFO(logger(), "[Cartesian]   [%zu] '%s' xyz (frame='%s'): (%.4f, %.4f, %.4f)",
+    RCLCPP_INFO(logger(), "[NAMED]   [%zu] '%s' xyz (frame='%s'): (%.4f, %.4f, %.4f)  "
+                 "quat=(%.6f, %.6f, %.6f, %.6f)",
                  i, waypoint_names[i].c_str(), task_frame_.c_str(),
                  waypoint_pose.position.x,
                  waypoint_pose.position.y,
-                 waypoint_pose.position.z);
+                 waypoint_pose.position.z,
+                 waypoint_pose.orientation.x,
+                 waypoint_pose.orientation.y,
+                 waypoint_pose.orientation.z,
+                 waypoint_pose.orientation.w);
   }
 
-  RCLCPP_INFO(logger(), "[Cartesian] Total waypoints: %zu  (computeCartesianPath starts from current state).",
+  RCLCPP_INFO(logger(), "[NAMED] Total waypoints: %zu  (computeCartesianPath starts from current state).",
                waypoints.size());
 
   move_group_->setStartStateToCurrentState();
   move_group_->setPoseReferenceFrame(task_frame_);
 
   const geometry_msgs::msg::Pose current_eef = move_group_->getCurrentPose().pose;
-  RCLCPP_INFO(logger(), "[Cartesian] Current eef xyz (frame='%s'): (%.4f, %.4f, %.4f)",
+  RCLCPP_INFO(logger(), "[NAMED] Current eef xyz (frame='%s'): (%.4f, %.4f, %.4f)  "
+               "quat=(%.6f, %.6f, %.6f, %.6f)",
                task_frame_.c_str(),
                current_eef.position.x,
                current_eef.position.y,
-               current_eef.position.z);
+               current_eef.position.z,
+               current_eef.orientation.x,
+               current_eef.orientation.y,
+               current_eef.orientation.z,
+               current_eef.orientation.w);
 
   last_cartesian_fraction_ = move_group_->computeCartesianPath(
       waypoints, DEFAULT_EEF_STEP, DEFAULT_JUMP_THRESHOLD, result.trajectory,
       /*avoid_collisions=*/true, nullptr);
 
-  RCLCPP_INFO(logger(), "[Cartesian] computeCartesianPath fraction=%.6f  trajectory_points=%lu",
+  RCLCPP_INFO(logger(), "[NAMED] computeCartesianPath fraction=%.6f  trajectory_points=%lu",
                last_cartesian_fraction_,
                result.trajectory.joint_trajectory.points.size());
 

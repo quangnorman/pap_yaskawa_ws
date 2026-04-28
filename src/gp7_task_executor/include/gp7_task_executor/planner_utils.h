@@ -9,6 +9,7 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "moveit_msgs/msg/robot_trajectory.hpp"
+#include "tf2/LinearMath/Quaternion.h"
 
 namespace gp7_task_executor
 {
@@ -46,6 +47,7 @@ public:
 
   geometry_msgs::msg::Quaternion cartesian_quat() const { return cartesian_quat_; }
   double last_cartesian_fraction() const { return last_cartesian_fraction_; }
+  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> get_move_group() const { return move_group_; }
 
   PlanResult plan_joint_target(
       const std::string& target_name,
